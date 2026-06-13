@@ -1,0 +1,8 @@
+title: Dyck Skeleton Tableau Formulas
+slug: dyck_skeleton_tableau_formulas
+status_summary: Classical tableau formulas are proved in the 2026 preprint; r == 1 mod s analogues need review.
+source_paths:
+  - ../Dyck/paper/working_drafts/arxiv_submission.tex
+  - ../Dyck/code/codex_project/red_team_theorem_5_30_formula.py
+downloads:
+  - explanation.tex

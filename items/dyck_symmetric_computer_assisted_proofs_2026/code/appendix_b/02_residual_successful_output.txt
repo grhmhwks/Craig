@@ -1,0 +1,20 @@
+EverythingOkay = True
+up counts   {'up skeleton': 42, 'up East3': 152,
+             'up special': 2, 'up East5 case 2b': 4}
+down counts {'down skeleton': 42, 'down West3': 152,
+             'down special': 2, 'down West5 case 2b': 4}
+n=4
+  up:   {'up skeleton': 1, 'up East3': 2}
+  down: {'down skeleton': 1, 'down West3': 2}
+n=5
+  up:   {'up skeleton': 4, 'up East3': 9}
+  down: {'down skeleton': 4, 'down West3': 9}
+n=6
+  up:   {'up skeleton': 11, 'up special': 1, 'up East3': 32}
+  down: {'down special': 1, 'down skeleton': 11, 'down West3': 32}
+n=7
+  up:   {'up skeleton': 26, 'up special': 1,
+         'up East3': 109, 'up East5 case 2b': 4}
+  down: {'down skeleton': 26, 'down special': 1,
+         'down West3': 109, 'down West5 case 2b': 4}
+No East7 or West7 branch was reached for 4 <= n <= 7.

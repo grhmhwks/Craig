@@ -1,0 +1,10 @@
+title: Dyck Skeleton String Decompositions
+slug: dyck_skeleton_string_decompositions
+status_summary: Classical skeleton strings are proved in the 2026 preprint in the low-deficit range; r == 1 mod s strings are conjectural; NRCM material is not human verified.
+source_paths:
+  - ../Dyck/paper/working_drafts/arxiv_submission.tex
+  - ../Dyck/code/codex_project/red_team_up_string_decomposition.py
+  - ../Dyck/code/codex_project/red_team_rational_skeleton_string_formula.py
+  - ../Dyck/paper/research_notes/naive_rational_cyclic_map_thm.tex
+downloads:
+  - explanation.tex

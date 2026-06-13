@@ -1,0 +1,9 @@
+title: Dyck Symmetric Computer-Assisted Proofs 2026
+slug: dyck_symmetric_computer_assisted_proofs_2026
+status_summary: Appendix code and explanatory material for the finite computations used in the 2026 Dyck symmetric functions preprint.
+source_paths:
+  - ../Dyck/paper/working_drafts/draft_v3_sections/appendix_a_code.tex
+  - ../Dyck/paper/working_drafts/draft_v3_sections/appendix_b_local_proofs.tex
+  - ../Dyck/paper/working_drafts/draft_v3_sections/appendix_b_lemma_525.tex
+downloads:
+  - explanation.tex

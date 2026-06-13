@@ -1,0 +1,10 @@
+title: Type C Grothendieck
+slug: type_c_grothendieck
+status_summary: Conjectural type C Grothendieck material, with basic, strong, and peakset-preserving variants.
+source_paths:
+  - ../Conjectures-and-Computations/c-grothendieck/c-grothendieck.py
+  - ../Conjectures-and-Computations/c-grothendieck/c-grothendieck-strong.py
+  - ../Conjectures-and-Computations/c-grothendieck/c-grothendieck-strongest.py
+  - ../Conjectures-and-Computations/c-grothendieck/c-grothendieck-note.tex
+downloads:
+  - explanation.tex

@@ -1,0 +1,8 @@
+title: qt-Catalan Middle Coefficients
+slug: qt_catalan_middle_coefficients
+status_summary: Classical low-deficit case is proved in the 2026 preprint; r == 1 mod s and broader rational patterns are conjectural or experimental.
+source_paths:
+  - ../Dyck/paper/working_drafts/arxiv_submission.tex
+  - ../Dyck/code/codex_project/red_team_flat_middle_coefficients.py
+downloads:
+  - explanation.tex
