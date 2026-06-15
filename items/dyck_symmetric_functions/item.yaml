@@ -1,6 +1,6 @@
 title: Dyck Symmetric Functions
 slug: dyck_symmetric_functions
-status_summary: Classical Dyck symmetric functions are proved in the 2026 preprint; the r == 1 mod s analogue needs review.
+status_summary: Classical Dyck symmetric functions are proved in the 2026 preprint; the r == 1 mod s analogue is conjectural with systematic finite checks.
 source_paths:
   - ../Dyck/paper/working_drafts/arxiv_submission.tex
   - ../Dyck/paper/research_notes/rational_generalizations.tex

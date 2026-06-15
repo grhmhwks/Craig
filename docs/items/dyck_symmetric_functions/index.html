@@ -14,12 +14,13 @@
 <article class="item-page">
   <header class="page-heading">
     <h1>Dyck Symmetric Functions</h1>
-    <p>Classical Dyck symmetric functions are proved in the 2026 preprint; the r == 1 mod s analogue needs review.</p>
+    <p>Classical Dyck symmetric functions are proved in the 2026 preprint; the r == 1 mod s analogue is conjectural with systematic finite checks.</p>
   </header>
 
   <section>
     <h2>Files</h2>
     <ul>
+<li><a href="explanation.pdf">View PDF</a></li>
 <li><a href="explanation.tex">Download LaTeX</a></li>
 <li><a href="code/">View code</a></li>
     </ul>
@@ -27,7 +28,335 @@
 
   <section>
     <h2>Educational Content</h2>
-<p>This educational section will introduce Dyck symmetric functions and distinguish the classical theory from the r == 1 mod s analogue.</p>
+<style>
+  .dsf-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .dsf-panel {
+    border: 1px solid #d7dde5;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
+  .dsf-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+  .dsf-toolbar button,
+  .dsf-toolbar select {
+    border: 1px solid #a9b4c2;
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 0.45rem 0.65rem;
+    font: inherit;
+  }
+  .dsf-toolbar button:disabled {
+    color: #8a94a3;
+    background: #eef1f5;
+  }
+  .dsf-tableau {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+    min-height: 9rem;
+    padding: 0.75rem;
+    border: 1px solid #e4e8ee;
+    background: #fbfcfe;
+  }
+  .dsf-row {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+  }
+  .dsf-row-label {
+    width: 4.25rem;
+    color: #586272;
+    font-size: 0.85rem;
+  }
+  .dsf-cell {
+    min-width: 2.1rem;
+    height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #8694a6;
+    background: #ffffff;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+  .dsf-active .dsf-cell {
+    border-color: #1b6ca8;
+    background: #eef7ff;
+  }
+  .dsf-insert .dsf-cell {
+    border-color: #986b12;
+    background: #fff7e6;
+  }
+  .dsf-evicted .dsf-cell {
+    border-color: #7b3f98;
+    background: #f8efff;
+  }
+  .dsf-log {
+    min-height: 8rem;
+    max-height: 14rem;
+    overflow: auto;
+    padding: 0.75rem;
+    background: #101820;
+    color: #e7edf3;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.86rem;
+    white-space: pre-wrap;
+  }
+  .dsf-example-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .dsf-example {
+    border-left: 4px solid #1b6ca8;
+    padding: 0.65rem 0.75rem;
+    background: #f8fafc;
+  }
+  .dsf-kv {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: 0.2rem 0.65rem;
+    font-size: 0.92rem;
+  }
+  @media (max-width: 780px) {
+    .dsf-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="dsf-grid">
+  <div class="dsf-panel">
+    <h2>Insertion Walkthrough</h2>
+    <p>
+      The classical dual theorem is proved by inserting dual Dyck rows through
+      a tableau.  Choose an example and step through the same row insertion
+      logic used by the code.
+    </p>
+    <div class="dsf-toolbar">
+      <select id="dsf-example"></select>
+      <button id="dsf-reset" type="button">Reset</button>
+      <button id="dsf-row-step" type="button">Apply row step</button>
+      <button id="dsf-next-row" type="button">Move to next row</button>
+    </div>
+    <div id="dsf-tableau" class="dsf-tableau" aria-live="polite"></div>
+    <div class="dsf-toolbar">
+      <div id="dsf-carry" class="dsf-row dsf-insert"></div>
+      <div id="dsf-evicted" class="dsf-row dsf-evicted"></div>
+    </div>
+    <div id="dsf-log" class="dsf-log"></div>
+  </div>
+
+  <div class="dsf-panel">
+    <h2>Rational Examples</h2>
+    <p>
+      For \(r=s t+1\), the Schur-positive identities are conjectural for
+      \(t&gt;1\).  The included checker verifies the following finite cases.
+    </p>
+    <div class="dsf-example-list">
+      <div class="dsf-example">
+        <strong>Step \(t=2\)</strong>
+        <div class="dsf-kv">
+          <span>Multiset</span><span>{1,2,2,3,3,4,5,7}</span>
+          <span>Target dinv</span><span>17</span>
+          <span>Tableaux</span><span>94</span>
+          <span>Shapes</span><span>(2,2,1,1,1,1), (2,1,1,1,1,1,1), (1^8)</span>
+          <span>Phenomenon</span><span>large affine side; ordinary-shape dual side vanishes in three variables because all shapes have more than three rows.</span>
+        </div>
+      </div>
+      <div class="dsf-example">
+        <strong>Step \(t=3\)</strong>
+        <div class="dsf-kv">
+          <span>Multiset</span><span>{0,0,0,4}</span>
+          <span>Target dinv</span><span>9</span>
+          <span>Tableaux</span><span>2</span>
+          <span>Shapes</span><span>(2,1,1), (1,1,1,1)</span>
+          <span>Phenomenon</span><span>both affine and dual Schur comparisons are nonzero in three variables.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const examples = [
+    {
+      name: "Single bump and append",
+      tableau: [[0, 3, 6]],
+      inserted: [1, 4],
+      note: "Shows replacement followed by a terminal append."
+    },
+    {
+      name: "Two-row propagation",
+      tableau: [[0, 4], [1, 5]],
+      inserted: [2, 6],
+      note: "An evicted row is carried upward into the next row."
+    },
+    {
+      name: "Chain comparison",
+      tableau: [[0, 2, 4], [1, 4, 7]],
+      inserted: [1, 3, 5],
+      note: "Shows a maximal +2-chain interaction."
+    }
+  ];
+
+  const select = document.getElementById("dsf-example");
+  const resetButton = document.getElementById("dsf-reset");
+  const rowStepButton = document.getElementById("dsf-row-step");
+  const nextRowButton = document.getElementById("dsf-next-row");
+  const tableauNode = document.getElementById("dsf-tableau");
+  const carryNode = document.getElementById("dsf-carry");
+  const evictedNode = document.getElementById("dsf-evicted");
+  const logNode = document.getElementById("dsf-log");
+
+  let state;
+
+  examples.forEach((example, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = example.name;
+    select.appendChild(option);
+  });
+
+  function cloneRows(rows) {
+    return rows.map(row => row.slice());
+  }
+
+  function chainStartingAt(seq, index) {
+    let stop = index + 1;
+    while (stop < seq.length && seq[stop] === seq[stop - 1] + 2) stop += 1;
+    return seq.slice(index, stop);
+  }
+
+  function rowsertOne(row, carry) {
+    const first = carry[0];
+    let index = row.findIndex(value => first <= value + 1);
+    if (index === -1) {
+      row.push(first);
+      carry.shift();
+      return { caseName: "Case 0", message: `${first} appends to the row.` };
+    }
+    if (first <= row[index]) {
+      const old = row[index];
+      row[index] = first;
+      carry.shift();
+      return { caseName: "Case 1", evicted: [old], message: `${first} replaces ${old}.` };
+    }
+    const rowChain = chainStartingAt(row, index);
+    const carryChain = chainStartingAt(carry, 0);
+    if (rowChain.length <= carryChain.length) {
+      const inserted = carry.splice(0, rowChain.length);
+      const evicted = row.splice(index, rowChain.length, ...inserted);
+      return {
+        caseName: "Case 2",
+        evicted,
+        message: `The input chain [${inserted.join(", ")}] replaces row chain [${evicted.join(", ")}].`
+      };
+    }
+    const moved = carry.splice(0, carryChain.length);
+    return {
+      caseName: "Case 3",
+      evicted: moved,
+      message: `The shorter input chain [${moved.join(", ")}] passes upward.`
+    };
+  }
+
+  function renderRow(label, values, className) {
+    const row = document.createElement("div");
+    row.className = `dsf-row ${className || ""}`;
+    const labelNode = document.createElement("span");
+    labelNode.className = "dsf-row-label";
+    labelNode.textContent = label;
+    row.appendChild(labelNode);
+    values.forEach(value => {
+      const cell = document.createElement("span");
+      cell.className = "dsf-cell";
+      cell.textContent = String(value);
+      row.appendChild(cell);
+    });
+    if (!values.length) {
+      const empty = document.createElement("span");
+      empty.textContent = "empty";
+      empty.style.color = "#6b7280";
+      row.appendChild(empty);
+    }
+    return row;
+  }
+
+  function render() {
+    tableauNode.innerHTML = "";
+    state.rows.forEach((row, index) => {
+      const active = index === state.rowIndex && state.carry.length ? "dsf-active" : "";
+      tableauNode.appendChild(renderRow(`row ${index}`, row, active));
+    });
+    carryNode.innerHTML = "";
+    carryNode.appendChild(renderRow("carry", state.carry, "dsf-insert"));
+    evictedNode.innerHTML = "";
+    evictedNode.appendChild(renderRow("evicted", state.evicted, "dsf-evicted"));
+    logNode.textContent = state.log.join("\n");
+    rowStepButton.disabled = !(state.carry.length && state.rowIndex >= 0);
+    nextRowButton.disabled = state.carry.length || state.rowIndex < 0 || !state.evicted.length;
+  }
+
+  function reset() {
+    const example = examples[Number(select.value)];
+    state = {
+      rows: cloneRows(example.tableau),
+      carry: example.inserted.slice(),
+      rowIndex: example.tableau.length - 1,
+      evicted: [],
+      log: [`Example: ${example.name}`, example.note, `Initial inserted row: [${example.inserted.join(", ")}]`]
+    };
+    render();
+  }
+
+  rowStepButton.addEventListener("click", () => {
+    if (!state.carry.length || state.rowIndex < 0) return;
+    const result = rowsertOne(state.rows[state.rowIndex], state.carry);
+    const chunk = result.evicted || [];
+    state.evicted.push(...chunk);
+    state.log.push(`row ${state.rowIndex}: ${result.caseName}. ${result.message}`);
+    if (!state.carry.length) {
+      if (state.evicted.length) {
+        state.log.push(`row ${state.rowIndex}: row complete; evicted row [${state.evicted.join(", ")}] is ready to move upward.`);
+      } else {
+        state.log.push(`row ${state.rowIndex}: insertion stops in this row.`);
+      }
+    }
+    render();
+  });
+
+  nextRowButton.addEventListener("click", () => {
+    state.rowIndex -= 1;
+    if (state.rowIndex < 0 && state.evicted.length) {
+      state.rows.unshift(state.evicted.slice());
+      state.rowIndex = -1;
+      state.log.push(`A new bottom row [${state.evicted.join(", ")}] is created.`);
+      state.evicted = [];
+    } else if (state.rowIndex >= 0) {
+      state.carry = state.evicted.slice();
+      state.evicted = [];
+      state.log.push(`Move to row ${state.rowIndex}.`);
+    }
+    render();
+  });
+
+  select.addEventListener("change", reset);
+  resetButton.addEventListener("click", reset);
+  reset();
+})();
+</script>
 
   </section>
 </article>
