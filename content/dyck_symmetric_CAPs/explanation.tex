@@ -1,0 +1,379 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\upmap}{\operatorname{up}}
+\newcommand{\downmap}{\operatorname{down}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\West}{\operatorname{West}}
+
+\newtheorem{remark}{Remark}
+
+\title{Computer-Assisted Well-Definedness Checks for Dyck Skeleton Strings}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{What the computation proves}
+
+This note explains the computer-assisted part of the skeleton-string argument
+in Hawkes's 2026 paper on Dyck symmetric functions and
+$q,t$-Catalan polynomials~\cite{Hawkes2026}.  The paper constructs two maps,
+$\upmap$ and $\downmap$, on ordinary Dyck sequences.  In the range
+\[
+  \defc\leq 2n-8,
+\]
+these maps move one step along a fixed-deficit string:
+\[
+  \area(\upmap(D))=\area(D)+1,
+  \qquad
+  \dinv(\upmap(D))=\dinv(D)-1,
+\]
+with the opposite changes for $\downmap$.
+
+The formulas defining the maps are explicit, but their well-definedness is not
+formal.  A requested extraction might fail to exist; a seven-entry local move
+might receive an input outside its domain; or a later reinsertion might have no
+legal insertion site.  Four local lemmas in the paper rule out these failures.
+The proofs combine symbolic counting with finite exhaustive computation.
+Those finite checks are not merely experiments: after the symbolic argument
+reduces the remaining obligations to bounded domains, the successful exhaustive
+runs close those parts of the proof.
+
+The code accompanying this note is the Appendix A and Appendix B Python from
+the paper, placed in one file with a small command-line dispatcher.  Thus a
+reader can reproduce the finite proof obligations without reconstructing the
+appendix execution environment.
+
+\section{Why a hybrid proof is needed}
+
+There is a useful conceptual way to understand the proof architecture.  Let
+$n'$ denote the largest size for which one could reasonably check all relevant
+Dyck sequences directly, and let $n^*$ denote a threshold beyond which the
+symbolic deficit-counting argument becomes easy and uniform.  These are
+heuristic labels rather than constants formally defined in the paper.  The
+problem is that one should expect
+\[
+  n'\ll n^*.
+\]
+A direct enumeration reaches only the genuinely small cases, while a purely
+symbolic proof becomes transparent only much later.  The interval
+\[
+  n'<n\leq n^*
+\]
+is therefore too large for naive enumeration and too delicate for a short
+uniform argument.
+
+The solution is not to push either method beyond its natural range.  Instead,
+the proof first derives structural restrictions on any possible failure.  A
+large Dyck prefix contributes many deficit pairs, so most long configurations
+are eliminated symbolically.  The few configurations that survive are encoded
+by short windows, bounded prefix maxima, words with few nonzero entries, or
+specific prefix forms.  Optimized programs then exhaust these reduced finite
+domains.  Schematically, the proof has the form
+\[
+  \text{symbolic reduction}
+  \; + \;
+  \text{targeted exhaustive verification}
+  \; = \;
+  \text{complete intermediate-range argument}.
+\]
+The phrase ``targeted exhaustive verification'' is important: the programs do
+not blindly enumerate all Dyck sequences in the difficult range.  The
+mathematics determines a much smaller set of exact obligations for them to
+check.
+
+\section{Dyck sequences and the local maps}
+
+An ordinary Dyck sequence of length $n$ is a sequence
+\[
+  D=(D_0,D_1,\ldots,D_{n-1})
+\]
+of nonnegative integers satisfying
+\[
+  D_0=0,
+  \qquad
+  D_{i+1}\leq D_i+1.
+\]
+Its statistics are
+\[
+  \area(D)=\sum_i D_i,
+\]
+\[
+  \dinv(D)
+  =\#\{(i,j):0\leq i<j<n,
+      \ D_i=D_j\text{ or }D_i=D_j+1\},
+\]
+and
+\[
+  \defc(D)=\binom n2-\area(D)-\dinv(D).
+\]
+The paper also gives a pair-count description of $\defc$: it counts certain
+``type A'' and ``type B'' pairs.  That description is the principal symbolic
+tool in Appendix B.  A hypothetical failure of one of the local algorithms is
+shown, whenever possible, to force more than $2n-8$ such pairs, contradicting
+the assumed deficit bound.
+
+The maps $\upmap$ and $\downmap$ are staged algorithms.  They first handle
+special and skeleton cases.  Otherwise they repeatedly remove the leftmost
+extractable entry, append a lowered version of each removed entry to a short
+suffix, apply one of the local maps
+\[
+  \East_3,\ \East_5,\ \East_7
+  \qquad\text{or}\qquad
+  \West_3,\ \West_5,\ \West_7,
+\]
+and finally reinsert shifted entries.  The West maps are the reversal
+conjugates of the East maps.  Three- and five-entry branches are comparatively
+local.  The seven-entry branch is the difficult boundary case, and its domain
+has to exclude a particular ``far-apart decomposable'' configuration.
+
+For fixed length $n$ and deficit $d$, put
+\[
+  M=\binom n2,
+  \qquad
+  \ell=\left\lfloor\frac{M-d}{2}\right\rfloor.
+\]
+The intended domain of $\upmap$ consists of sequences with area at most
+$\ell-1$; the intended domain of $\downmap$ consists of nonspecial sequences
+with area at most $\ell$.
+
+\section{The four local lemmas}
+
+In the current arXiv version, the proof-critical local statements are Lemmas
+5.24--5.27 of~\cite{Hawkes2026}.  Under the hypotheses
+\[
+  n\geq4,
+  \qquad d\leq2n-8,
+  \qquad \defc(D)=d,
+\]
+they assert the following.
+
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.75\linewidth}}
+\toprule
+Lemma & Proof obligation \\
+\midrule
+5.24 & The special skeleton branches of $\upmap$ and $\downmap$ return valid
+Dyck sequences; the down branch returns a full skeleton. \\
+5.25 & Every extraction requested by the staged algorithms exists, and the
+leftmost-extractable convention chooses it unambiguously. \\
+5.26 & A seven-entry window reaching $\East_7$ or $\West_7$ is never
+far-apart decomposable, so the final local map is applied inside its valid
+domain. \\
+5.27 & The extracted entries occur sufficiently far from the end of the
+current word, and all later injection steps succeed. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These lemmas feed directly into Propositions 5.29 and 5.30, which prove that
+$\upmap$ and $\downmap$ are well-defined in the required lower-half domains.
+Their roles are logically distinct: Lemma 5.24 handles the skeleton branches,
+Lemma 5.25 guarantees the staged extraction chain, Lemma 5.26 controls the
+last local window, and Lemma 5.27 guarantees that the reconstruction by
+injection can actually be performed.
+
+They also contribute to invertibility, though they are not the entire inverse
+proof.  Lemma 5.27 supplies positional information showing that carried suffix
+entries are not disturbed by earlier extractions.  The inverse argument also
+uses the extraction--injection inverse, the local East/West inverse theorem,
+and Lemma 5.23, which rules out premature termination at a smaller local
+window.  Together these ingredients yield Lemma 5.32:
+\[
+  \downmap(\upmap(D))=D,
+  \qquad
+  \upmap(\downmap(D))=D
+\]
+whenever the corresponding maps lie in their stated domains.
+
+The well-definedness and inverse results then give the string decomposition of
+Proposition 5.34.  Repeatedly applying $\downmap$ sends every lower-half Dyck
+sequence to a unique special skeleton, while repeated applications of
+$\upmap$ reconstruct its string.  Theorem 5.35 converts these strings, together
+with the known $q,t$-symmetry of the Catalan polynomial, into the low-deficit
+skeleton formula.  Thus the appendix checks sit several steps upstream of the
+final formula, but they are indispensable: without them, the maps organizing
+the strings would not yet be known to exist everywhere they are used.
+
+\section{How the finite checks divide the work}
+
+\subsection{The residual small range}
+
+The residual checker enumerates every Dyck sequence of lengths
+\[
+  4\leq n\leq7,
+\]
+retains the inputs satisfying the exact deficit and area hypotheses, and
+follows the branch prefix of $\upmap$ or $\downmap$.  One run simultaneously
+checks the small-range portions of all four local lemmas:
+
+\begin{itemize}
+\item the skeleton branches return valid words;
+\item every requested extraction exists;
+\item no retained input reaches a seven-window branch;
+\item every extraction position used before termination satisfies the
+      corresponding position bound.
+\end{itemize}
+
+A successful run prints
+\begin{verbatim}
+EverythingOkay = True
+No East7 or West7 branch was reached for 4 <= n <= 7.
+\end{verbatim}
+The branch totals also match the appendix transcript: 200 eligible up calls
+and 200 eligible down calls, distributed among the special, skeleton,
+three-window, and five-window cases.
+
+\subsection{The limited-nonzero check for Lemma 5.27}
+
+The first specialized checker for Lemma 5.27 considers every Dyck sequence
+with
+\[
+  4\leq n\leq13
+\]
+and at most seven nonzero entries, subject to the lemma's deficit and area
+hypotheses.  This enlarged domain automatically contains every Dyck sequence
+with $4\leq n\leq8$, since the initial entry is zero.  It also covers the
+finite middle range left by one of the later symbolic cases.
+
+For every eligible call, the program follows the actual $\upmap$ or
+$\downmap$ branch and verifies Dyck validity, preservation of length and
+deficit, the required change in area, and the extraction-position bounds.  The
+recorded successful run checks 11,879 up calls and 9,486 down calls and ends
+with
+\begin{verbatim}
+position-bound or image failures: 0
+status: PASS
+\end{verbatim}
+
+\subsection{The exceptional prefix forms for Lemma 5.27}
+
+The second Lemma 5.27 checker handles two structured prefix families that
+remain after the analytic argument.  It exhausts the finite range
+\[
+  9\leq n\leq16.
+\]
+For each generated word it verifies that either the deficit bound is already
+violated or the area inequality required by the putative counterexample is
+violated.  It also checks the exact enumeration counts used in the proof.  A
+successful run ends with
+\begin{verbatim}
+failures: 0
+status: PASS
+\end{verbatim}
+This is a separate finite obligation from the limited-nonzero check; the two
+programs cover different residual forms in the symbolic proof.
+
+\subsection{The seven-window check for Lemma 5.26}
+
+The seven-window argument is the clearest example of the hybrid method.  For
+$4\leq n\leq7$, the residual checker shows that the seven-window branch is
+never reached.  For $n\geq8$, Appendix B assumes that a forbidden
+far-apart-decomposable window exists and then uses deficit and area inequalities
+to reduce the problem.
+
+The reduction normalizes the local seven-entry patterns, separates the cases
+according to how many window entries exceed the prefix maximum, and derives
+threshold tables.  Above each threshold, a descent argument rules out a
+counterexample symbolically.  Below the threshold, only finitely many
+integer-valued gap expansions, prefix maxima, and $(n,m)$ combinations remain.
+The checker exhausts exactly those survivors.
+
+The run constructs 7,194 East windows and 7,194 West windows.  It verifies the
+expected threshold tables, the structural lower bound
+$\operatorname{id}_{\mathrm{mid}}\geq10$, and the four finite Case/Side
+searches.  The expected child and triple counts are
+\[
+\begin{array}{c|r|r}
+&\text{children}&\text{triples}\\
+\hline
+\text{Case 1 East}&2473&9919\\
+\text{Case 1 West}&2911&10311\\
+\text{Case 2 East}&3860&715\\
+\text{Case 2 West}&4827&1756
+\end{array}
+\]
+and every search reports zero problems.  The final line is
+\begin{verbatim}
+SUCCESS: East7/West7 seven-window verification passed.
+\end{verbatim}
+The program is therefore not enumerating all length-$n$ Dyck sequences.  It is
+checking the bounded local configurations that survive a substantial symbolic
+reduction.
+
+\section{Using \texttt{code.py}}
+
+The file \texttt{code.py} embeds the Appendix A core routines and the four
+Appendix B checker listings from the paper.  The only repository-specific
+addition is a dispatcher that executes a selected listing in a fresh shared
+namespace.  The available commands are
+\begin{verbatim}
+python code.py residual
+python code.py limited-nonzero
+python code.py prefix
+python code.py seven-window
+python code.py all
+\end{verbatim}
+The default is \texttt{all}.  On the machine used to prepare this note, the
+four checks together complete in a few seconds; runtimes vary by machine.
+
+The embedded paper listings can also be written back out as separate files:
+\begin{verbatim}
+python code.py all --extract appendix_listings
+\end{verbatim}
+This option is only a convenience for inspection.  It does not alter the code
+that is executed.
+
+The checkers require only the Python standard library.  They must be run with
+ordinary assertion checking enabled.  In particular, do not use
+\begin{verbatim}
+python -O code.py all
+\end{verbatim}
+because several assertions are part of the verification.  The dispatcher
+rejects optimized mode for this reason.
+
+\section{What the computation does not do}
+
+The successful runs do not independently prove the skeleton-string theorem.
+They assume the definitions, reductions, threshold inequalities, and domain
+translations established in the written argument.  Conversely, they should
+not be described as optional numerical evidence: on the bounded domains left
+by those reductions, the exhaustive checks are proof steps.
+
+The correct division of labor is therefore:
+\begin{itemize}
+\item the paper's symbolic reasoning proves that every possible failure lies
+      either in an analytically impossible family or in one of the encoded
+      finite domains;
+\item the code exhausts those finite domains and finds no failure;
+\item the local lemmas then establish well-definedness and supply part of the
+      control needed for invertibility;
+\item the well-defined inverse maps produce the lower-half string
+      decomposition used in the final $q,t$-Catalan formula.
+\end{itemize}
+If the definitions or symbolic reductions in the paper are changed, the
+correspondence between those arguments and the finite checker domains must be
+reviewed again.
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2026}
+Graham Hawkes,
+\emph{Dyck Symmetric Functions and Applications to $q,t$-Catalan Polynomials},
+arXiv:2605.13003, 2026.
+\url{https://arxiv.org/abs/2605.13003}
+
+\end{thebibliography}
+
+\end{document}

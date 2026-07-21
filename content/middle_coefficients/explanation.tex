@@ -1,0 +1,391 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\DeclareMathOperator{\area}{area}
+\DeclareMathOperator{\dinv}{dinv}
+\DeclareMathOperator{\defc}{defc}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+
+\title{Flat Middle Coefficients for $q,t$-Catalan Polynomials}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This note records a structural observation about the coefficients of
+\(q,t\)-Catalan polynomials and their rational analogues. As in the discussion
+of string decompositions, we consider three layers of generality: the classical
+Dyck case, the family \(r=\tau s+1\), and the general rational case. In the
+classical case, the observation follows from the proved low-deficit
+skeleton-string decomposition. In the \(r=\tau s+1\) family, it follows
+wherever the special-skeleton formula is accepted and the relevant skeleton
+area bound is verified. In the general rational case, we treat the phenomenon
+computationally by directly enumerating rational Dyck paths and checking the
+coefficient slices.
+
+The phenomenon is the following. Fix a total degree \(M\).  In a fixed deficit
+layer \(d\), the monomials have the form
+\[
+  q^j t^{M-d-j}.
+\]
+The middle interval of this layer is
+\[
+  d\le j\le M-2d.
+\]
+The flat-middle assertion says that the coefficient of
+\(q^j t^{M-d-j}\) is independent of \(j\) throughout this interval.  The
+interval is nonempty exactly when \(3d\le M\).  When it is nonempty, it is the
+part of the deficit layer left after discarding the first \(d\) possible
+area-slices and the last \(d\) possible area-slices.
+
+\section{Why string decompositions imply flat middle coefficients}
+
+The useful mechanism is elementary.  Suppose a deficit-\(d\) layer is described
+by strings.  A root object \(R\) of area \(a\) contributes the interval
+\[
+  q^a t^{M-d-a},\quad
+  q^{a+1}t^{M-d-a-1},\quad\ldots,\quad
+  q^{M-d-a}t^a.
+\]
+Equivalently, it contributes one copy of every monomial
+\[
+  q^j t^{M-d-j}
+  \qquad(a\le j\le M-d-a).
+\]
+Thus a single root contributes to every middle slice
+\(d\le j\le M-2d\) as soon as
+\[
+  a\le d.
+\]
+This gives the basic criterion.
+
+\begin{proposition}[Root-area criterion]
+Let a deficit-\(d\) layer of total degree \(M-d\) be expressed as a disjoint
+sum of interval strings indexed by roots \(R\).  If every root satisfies
+\[
+  \area(R)\le d,
+\]
+then the coefficients of \(q^j t^{M-d-j}\) are constant for
+\[
+  d\le j\le M-2d.
+\]
+The common value is the number of roots in deficit \(d\).
+\end{proposition}
+
+\begin{proof}
+A root \(R\) of area \(a\) contributes to the slice \(j\) exactly when
+\[
+  a\le j\le M-d-a.
+\]
+If \(a\le d\) and \(d\le j\le M-2d\), then the left inequality is immediate,
+and the right inequality follows from
+\[
+  j\le M-2d\le M-d-a.
+\]
+So every root contributes exactly once to every middle slice.  Since the
+strings are disjoint, the common coefficient is the number of roots.
+\end{proof}
+
+The rest of the note explains how this criterion is used in the three settings
+considered here.
+
+\section{Classical Dyck paths}
+
+An ordinary Dyck sequence of length \(n\) is a sequence
+\[
+  x=(x_0,\ldots,x_{n-1})
+\]
+with
+\[
+  x_0=0,\qquad x_i\ge0,\qquad x_{i+1}\le x_i+1.
+\]
+Its area and dinv statistics are
+\[
+  \area(x)=\sum_i x_i
+\]
+and
+\[
+  \dinv(x)=
+  \#\{(i,j):0\le i<j<n,
+      \ x_i=x_j\text{ or }x_i=x_j+1\}.
+\]
+The total degree is
+\[
+  M=\binom n2,
+\]
+and the deficit is
+\[
+  \defc(x)=M-\area(x)-\dinv(x).
+\]
+The classical \(q,t\)-Catalan polynomial in this convention is
+\[
+  C_n(q,t)=\sum_x q^{\area(x)}t^{\dinv(x)},
+\]
+where the sum ranges over all ordinary Dyck sequences of length \(n\).
+
+The 2026 paper proves a skeleton-string decomposition in the low-deficit range
+\[
+  \defc\le 2n-8.
+\]
+The roots of these strings are special Dyck skeletons.  The same paper proves
+an area bound for full Dyck skeletons:
+\[
+  \area(S)\le \defc(S).
+\]
+Since special Dyck skeletons are full Dyck skeletons, this applies to every
+classical string root in the decomposition.
+
+\begin{theorem}[Classical flat middle coefficients]
+For \(n\ge4\), let \(M=\binom n2\).  If
+\[
+  0\le d\le 2n-8,
+\]
+then the coefficient of
+\[
+  q^j t^{M-d-j}
+\]
+in \(C_n(q,t)\) is independent of \(j\) for
+\[
+  d\le j\le M-2d.
+\]
+The common value is the number of special Dyck skeletons of length \(n\) and
+classical deficit \(d\).
+\end{theorem}
+
+This is not merely computational evidence.  It is a direct consequence of the
+proved string decomposition and the proved skeleton area bound.  The code
+included with this item only supplies finite regression checks of this proved
+phenomenon.
+
+\section{The family $r=\tau s+1$}
+
+Now fix \(s\ge1\) and \(\tau>1\).  A normalized \(\tau\)-Dyck sequence of
+length \(s\) is a sequence
+\[
+  x=(x_0,\ldots,x_{s-1})
+\]
+with
+\[
+  x_0=0,\qquad x_i\ge0,\qquad x_{i+1}\le x_i+\tau.
+\]
+The area statistic is again
+\[
+  \area(x)=\sum_i x_i.
+\]
+For a finite sequence \(x\), define
+\[
+  \dinv_\tau(x)=\sum_{i<j} d_\tau(x_i,x_j),
+\]
+where
+\[
+  d_\tau(a,b)=
+  \begin{cases}
+    \max(0,a+\tau-b),& a\le b,\\
+    \max(0,b+1+\tau-a),& a>b.
+  \end{cases}
+\]
+The total degree is
+\[
+  M_{s,\tau}=\tau\binom{s}{2},
+\]
+and
+\[
+  \defc_\tau(x)=M_{s,\tau}-\area(x)-\dinv_\tau(x).
+\]
+
+The preceding skeleton-string item formulates a special-skeleton interval
+formula for this \(r=\tau s+1\) family.  The conjectural low-deficit range is
+\[
+  B=(s-2)(\tau+1)-4.
+\]
+If the special-skeleton formula holds through deficit \(B\), then the
+flat-middle result follows from the same root-area criterion, provided every
+special rational skeleton \(S\) in the checked range satisfies
+\[
+  \area(S)\le \defc_\tau(S).
+\]
+
+Thus this item separates two issues.  The previous item tests or records the
+special-skeleton formula itself.  The present item checks the additional
+condition needed to extract the flat-middle consequence from that formula.
+
+\begin{proposition}[Conditional \(r=\tau s+1\) consequence]
+Assume the special-skeleton interval formula for normalized \(\tau\)-Dyck
+sequences of length \(s\) is valid through deficit \(B\).  If every special
+rational skeleton \(S\) with \(\defc_\tau(S)\le B\) satisfies
+\[
+  \area(S)\le \defc_\tau(S),
+\]
+then for every \(0\le d\le B\), the coefficient of
+\[
+  q^j t^{M_{s,\tau}-d-j}
+\]
+is independent of \(j\) throughout
+\[
+  d\le j\le M_{s,\tau}-2d.
+\]
+The common value is the number of special rational skeletons of length \(s\)
+and deficit \(d\).
+\end{proposition}
+
+The accompanying code is designed to match the finite grid used in the
+skeleton-string item.  In particular, its official \(r=\tau s+1\) mode checks
+the skeleton area inequality on the same parameter grid:
+\[
+\begin{array}{c|c}
+\tau & \text{lengths }s\\
+\hline
+2 & 1\le s\le 14\\
+3 & 1\le s\le 12\\
+4 & 1\le s\le 10\\
+5 & 1\le s\le 9.
+\end{array}
+\]
+It does not re-check the special-skeleton formula; it checks only the extra
+root-area inequality needed for flat middle coefficients.
+
+\section{General rational slopes}
+
+For a general coprime rational slope \(r/s\), we do not currently have a
+skeleton-string decomposition of the same kind.  Therefore the code checks the
+flat-middle phenomenon directly.
+
+The model uses position coordinates.  Put
+\[
+  H_i=\left\lfloor \frac{ri}{s}\right\rfloor
+  \qquad(0\le i<s),
+\]
+and let
+\[
+  M=\sum_{i=0}^{s-1}H_i.
+\]
+A rational Dyck path is represented by a sequence
+\[
+  Q=(Q_0,\ldots,Q_{s-1})
+\]
+with \(Q_0=0\), \(0\le Q_i\le H_i\), and path heights
+\[
+  P_i=H_i-Q_i
+\]
+weakly increasing.  The code uses
+\[
+  \area(Q)=\sum_i Q_i
+\]
+and the same rational deficit statistic used in the rational-path diagnostics.
+Then
+\[
+  \dinv(Q)=M-\area(Q)-\defc(Q).
+\]
+For each checked slope, the code enumerates all valid paths, groups them by
+\((\area,\dinv)\), and verifies directly that for each nonempty middle band
+\[
+  0\le d\le \left\lfloor\frac{M}{3}\right\rfloor,
+\]
+the coefficients of
+\[
+  q^j t^{M-d-j}
+  \qquad(d\le j\le M-2d)
+\]
+are all equal.
+
+This is a direct coefficient check, not a string-decomposition proof.  It is
+included because it gives evidence that the flat-middle phenomenon extends
+beyond the cases where roots and strings are currently available.
+
+\section{What the code checks}
+
+The companion file \texttt{code.py} has three independent layers.
+
+\subsection*{Classical checks}
+
+The classical check enumerates ordinary Dyck sequences for a bounded range of
+\(n\).  It verifies three things in the proved low-deficit range
+\(0\le d\le2n-8\):
+\begin{itemize}
+\item the direct coefficients are flat on \(d\le j\le M-2d\);
+\item the common coefficient equals the number of special Dyck skeletons of
+      deficit \(d\);
+\item every special skeleton encountered satisfies \(\area(S)\le\defc(S)\).
+\end{itemize}
+The default run checks \(4\le n\le8\).  This is a regression check of a proved
+classical theorem, not the source of the theorem.
+
+\subsection*{The $r=\tau s+1$ area-bound checks}
+
+The \(r=\tau s+1\) check enumerates normalized \(\tau\)-Dyck sequences in the
+retained deficit range and filters for special rational skeletons.  For each
+such skeleton it verifies
+\[
+  \area(S)\le \defc_\tau(S).
+\]
+This is the extra condition needed to turn a special-skeleton formula into a
+flat-middle coefficient statement.  The command
+\[
+  \texttt{python code.py --r1mod-mode official}
+\]
+runs the area-bound check on the official grid displayed above.  The default
+mode runs a smaller representative subset so that the file gives a quick smoke
+test.
+
+\subsection*{Direct rational checks}
+
+The direct rational check does not use skeletons.  It enumerates all rational
+Dyck paths for the requested slope \(r/s\), forms the coefficient dictionary,
+and checks every nonempty middle band.  The default slopes are
+\[
+  \frac53,
+  \frac74,
+  \frac85,
+  \frac{10}{7},
+  \frac{11}{8},
+  \frac{13}{8}.
+\]
+A broader grid run used for this note checked every coprime slope
+\[
+  \frac{r}{s}
+  \qquad\text{with}\qquad
+  2\le s\le8,
+  \quad s<r\le13,
+\]
+through all nonempty middle bands \(0\le d\le\lfloor M/3\rfloor\).  The
+corresponding command is
+\begin{verbatim}
+python code.py --skip-classical --r1mod-mode none --rational-grid \
+  --rational-s-max 8 --rational-r-max 13
+\end{verbatim}
+All of these direct rational checks are finite computational evidence.
+They should not be read as a proof of the general rational conjecture.
+
+\section{Status summary}
+
+\begin{center}
+\begin{tabular}{p{0.28\linewidth}|p{0.58\linewidth}}
+case & status\\
+\hline
+classical Dyck & proved for \(0\le\defc\le2n-8\), using the 2026
+skeleton-string decomposition and the skeleton area bound\\
+\(r=\tau s+1\) & follows in any checked or accepted special-skeleton-formula
+range once the special skeletons satisfy \(\area\le\defc\); the accompanying
+code checks this root-area condition on the matching finite grid\\
+general rational & checked directly by finite enumeration for selected slopes;
+no general skeleton decomposition is claimed here
+\end{tabular}
+\end{center}
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2026DyckSymmetric}
+Graham Hawkes,
+\emph{Dyck Symmetric Functions and Applications to \(q,t\)-Catalan
+Polynomials}, arXiv:2605.13003, 2026.
+
+\end{thebibliography}
+
+\end{document}

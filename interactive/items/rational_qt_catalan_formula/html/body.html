@@ -1,0 +1,27 @@
+<p>
+  This item packages the finite checker for the conjectural rational
+  <code>q,t</code>-Catalan formula from Graham Hawkes's 2024 paper.
+</p>
+
+<p>
+  The source script is
+  <code>Conjectures-and-Computations/qt-catalan/qt-conjecture.py</code>. The
+  curated script <code>code/check_rational_qt_catalan_formula.py</code>
+  preserves the source step-coordinate generation and monomial-string
+  comparison, while giving compact command-line output.
+</p>
+
+<p>
+  For a coprime pair <code>(r,n)</code>, the checker generates the relevant
+  rational Dyck paths, forms the distinguished subfamily determined by the
+  closest point to the diagonal, and compares the positive monomial-string
+  multiset with all generated path monomials plus the negative correction
+  multiset.
+</p>
+
+<p>
+  The source example <code>(r,n)=(7,12)</code> generated 2,652 paths and
+  returned <code>PASS</code>. The curated checker rejects non-coprime inputs,
+  since the source conjecture is not expected to hold for non-coprime pairs in
+  general.
+</p>

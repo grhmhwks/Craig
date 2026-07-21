@@ -1,0 +1,603 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\NRCM}{\operatorname{NRCM}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\title{Dyck Skeleton String Decompositions}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+These notes deal with proven and conjectural symmetric string-decomposition
+formulas for the \(q,t\)-Catalan polynomials, much of which is built off the
+work in \cite{Hawkes2026} and \cite{Hawkes2022}.  In this note, a string means
+a sum of monomials in \(q\) and \(t\) in which the powers of \(q\) and \(t\)
+respectively increase and decrease step-by-step, and whose total contribution
+is symmetric in \(q\) and \(t\).  The status of such decompositions varies
+depending on the level of generality: we survey the classical case, the
+\(r=\tau s+1\) rational case, and the full rational case.  Within these cases,
+we identify important deficit cutoffs and spell out what results are known or
+conjectured at those levels.
+
+More explicitly, if all terms in a deficit layer have total degree \(N\), then
+a positive symmetric string rooted at area \(A\) has the form
+\[
+  \sum_{j=A}^{N-A} q^j t^{N-j},
+\]
+provided \(A\le N-A\).  In path language, the terms in such a string have fixed
+deficit, area increasing by \(1\), and dinv decreasing by \(1\).  The weak lower
+half of a deficit layer means the part where
+\[
+  \area \le \dinv.
+\]
+One caution will be useful throughout: a lower-half decomposition proves the
+corresponding root formula on the lower half.  It does not by itself prove
+\(q,t\)-symmetry or determine the reflected upper half.  For that one needs an
+independent symmetry theorem, as in the classical case, or a direct full
+coefficient comparison.
+
+\section{The classical Dyck case}
+
+First we summarize the results for the classical case.  An ordinary Dyck
+sequence of length \(n\) is a sequence
+\[
+  x=(x_0,\ldots,x_{n-1})
+\]
+such that
+\[
+  x_0=0,\qquad x_i\ge 0,\qquad x_{i+1}\le x_i+1.
+\]
+We use the usual statistics
+\[
+  \area(x)=\sum_i x_i
+\]
+and
+\[
+  \dinv(x)=
+  \#\{(i,j):0\le i<j<n,\ x_i=x_j
+  \text{ or } x_i=x_j+1\}.
+\]
+The top total degree is
+\[
+  M=\binom n2,
+\]
+and the deficit is
+\[
+  \defc(x)=M-\area(x)-\dinv(x).
+\]
+Thus paths of fixed deficit \(d\) all contribute monomials of the same total
+degree \(M-d\).
+
+The classical result uses special Dyck skeletons as the roots of the strings.
+A full Dyck skeleton is a Dyck sequence with no extractable entry, using the
+leftmost extraction convention from \cite{Hawkes2026}.  For \(n\ge4\), one
+exceptional full skeleton is removed:
+\[
+  \epsilon_n=(0,0,1,\underbrace{0,\ldots,0}_{n-4\text{ entries}},1).
+\]
+A special Dyck skeleton is a full Dyck skeleton other than \(\epsilon_n\).  For
+\(n<4\), every full skeleton is special.
+
+The relevant upper cutoff in the classical case is
+\[
+  \defc \le 2n-8.
+\]
+In this range the skeleton-string formula is a theorem.
+
+\begin{theorem}[Hawkes, low-deficit skeleton strings]
+For \(n\ge4\) and \(d\le 2n-8\), the weak lower half of the deficit-\(d\)
+layer of ordinary Dyck sequences of length \(n\) is partitioned into strings
+beginning at special Dyck skeletons.  Along each string, the up map raises area
+by \(1\), lowers dinv by \(1\), and preserves deficit.
+\end{theorem}
+
+Combining this lower-half decomposition with the known \(q,t\)-symmetry of
+\(C_n(q,t)\) gives the special-skeleton formula in the whole low-deficit range:
+\[
+\left.C_n(q,t)\right|_{\binom n2-2n+8\le \deg_{q,t}\le \binom n2}
+=
+\sum_{\substack{S\text{ special Dyck skeleton of length }n\\
+                \defc(S)\le 2n-8}}
+\frac{
+q^{\dinv(S)+1}t^{\area(S)}
+-
+q^{\area(S)}t^{\dinv(S)+1}
+}{q-t}.
+\]
+Equivalently, a skeleton \(S\) of deficit \(d\) contributes the symmetric
+interval
+\[
+  \sum_{j=\area(S)}^{M-d-\area(S)}
+  q^j t^{M-d-j}.
+\]
+
+In this classical setting, the upper cutoff \(2n-8\) is already a proved
+nonnegative range for string decomposition.  The smaller cutoff
+\[
+  \defc \le n-3
+\]
+is still important, but for a different reason: in that lower range there is a
+simpler partition-indexed description of the roots.  However, the classical
+roots in the full range \(\defc\le 2n-8\) are special Dyck skeletons, not simply
+all Dyck sequences beginning \((0,0,\ldots)\).
+
+We will not review the local East/West proof of the classical up and down maps
+here.  That machinery belongs to the proof in \cite{Hawkes2026}.
+
+\section{The family \(r=\tau s+1\)}
+
+Next, we record the corresponding picture for the rational family
+\[
+  r=\tau s+1.
+\]
+This is the family studied in \cite{Hawkes2022} under the notation
+\(s=\ell+1\) and \(r=(\ell+1)m+1\), with \(m=\tau\).  The paper
+\cite{Hawkes2022} is the source of the broader conjectural rational
+string-root formula.  The special-skeleton formula discussed here should be
+viewed as a more refined formulation of the same general phenomenon rather than
+as a theorem already proved in that paper.
+
+We use normalized \(\tau\)-Dyck sequences of length \(s\):
+\[
+  x=(x_0,\ldots,x_{s-1}),\qquad
+  x_0=0,\qquad x_i\ge0,\qquad x_{i+1}\le x_i+\tau.
+\]
+The area statistic is again
+\[
+  \area(x)=\sum_i x_i.
+\]
+The rational dinv statistic is
+\[
+\dinv_\tau(x)=\sum_{i<j}
+\begin{cases}
+\max(0,x_i+\tau-x_j), & x_i\le x_j,\\
+\max(0,x_j+1+\tau-x_i), & x_i>x_j.
+\end{cases}
+\]
+The top degree is
+\[
+  M_{s,\tau}=\tau\binom{s}{2},
+\]
+and the deficit is
+\[
+  \defc_\tau(x)=M_{s,\tau}-\area(x)-\dinv_\tau(x).
+\]
+
+The notion of a skeleton is defined by an extraction rule analogous to the
+classical one, but with the predecessor interval enlarged by \(\tau\).  An
+entry \(x_j=e>0\) is extractable if exactly one earlier entry lies in
+\[
+  [\max(0,e-\tau),e),
+\]
+and if deleting \(x_j\) still leaves a normalized \(\tau\)-Dyck sequence.  Thus
+if \(0<j<s-1\), one also requires the splice condition
+\[
+  x_{j+1}\le x_{j-1}+\tau.
+\]
+The leftmost extractable entry is used.  A full rational skeleton is a
+normalized \(\tau\)-Dyck sequence with no extractable entry.  For \(s\ge4\),
+the exceptional full skeleton is
+\[
+  \epsilon_{s,\tau}
+  =(0,0,1,\underbrace{0,\ldots,0}_{s-4\text{ entries}},\tau),
+\]
+and a special rational skeleton is a full rational skeleton other than
+\(\epsilon_{s,\tau}\).  For \(s<4\), every full rational skeleton is special.
+
+There are two cutoffs to keep separate.  The upper cutoff is
+\[
+  B_{\mathrm{upper}}=(s-2)(\tau+1)-4.
+\]
+In the range
+\[
+  \defc_\tau\le B_{\mathrm{upper}},
+\]
+there appears to be a special rational skeleton formula:
+\[
+\sum_{\substack{
+S\text{ special rational skeleton}\\
+\defc_\tau(S)\le B_{\mathrm{upper}}
+}}
+\frac{
+q^{\dinv_\tau(S)+1}t^{\area(S)}
+-
+q^{\area(S)}t^{\dinv_\tau(S)+1}
+}{q-t}.
+\]
+Equivalently, a skeleton \(S\) of deficit \(d\) should contribute the interval
+\[
+  \sum_{j=\area(S)}^{M_{s,\tau}-d-\area(S)}
+  q^j t^{M_{s,\tau}-d-j}.
+\]
+This is the direct rational analogue of the classical special-skeleton
+formula.  At present we regard it as conjectural, supported by coefficient
+checks.  In the checked cases, the refined special skeletons in this range give
+nonnegative interval contributions.  We do not currently claim that the
+upper-cutoff formula comes from a complete up-map decomposition.
+
+The lower cutoff is
+\[
+  B_{\mathrm{lower}}=(s-2)\tau-1.
+\]
+In this smaller range, the situation appears to be more explicitly
+decompositional.  The roots of the strings are exactly the normalized
+\(\tau\)-Dyck sequences beginning
+\[
+  (0,0,\ldots).
+\]
+Equivalently, these are the paths whose label-\(1\) position has value \(0\).
+In this lower range, there appear to be no paths beginning \((0,0,\ldots)\)
+that fail to be skeleton roots, and all such roots lie in the weak lower half
+of the deficit layer.
+
+\subsection{The up map through East5}
+
+The current candidate up map in this lower range follows the same
+extraction-and-injection philosophy as the classical map.  It is implemented
+through the East3 and East5 branches, and deliberately stops before the East7
+branch.  In outline, one extracts the leftmost extractable entry or entries,
+lowers the extracted entries by \(1\), applies a local East move to the final
+window, and then injects the raised output entries back from right to left.
+
+The injection operation is the inverse of extraction in the following sense.
+To inject an entry \(e>0\) into a normalized word, find the first entry lying in
+\[
+  [\max(0,e-\tau),e),
+\]
+and insert \(e\) immediately after it.  When several entries are to be injected,
+the current map injects them from right to left.
+
+There are also two special global branches.  First, the special input
+\[
+  (0,\ldots,0,\tau)
+\]
+maps to the exceptional full skeleton \(\epsilon_{s,\tau}\) when \(s\ge4\).
+Second, if the input is a full skeleton, the up map injects the final entry
+plus \(1\) into the prefix.
+
+For non-skeletons, the local branches are as follows.  Extract the leftmost
+extractable entry \(e_1\), delete it, and append \(e_1-1\).  The East3 move is
+then tested on the final three-window.  For a window
+\[
+  (a,c,d),
+\]
+East3 succeeds when
+\[
+  c\le d+\tau,
+\]
+and in the current rational implementation it leaves the local window
+unchanged.  The final two local output entries are then raised by \(1\) and
+injected back from right to left.
+
+If East3 does not apply, extract a second leftmost extractable entry \(e_2\)
+from the word already missing \(e_1\), delete it, and append
+\[
+  (e_1-1,e_2-1).
+\]
+The East5 move is tested on the final five-window.  East5 is used only when the
+centered East3 move on \((b,c,d)\) fails.  For a five-window
+\[
+  (a,b,c,d,e),
+\]
+there are two implemented cases.  If
+\[
+  b\le d+\tau
+  \qquad\text{and}\qquad
+  b\le e+\tau,
+\]
+then East5 sends
+\[
+  (a,b,c,d,e)\longmapsto (a,d,c,b,e).
+\]
+Otherwise, if
+\[
+  b>d+\tau,
+\]
+let
+\[
+(b',c')=
+\begin{cases}
+(c,b), & b>c+\tau,\\
+(b,c), & b\le c+\tau.
+\end{cases}
+\]
+If also
+\[
+  c'\le e+\tau,
+\]
+then East5 sends
+\[
+  (a,b,c,d,e)\longmapsto (a,d,b',c',e).
+\]
+After East5 succeeds, the first two local output entries remain in the base,
+while the final three local output entries are raised by \(1\) and injected
+back from right to left.
+
+If neither East3 nor East5 applies, the current map is not declared to fail
+mathematically.  Instead, the implementation stops and records that an East7
+branch would be needed.  The accompanying code checks successful steps to
+confirm that they preserve deficit, raise area by \(1\), lower
+\(\dinv_\tau\) by \(1\), and produce normalized words.  It also checks the
+corresponding down steps, defined by the West3 and West5 reverse moves, in the
+finite ranges under consideration.  The map checks in this note are interpreted
+only at the lower cutoff; the upper-cutoff evidence is coefficient evidence for
+the formula, not evidence for a complete up-map decomposition.
+
+Thus the \(r=\tau s+1\) story has two different levels of evidence.  At the
+upper cutoff, we have a conjectural refined special-skeleton formula supported
+by coefficient checks.  At the lower cutoff, we have evidence for an actual
+lower-half string decomposition using the up map through East5, with roots
+exactly the paths beginning \((0,0,\ldots)\).  The finite map checks are most
+naturally regarded as nondegenerate for \(s\ge5\); small cases are treated as
+formula-only in the checker.
+
+\section{The full rational case}
+
+Finally, we discuss the full rational case.  Let \(r\) and \(s\) be coprime
+positive integers.  In this setting it is useful to work with position
+coordinates.  For \(0\le i<s\), define
+\[
+  H_i=\left\lfloor \frac{ri}{s}\right\rfloor,
+  \qquad
+  L_i\equiv ri \pmod s,\qquad 0\le L_i<s.
+\]
+The numbers \(L_i\) are the labels of the columns.  Since \(r\) and \(s\) are
+coprime, every label occurs exactly once.  Thus the phrase ``the label-\(1\)
+position'' means the unique index \(i\) such that \(L_i=1\).
+
+A rational Dyck path in these coordinates is a sequence
+\[
+  Q=(Q_0,\ldots,Q_{s-1})
+\]
+such that
+\[
+  Q_0=0,\qquad 0\le Q_i\le H_i,
+\]
+and whose path heights
+\[
+  P_i=H_i-Q_i
+\]
+are weakly increasing:
+\[
+  P_0\le P_1\le\cdots\le P_{s-1}.
+\]
+We take
+\[
+  \area(Q)=\sum_i Q_i.
+\]
+Let
+\[
+  M=\sum_i H_i.
+\]
+For the NRCM checks it is convenient to use the following equivalent deficit
+statistic.  For \(1\le i<j<s\), put \(u=|Q_i-Q_j|\).  If \(Q_i\ne Q_j\) and
+the comparisons \(Q_i>Q_j\) and \(L_i>L_j\) have opposite truth values, replace
+\(u\) by \(u-1\), and then clamp \(u\) to be nonnegative.  Let
+\(\Delta_i=H_{i+1}-H_i\), and define
+\[
+  v_{ij}=\begin{cases}
+  \Delta_i-(Q_{i+1}-Q_i), & Q_i>Q_j,\\
+  \Delta_{i-1}-(Q_i-Q_{i-1}), & Q_j>Q_i,\\
+  0, & Q_i=Q_j.
+  \end{cases}
+\]
+Then
+\[
+  \defc(Q)=\sum_{1\le i<j<s}\min(u_{ij},v_{ij}),
+  \qquad
+  \dinv(Q)=M-\area(Q)-\defc(Q).
+\]
+Here \(v_{ij}\) is not separately clamped; this is the statistic used in the
+code checks.
+
+As before, the weak lower half of a deficit layer is the region
+\[
+  \area(Q)\le \dinv(Q),
+\]
+or equivalently
+\[
+  \area(Q)\le \left\lfloor\frac{M-\defc(Q)}2\right\rfloor.
+\]
+
+The general rational analogue of beginning \((0,0,\ldots)\) is having value
+\(0\) in the label-\(1\) position.  Indeed, in the special family
+\(r=\tau s+1\), one has
+\[
+  L_i\equiv i\pmod s,
+\]
+so the label-\(1\) position is \(i=1\), and the condition is exactly that the
+path begins \((0,0,\ldots)\).
+
+For the full rational case we do not give a simple numerical formula for the
+lower cutoff.  Instead, we define the lower cutoff intrinsically: it is the
+largest deficit range in which every path with value \(0\) in the label-\(1\)
+position lies in the weak lower half.  This definition agrees with the lower
+cutoff \(n-3\) in the classical case and with
+\[
+  (s-2)\tau-1
+\]
+in the family \(r=\tau s+1\).
+
+In light of the conjectural formula from \cite{Hawkes2022}, this intrinsic
+lower cutoff is the natural range in which one should expect a positive
+string-decomposition formula.  The reason is that the paths with value \(0\)
+in the label-\(1\) position are precisely the predicted roots of the strings.
+When all of these roots lie in the weak lower half, the corresponding string
+contributions run from the root up to its symmetric partner without introducing
+negative terms.  Outside this range, the same rational formula may still make
+sense, but it can involve negative terms and should not be interpreted as a
+literal positive string decomposition without additional structure.
+
+\subsection{The naive rational cyclic map}
+
+The naive rational cyclic map, or NRCM, is one piece of such additional
+structure.  Given a path \(Q\), and for each \(k\ge1\), let
+\[
+  I_k=\{k,k+1,\ldots,s-1\}.
+\]
+List the indices in \(I_k\) in increasing label order.  The candidate move
+\(T_k(Q)\) cyclically moves the \(Q\)-values along this label-ordered suffix:
+each value moves to the next suffix position in label order, and the last value
+wraps around to the first suffix position after being increased by \(1\).
+Values outside \(I_k\) are unchanged.
+
+The strict NRCM chooses the first \(k\), starting from \(k=1\), for which this
+candidate \(T_k(Q)\) satisfies the capacity inequalities
+\[
+  0\le T_k(Q)_i\le H_i.
+\]
+If this first capacity-valid candidate is also a valid rational Dyck path, then
+\[
+  \NRCM(Q)=T_k(Q).
+\]
+If the first capacity-valid candidate is not path-valid, then NRCM is
+undefined.
+
+By construction, every defined NRCM move raises area by \(1\).  There is an
+AI-generated proof draft, currently awaiting human review, that whenever NRCM
+is defined it preserves deficit.  Thus, once this proof is accepted, a defined
+NRCM move will also lower dinv by \(1\), exactly as a string move should.
+
+The paths with value \(0\) in the label-\(1\) position naturally appear as
+NRCM bases: such a path cannot be the image of an NRCM move.  Informally, the
+inverse cyclic motion would require undoing a wraparound increase at the first
+available label, and a zero in the label-\(1\) position gives no room for that
+inverse move.  This agrees with the roots predicted by the rational
+\(q,t\)-Catalan conjecture.
+
+However, NRCM should not be confused with a complete proof of the lower-cutoff
+decomposition.  In general, NRCM does not give a full lower-half decomposition
+throughout the entire intrinsic lower cutoff.  The code checks the lower-cutoff
+positivity prediction separately from the NRCM decomposition behavior.  What
+the computations suggest is that NRCM gives a genuine lower-half decomposition
+in certain still smaller deficit ranges.  In the family \(r=\tau s+1\),
+whenever both maps are defined, NRCM agrees with the up map described above.
+
+\section{Computational checks}
+
+The accompanying file \texttt{code.py} is a consolidated checker for the claims
+discussed here.  It separates three logically different tests.
+
+First, it performs finite sanity checks of the classical special-skeleton
+coefficient formula.  These checks are not needed for the theorem, but they
+verify that the definitions in the code agree with the stated formula in small
+cases.
+
+Second, for \(r=\tau s+1\), it separates the two rational cutoffs.  At the
+upper cutoff
+\[
+  (s-2)(\tau+1)-4,
+\]
+it compares direct coefficient dictionaries with the special-rational-skeleton
+formula.  At the lower cutoff
+\[
+  (s-2)\tau-1,
+\]
+it checks that the special skeleton roots agree with the paths beginning
+\((0,0,\ldots)\), that these roots lie in the weak lower half, that the
+corresponding positive interval formula matches direct enumeration, and that
+the East3/East5 up and down maps give lower-half coverage in the checked
+nondegenerate cases.  The code deliberately does not use upper-cutoff East7
+obstructions as evidence against the lower-cutoff decomposition claim.
+
+The original item-level \(r=\tau s+1\) runner is configured on the grid
+\[
+\begin{array}{c|c}
+\tau & s\text{-range}\\
+\hline
+2 & 1\le s\le14\\
+3 & 1\le s\le12\\
+4 & 1\le s\le10\\
+5 & 1\le s\le9.
+\end{array}
+\]
+The consolidated \texttt{code.py} includes an \texttt{official-r1mod} preset
+following this grid, but with the interpretation used in this note: formula
+checks belong to the upper cutoff, while map/decomposition checks belong to the
+lower cutoff.
+
+Third, in the full rational case, the code computes the intrinsic lower cutoff,
+checks the positive label-\(1\)-zero interval formula through that cutoff, and
+separately checks NRCM properties and NRCM lower-half coverage.  The latter is
+expected to work only in smaller case-by-case ranges, not throughout the full
+intrinsic lower cutoff.
+
+\section{Summary of cutoffs}
+
+The three cases can be summarized as follows.
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{0.20\textwidth}|p{0.18\textwidth}|p{0.22\textwidth}|p{0.28\textwidth}}
+\textbf{case} & \textbf{upper cutoff} & \textbf{lower cutoff} & \textbf{status} \\
+\hline
+classical Dyck
+&
+\(2n-8\)
+&
+\(n-3\)
+&
+proved special-skeleton decomposition at upper cutoff
+\\
+\(r=\tau s+1\)
+&
+\((s-2)(\tau+1)-4\)
+&
+\((s-2)\tau-1\)
+&
+upper formula conjectural; lower map evidence
+\\
+general rational
+&
+no NRCM upper cutoff
+&
+intrinsic label-\(1\)-zero lower cutoff
+&
+positive formula conjectural; NRCM works lower in examples
+\end{tabular}
+\end{center}
+
+The important distinction is that the upper cutoff and lower cutoff play
+different roles.  In the classical case, the upper cutoff already gives a
+proved nonnegative special-skeleton decomposition.  In the \(r=\tau s+1\)
+case, the upper cutoff gives a conjectural nonnegative refined-skeleton
+formula, while the lower cutoff is where the simpler roots
+\((0,0,\ldots)\) appear to support an actual lower-half decomposition through
+the currently implemented map.  In the general rational case, the lower cutoff
+is defined by the condition that all label-\(1\)-zero paths lie in the weak
+lower half; NRCM gives a partial structural explanation below that range, but
+not the whole lower-cutoff decomposition in general.
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2026}
+Graham Hawkes.
+\newblock \emph{Dyck Symmetric Functions and Applications to
+\(q,t\)-Catalan Polynomials}.
+\newblock arXiv:2605.13003, 2026.
+\newblock \url{https://arxiv.org/abs/2605.13003}.
+
+\bibitem{Hawkes2022}
+Graham Hawkes.
+\newblock \emph{A conjectured formula for the rational \(q,t\)-Catalan
+polynomial}.
+\newblock arXiv:2208.00577, 2022.
+\newblock \url{https://arxiv.org/abs/2208.00577}.
+
+\end{thebibliography}
+
+\end{document}

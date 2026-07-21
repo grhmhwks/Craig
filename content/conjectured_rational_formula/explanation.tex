@@ -1,0 +1,244 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\Cat}{\mathcal C}
+\newcommand{\D}{\mathcal D}
+\newcommand{\T}{\mathcal T}
+\newtheorem{conjecture}{Conjecture}
+
+\title{A Conjectural Formula for the Rational \(q,t\)-Catalan Polynomial}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Purpose and status}
+
+Fix coprime integers \(r,s\ge2\).  The rational \(q,t\)-Catalan polynomial
+is a generating function over rational Dyck paths from \((0,0)\) to
+\((s,r)\).  Hawkes proposed a formula that expresses this polynomial as a
+signed sum of symmetric monomial strings indexed by a distinguished subset of
+paths~\cite{Hawkes2024}.  The formula is attractive because its right-hand
+side is symmetric in \(q\) and \(t\) by construction.
+
+The formula remains conjectural in general.  The accompanying
+\texttt{code.py} performs exact finite checks: it enumerates all rational Dyck
+paths for a chosen coprime pair, forms both coefficient dictionaries, and
+compares them.  Thus a passing run proves the finite identity for that pair,
+but does not prove the conjecture uniformly for all \((r,s)\).
+
+\section{Position-coordinate paths}
+
+For \(0\le i<s\), define the ceiling and label of column \(i\) by
+\[
+  H_i=\left\lfloor\frac{ri}{s}\right\rfloor,
+  \qquad
+  L_i\equiv ri\pmod s,
+  \qquad 0\le L_i<s.
+\]
+Because \(r\) and \(s\) are coprime, the labels are a permutation of
+\(0,1,\ldots,s-1\).
+
+A position-coordinate path is an integer sequence
+\[
+  Q=(Q_0,\ldots,Q_{s-1}),
+  \qquad
+  Q_0=0,
+  \qquad
+  0\le Q_i\le H_i.
+\]
+Put
+\[
+  P_i=H_i-Q_i.
+\]
+The sequence represents an \((r,s)\)-Dyck path when
+\[
+  P_0\le P_1\le\cdots\le P_{s-1}.
+\]
+The area statistic is particularly simple in these coordinates:
+\[
+  \area(Q)=\sum_{i=0}^{s-1}Q_i.
+\]
+The maximum total degree is
+\[
+  M=\sum_{i=0}^{s-1}H_i
+   =\frac{(r-1)(s-1)}{2}.
+\]
+
+For completeness, we briefly describe the deficit statistic used by the
+checker.  Set
+\[
+  q_i=Q_i+\frac{L_i}{s},
+  \qquad
+  w_i=P_{i+1}-P_i
+  \quad(0\le i<s-1).
+\]
+For \(1\le i<j<s\), define
+\[
+  \delta_{ij}(Q)
+  =
+  \sum_{n=1}^{w_i}{\bf 1}(q_j\le q_i-n)
+  +
+  \sum_{n=1}^{w_{i-1}}{\bf 1}(q_j\ge q_i+n),
+\]
+where the first sum is absent when \(i=s-1\), a case that does not occur
+because \(i<j<s\).  Then
+\[
+  \defc(Q)=\sum_{1\le i<j<s}\delta_{ij}(Q),
+  \qquad
+  \dinv(Q)=M-\area(Q)-\defc(Q).
+\]
+The code evaluates an equivalent integer formula, avoiding floating-point
+arithmetic.
+
+Let \(\D_{r/s}\) denote the set of these paths.  The rational
+\(q,t\)-Catalan polynomial is
+\[
+  \Cat_{r/s}(q,t)
+  =
+  \sum_{Q\in\D_{r/s}}q^{\area(Q)}t^{\dinv(Q)}.
+\]
+
+\section{The distinguished paths}
+
+There is a unique column \(c\) with
+\[
+  L_c=1.
+\]
+Since
+\[
+  \frac{rc}{s}=H_c+\frac1s,
+\]
+the lattice point \((c,H_c)\) is the lattice point immediately below the
+bounding diagonal with the smallest possible positive gap.  This is the
+``closest point'' used in the paper.
+
+Define
+\[
+  \T_{r/s}
+  =
+  \{Q\in\D_{r/s}:Q_c=0\}.
+\]
+The condition \(Q_c=0\) says exactly that the path passes through
+\((c,H_c)\).  These are the maximal or distinguished paths that index the
+conjectural formula.
+
+\section{The signed string formula}
+
+For nonnegative integers \(a,b\), define
+\[
+  \operatorname{Str}(a,b)=
+  \begin{cases}
+    \displaystyle\sum_{j=a}^{b}q^j t^{a+b-j},&a\le b,\\[3mm]
+    \displaystyle-\sum_{j=b+1}^{a-1}q^j t^{a+b-j},&a>b.
+  \end{cases}
+\]
+The second sum is empty when \(a=b+1\).  Thus a distinguished path below or
+at the middle line contributes a positive symmetric interval.  A
+distinguished path above the middle line contributes a negative open
+interval.
+
+\begin{conjecture}[Rational symmetric-string formula]
+For every coprime \(r,s\ge2\),
+\[
+  \Cat_{r/s}(q,t)
+  =
+  \sum_{Q\in\T_{r/s}}
+  \operatorname{Str}\bigl(\area(Q),\dinv(Q)\bigr).
+\]
+\end{conjecture}
+
+The negative terms are not negative path counts.  They are cancellation terms
+in a signed algebraic decomposition.  They occur precisely when a
+distinguished path begins above the middle of its fixed-total-degree slice,
+that is, when
+\[
+  \area(Q)>\dinv(Q)+1.
+\]
+They are common rather than exceptional: in the finite grid reported below,
+80 of the 114 checked parameter pairs required nonzero negative corrections.
+
+\section{What the checker does}
+
+For each requested coprime pair \((r,s)\), \texttt{code.py} performs four
+steps.
+
+\begin{enumerate}
+\item It generates every valid position-coordinate path.  The recursion is
+      written in the weakly increasing path-height coordinates \(P_i\), so
+      path validity is automatic.
+\item It computes \(\area\), \(\defc\), and \(\dinv\), and forms the direct
+      coefficient dictionary of \(\Cat_{r/s}(q,t)\).
+\item It selects the paths with \(L_c=1\) and \(Q_c=0\), expands their signed
+      strings, and forms the conjectural coefficient dictionary.
+\item It compares the two dictionaries exactly.  It also checks the generated
+      number of paths against the rational Catalan number
+      \[
+        \frac{1}{r+s}\binom{r+s}{r}.
+      \]
+\end{enumerate}
+
+The implementation uses exact integer arithmetic and only the Python standard
+library.  The deficit is accumulated while a path is generated, so shared
+prefixes reuse earlier work rather than recomputing the full statistic for
+every completed path.
+
+\section{Finite verification}
+
+The optimized Python checker was run on every ordered coprime pair satisfying
+\[
+  2\le r,s\le15.
+\]
+This consists of 114 cases and 11,597,208 generated rational Dyck paths.  Every
+case passed the exact coefficient comparison.  Nonzero negative correction
+terms occurred in 80 cases.  The two largest cases were
+\[
+  (r,s)=(14,15)\quad\text{and}\quad(15,14),
+\]
+each containing 2,674,440 paths.
+
+Three small reference cases, written in the standard \((r,s)\) convention,
+are
+\[
+\begin{array}{c|r|r|r}
+(r,s)&\text{paths}&\text{positive terms}&\text{negative terms}\\
+\hline
+(5,3)&7&7&0\\
+(8,5)&99&99&0\\
+(12,7)&2652&2666&14
+\end{array}
+\]
+The last case is the source paper's example written there in width/height
+order as \((7,12)\).  On the development machine, the full grid completed in
+about 25 seconds with two worker processes; runtime will vary by machine.
+
+Useful commands are
+\begin{verbatim}
+python code.py
+python code.py --case 5/3 --case 8/5 --case 12/7
+python code.py --grid 2 15 --workers 2
+\end{verbatim}
+The default command checks \((r,s)=(12,7)\).
+
+\section{Interpretation}
+
+The verified grid gives substantial finite evidence, including many cases in
+which cancellation by negative strings is genuinely required.  It does not
+supply a uniform construction or proof for arbitrary coprime \((r,s)\).  The
+main open problem recorded by this item is still to explain the signed-string
+identity combinatorially in full generality.
+
+\begin{thebibliography}{9}
+\bibitem{Hawkes2024}
+Graham Hawkes,
+\emph{A Conjectured Formula for the Rational \(q,t\)-Catalan Polynomial},
+Annals of Combinatorics 28 (2024), 749--795;
+arXiv:2208.00577.
+\end{thebibliography}
+
+\end{document}

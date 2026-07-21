@@ -1,0 +1,11 @@
+title: Shifted Littlewood-Richardson
+slug: shifted_littlewood_richardson
+status_summary: Conjectural shifted Littlewood-Richardson rules for skew GP and GQ functions, with bounded computational checks.
+source_paths:
+  - ../Conjectures-and-Computations/shifted-LR/skew-GQ-expansion.py
+  - ../Conjectures-and-Computations/shifted-LR/skew-GP-expansion.py
+  - ../Conjectures-and-Computations/shifted-LR/skew GP_GQ.tex
+downloads:
+  - explanation.tex
+  - code/check_shifted_lr.py
+  - code/shifted_lr_default_summary.txt

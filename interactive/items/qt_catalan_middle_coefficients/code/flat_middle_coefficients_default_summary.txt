@@ -1,0 +1,24 @@
+Flat middle coefficient bounded check, default run summary
+
+Command:
+
+  python code/check_flat_middle_coefficients.py
+
+Key output:
+
+  n range: 4..8
+  direct coefficient convention: each Dyck sequence contributes q^area t^dinv
+  checked theorem range: 0 <= d <= 2n-8
+  generated Dyck sequences: 2047
+  sequences by n: {4: 14, 5: 42, 6: 132, 7: 429, 8: 1430}
+  Dyck validation checks: 2047
+  formula-vs-pair deficit checks: 2047
+  coefficient total checks: 5
+  checked (n,d) bands: 25
+  checked coefficients in bands: 325
+  flat-band checks: 25
+  skeleton-count match checks: 325
+  PASS
+
+The full command output also prints special skeleton counts by n,d and a list
+of representative flat bands.

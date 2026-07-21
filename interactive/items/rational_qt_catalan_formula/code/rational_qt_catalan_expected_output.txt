@@ -1,0 +1,43 @@
+rational q,t-Catalan formula finite check
+  case: r=7 n=12
+    ell: 6
+    closest_point: (2, 5)
+    max_area: 33
+    generated_paths: 2652
+    all_terms: 2652
+    plus_terms: 2666
+    minus_terms: 14
+    status: PASS
+overall_status: PASS
+
+Sample multi-case run:
+
+rational q,t-Catalan formula finite check
+  case: r=3 n=5
+    ell: 2
+    closest_point: (1, 3)
+    max_area: 4
+    generated_paths: 7
+    all_terms: 7
+    plus_terms: 7
+    minus_terms: 0
+    status: PASS
+  case: r=5 n=8
+    ell: 4
+    closest_point: (1, 3)
+    max_area: 14
+    generated_paths: 99
+    all_terms: 99
+    plus_terms: 99
+    minus_terms: 0
+    status: PASS
+  case: r=7 n=12
+    ell: 6
+    closest_point: (2, 5)
+    max_area: 33
+    generated_paths: 2652
+    all_terms: 2652
+    plus_terms: 2666
+    minus_terms: 14
+    status: PASS
+overall_status: PASS

@@ -1,0 +1,419 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\Peak}{\operatorname{Peak}}
+\newcommand{\PPeak}{\operatorname{PPeak}}
+\newcommand{\Dbl}{\operatorname{Dbl}}
+\newcommand{\Diag}{\operatorname{Diag}}
+\newcommand{\RR}{\operatorname{RR}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cP}{\mathcal{P}}
+
+\title{The Shifted $Q/R$ and $P$ Conjectures and Their Exhaustive Small-Case Checks}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Shifted set-valued tableaux}
+
+A \emph{strict partition} is a finite sequence
+\[
+  \lambda=(\lambda_1>\lambda_2>\cdots>\lambda_{\ell}>0).
+\]
+Its shifted diagram is
+\[
+  D_\lambda=\{(r,c):1\le r\le \ell,\ r\le c\le r+\lambda_r-1\}.
+\]
+If $\mu\subseteq\lambda$ are strict partitions, then
+$D_{\lambda/\mu}=D_\lambda\setminus D_\mu$ is a skew shifted diagram.  A box
+$(r,r)$ is called diagonal.
+
+We use the marked alphabet
+\[
+  1'<1<2'<2<3'<3<\cdots.
+\]
+A shifted set-valued tableau assigns a nonempty finite set of letters to each
+box.  It is semistandard when the boxes are weakly increasing from left to
+right and from top to bottom in the set-valued sense, no primed letter $i'$ is
+repeated in one row, and no unprimed letter $i$ is repeated in one column.  Its
+weight is
+\[
+  \wt(T)=(m_1,m_2,\ldots),
+\]
+where $m_i$ is the total number of occurrences of $i$ and $i'$.
+
+There are three classes of tableaux.
+\begin{itemize}[leftmargin=2em]
+\item A $Q$-tableau is a tableau satisfying the conditions above, with no
+additional diagonal restriction.
+\item An $R$-tableau is a $Q$-tableau satisfying the $i$-primed property for
+every $i$: in the first box in row-reading order containing $i$ or $i'$, the
+letter $i'$ occurs and the letter $i$ does not occur.
+\item A $P$-tableau is a $Q$-tableau in which every entry in a diagonal box is
+primed.
+\end{itemize}
+The $P$ convention is discussed again in Section~\ref{sec:diagonal-choice}.
+
+The row-reading order $\RR$ reads rows from bottom to top and boxes from left
+to right within a row.  For the lattice test, the entries inside one box are
+read in the special order
+\[
+  1<2<3<\cdots<\cdots<3'<2'<1';
+\]
+that is, unprimed entries in increasing order followed by primed entries in
+decreasing order.  This special order is used only to form the lattice reading
+word.
+
+Fix $i$.  The $i$-lattice test compares the letters $i,i',(i+1),(i+1)'$.
+Start with equal tallies for $i/i'$ and $(i+1)/(i+1)'$.  First scan the reading
+word backward.  Count the unprimed letters and never allow the $(i+1)$ tally
+to exceed the $i$ tally; moreover, $(i+1)'$ is forbidden when the two tallies
+are tied.  Retaining these tallies, scan the word forward.  Count the primed
+letters and again never allow the upper tally to exceed the lower tally;
+moreover, an unprimed $i$ is forbidden at a tie.  A tableau is \emph{lattice}
+when this holds for every $i$.
+
+Write $GQ_{\lambda/\mu}$, $GR_{\lambda/\mu}$, and $GP_{\lambda/\mu}$ for the
+weight generating functions of the corresponding tableaux:
+\[
+  G\!X_{\lambda/\mu}=\sum_T x^{\wt(T)},
+  \qquad X\in\{Q,R,P\}.
+\]
+The same notation without an inner shape denotes a straight shifted shape.
+
+\section{The two conjectures}
+
+For a skew shape $\lambda/\mu$ and a strict partition $\nu$, define
+\[
+ b_{\lambda/\mu}^{\nu}
+ =\#\{T\in\cR(\lambda/\mu):T\text{ is lattice and }\wt(T)=\nu\},
+\]
+and
+\[
+ c_{\lambda/\mu}^{\nu}
+ =\#\{T\in\cP(\lambda/\mu):T\text{ is lattice and }\wt(T)=\nu\}.
+\]
+Thus the $R$ coefficient uses both the $i$-primed property and the lattice
+property, while the $P$ coefficient uses the diagonal condition and the same
+lattice property.
+
+\begin{conjecture}[$Q/R$ conjecture]
+For every skew shifted shape $\lambda/\mu$,
+\[
+  GQ_{\lambda/\mu}
+  =\sum_{\nu} b_{\lambda/\mu}^{\nu}GQ_\nu.
+\]
+Equivalently, after the reduction in Section~\ref{sec:budding-inflation}, the
+same coefficients satisfy the corresponding $R$ identity.
+\end{conjecture}
+
+\begin{conjecture}[$P$ conjecture]
+For every skew shifted shape $\lambda/\mu$,
+\[
+  GP_{\lambda/\mu}
+  =\sum_{\nu} c_{\lambda/\mu}^{\nu}GP_\nu.
+\]
+\end{conjecture}
+
+The coefficient weights are automatically strict.
+
+\begin{lemma}[Strict dominance]
+A nonzero lattice $R$- or $P$-tableau has strictly dominant weight.
+\end{lemma}
+
+\begin{proof}
+Suppose that the total numbers of $i/i'$ and $(i+1)/(i+1)'$ are equal and
+nonzero.  Let $B$ be the last box in $\RR$ order containing any of
+\[
+  i,\quad i+1,\quad (i+1)',\quad i',
+\]
+and let $S$ be the intersection of this set with $B$.  In the special order
+inside $B$, the relevant forward order is
+\[
+  i,\ i+1,\ (i+1)',\ i'.
+\]
+If $i'\in S$, then immediately before the final $i'$ is read in the forward
+scan, the upper tally is ahead.  If $(i+1)'\in S$, it is the first relevant
+letter in the backward scan and is read at a tie.  After excluding these two
+letters, an $i+1$ in $S$ would be first in the backward scan and would put the
+upper tally ahead.  Finally, if $i\in S$, it is the last relevant letter in the
+forward scan, when all relevant letters have been accounted for and the
+tallies are tied.  Every possibility is forbidden, so $S$ is empty, contrary
+to the choice of $B$.
+\end{proof}
+
+\section{Budding and inflation in the $Q/R$ case}
+\label{sec:budding-inflation}
+
+\subsection{Budding}
+
+For every value $i$ appearing in an $R$-tableau, the first $i'$ may be changed
+independently into
+\[
+  i',\qquad i,\qquad \{i',i\}.
+\]
+The first two choices preserve the exponent of $x_i$, while the third raises
+it by one.  Hence define the linear budding operator on monomials by
+\[
+  \cB(x^\alpha)
+  =\prod_{\alpha_i>0}\left(2x_i^{\alpha_i}+x_i^{\alpha_i+1}\right).
+\]
+For every straight or skew shifted shape $\theta$,
+\[
+  GQ_\theta=\cB(GR_\theta).
+\]
+Consequently, an $R$ expansion with coefficients
+$b_{\lambda/\mu}^{\nu}$ buds to the $Q$ expansion with exactly the same
+coefficients.  There is therefore no separate finite ``$GR$ check'' and
+``$GQ$ check'' in the program: both are represented by the same final
+combinatorial equality below.
+
+\subsection{Inflation and the peak-refined equality}
+
+A standard shifted set-valued tableau of size $n$ uses each label
+$1,2,\ldots,n$ exactly once.  In the inflated class used for the $Q/R$ check,
+consecutive labels are not allowed to occupy the same box.  Inflation replaces
+a semistandard tableau by such a standard object; conversely, the possible
+semistandardizations of an inflated object depend only on its peak set.
+
+For a standard tableau $S$, let $b_j$ be the box containing $j$.  Define
+\[
+  \Peak(S)=\{j\in\{2,\ldots,n-1\}:
+  b_{j-1}\text{ is strictly left of }b_j
+  \text{ and }b_{j+1}\text{ is strictly below }b_j\}.
+\]
+For a shape $\theta$, an integer $n$, and a peak set $P$, let
+\[
+  a_\theta(n,P)
+  =\#\{S:\operatorname{shape}(S)=\theta,\ |S|=n,
+           \Peak(S)=P,
+           \text{ no consecutive labels share a box}\}.
+\]
+The final combinatorial equality on which the $Q$ conjecture relies is
+\begin{equation}
+\label{eq:qr-final}
+  a_{\lambda/\mu}(n,P)
+  =\sum_\nu b_{\lambda/\mu}^{\nu}a_\nu(n,P)
+\end{equation}
+for every $n$ and every peak set $P$.  Budding and inflation reduce the
+original $Q$ identity to exactly these peak-refined equalities.
+
+There is a parallel reduction for the $P$ conjecture, but it requires more
+statistics than an ordinary peak set and it compares dominant monomials rather
+than the raw refined records.  The precise rule used by the code is given in
+Section~\ref{sec:p-reduction}.
+
+\section{What the code generates}
+
+The file \texttt{code.py} contains both checks.  The bound is configurable;
+\texttt{--mode qr}, \texttt{--mode p}, and \texttt{--mode both} select the
+check.
+
+\subsection{Inductive generation}
+
+The program builds standard set-valued shifted tableaux by inserting the next
+largest label.  From a tableau of shape $\rho$, the new label is placed either
+in a new addable outer-corner box or in an existing terminal box.  A terminal
+box is the rightmost box of a row with no box immediately below it.  These are
+exactly the positions in which the new largest label can be inserted while
+preserving the shifted semistandard conditions.
+
+For the $Q/R$ check, insertion in the same box as the preceding label is
+rejected.  For the $P$ check, it is retained.
+
+Each compressed state stores only the information needed for future growth:
+the current shape, the boxes containing the last two labels, the relevant
+statistic masks, and the canonical-prefix data.  States with the same stored
+data are merged and carried with a multiplicity.
+
+The canonical standard tableau on a shifted shape has one entry per box and is
+filled by consecutive labels along rows, from left to right and from the top
+row downward.  For a generated tableau $S$, the program tracks the largest
+initial canonical region, together with all its canonical initial subshapes.
+If a later label is inserted into one of its singleton boxes, the canonical
+chain is truncated at that point.
+
+Whenever a new straight tableau with $N$ labels is produced, every nonempty
+canonical initial subshape $\mu$ of size $x$ gives a skew tableau by deleting
+the labels $1,\ldots,x$.  The remaining labels are shifted down by $x$.  Thus
+\[
+  x+(N-x)=N,
+\]
+so one inductive generation simultaneously produces every straight object of
+size at most the bound and every skew object for which
+\[
+  \#\text{missing boxes}+\#\text{actual entries}
+  \le \text{bound}.
+\]
+A peak index is shifted down by $x$; if it becomes $1$, it is discarded because
+the smallest remaining label cannot be a peak.  The other index sets in the
+$P$ check are shifted in the same way, with index $0$ discarded.
+
+\subsection{The coefficient side}
+
+For each skew shape, the program independently enumerates the flagged
+semistandard set-valued tableaux needed for the conjectured coefficients.  A
+letter $i'$ is encoded by $2i-1$ and $i$ by $2i$.  It checks the row and column
+conditions, forms the $\RR$ word using the special within-box order, and then
+applies the lattice test.
+
+For the $Q/R$ coefficients it also applies the $i$-primed property.  For the
+$P$ coefficients it requires every entry in a present diagonal box to be
+primed.  The surviving tableaux are counted by weight.  The strict-dominance
+lemma is also checked internally: a surviving nonempty weight that is not a
+strict partition raises an error.
+
+\subsection{The $Q/R$ comparison}
+
+For every generated skew shape $\lambda/\mu$, every permitted actual-entry
+number $n$, and every peak set $P$, the code compares the left side of
+\eqref{eq:qr-final} with the coefficient-weighted straight side.  Since the
+inflation reduction has already replaced semistandard tableaux by the
+no-consecutive standard objects, no additional monomial transformation is
+needed in this part of the program.
+
+\section{The $P$ reduction used in the code}
+\label{sec:p-reduction}
+
+The standard tableaux used for the $P$ check allow consecutive labels in one
+box.  Let $b_j$ be the box containing $j$.  For distinct boxes, write
+$b_1\nearrow b_2$ if $b_2$ is northeast of $b_1$, and write
+$b_1\swarrow b_2$ if $b_2$ is southwest of $b_1$; equality means that the two
+labels are in the same box.
+
+For three consecutive labels $j-1,j,j+1$, the middle label $j$ is a
+$P$-peak when
+\[
+  b_{j-1}\ (\nearrow\text{ or }=)\ b_j
+  \qquad\text{and}\qquad
+  b_j\ (\swarrow\text{ or }=)\ b_{j+1}.
+\]
+Equivalently, the four allowed relation pairs are
+\[
+  (\nearrow,\swarrow),\qquad (=,=),\qquad (=,\swarrow),
+  \qquad(\nearrow,=).
+\]
+Define three statistics:
+\begin{align*}
+  \PPeak(S)&=\{j:j\text{ is a $P$-peak}\},\\
+  \Dbl(S)&=\{j:b_j=b_{j+1}\},\\
+  \Diag(S)&=\{j:b_j\text{ is diagonal}\}.
+\end{align*}
+Thus $\Dbl(S)$ records every same-box consecutive pair, not only those in a
+diagonal box.
+
+The code first counts standard tableaux by
+\[
+  (n,\PPeak(S),\Dbl(S),\Diag(S)).
+\]
+It then converts this counter into a counter of dominant monomials.  Let
+$\alpha=(\alpha_1,\ldots,\alpha_r)\vdash n$.  Interpret its parts as consecutive
+intervals
+\[
+ I_1=[1,\alpha_1],\quad
+ I_2=[\alpha_1+1,\alpha_1+\alpha_2],\quad\ldots.
+\]
+The partition $\alpha$ \emph{fits} the record of $S$ when
+\begin{enumerate}[label=(\roman*),leftmargin=2.5em]
+\item every $P$-peak is the first or last label of one of the intervals $I_k$;
+\item every $d\in\Dbl(S)\cap\Diag(S)$ is the last label of an interval.
+\end{enumerate}
+For a fitting partition, call $I_k$ free when it contains no label in
+$\Diag(S)$ and does not contain both $d$ and $d+1$ for any
+$d\in\Dbl(S)$.  If $f(S,\alpha)$ is the number of free parts, then $S$
+contributes the dominant monomial indexed by $\alpha$ with multiplicity
+\[
+  2^{f(S,\alpha)}.
+\]
+The factor records the independent prime/unprime choice for each part not
+forced by a diagonal occurrence or by a same-box consecutive pair contained
+inside that part.
+
+For each skew shape and degree, the program applies this transformation to the
+skew records and to the coefficient-weighted straight records and compares the
+resulting dominant-monomial counters.  The functions under consideration are
+symmetric, so equality of these dominant coefficients is the required finite
+check.  Raw equality of the quadruple-refined records is neither asserted nor
+needed.
+
+\section{The bound-$12$ computation}
+
+The combined program was run with
+\[
+  \texttt{python code.py --mode qr --max-entries 12}
+\]
+and
+\[
+  \texttt{python code.py --mode p --max-entries 12}.
+\]
+Both checks passed.  The recorded totals were
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+ & $Q/R$ & $P$\\
+\midrule
+straight shapes & 69 & 69\\
+proper skew shapes & 1172 & 1172\\
+straight standard tableaux & 42050 & 583251\\
+derived skew standard tableaux & 146283 & 1116632\\
+shape--degree comparisons & 7213 & 7213\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+More explicitly, for every proper skew shifted shape $\lambda/\mu$ satisfying
+\[
+  |\mu|+|\lambda/\mu|\le 12,
+\]
+the code checks every actual-entry degree $n$ with
+\[
+  |\lambda/\mu|\le n\le 12-|\mu|.
+\]
+In the $Q/R$ case, it checks every peak-refined equality
+\eqref{eq:qr-final}; by budding and inflation, this verifies the conjectured
+$Q$ expansion throughout that finite range.  In the $P$ case, it checks every
+dominant monomial obtained from the fitting rule above; this verifies the
+conjectured $P$ expansion throughout the same finite range.  These are
+exhaustive checks under the charged bound, not proofs for arbitrary shapes or
+degrees.
+
+\section{Why diagonal entries are taken to be primed}
+\label{sec:diagonal-choice}
+
+One may equivalently formulate $P$-tableaux with no primed entries on the
+diagonal.  Replacing every diagonal $i$ by $i'$ preserves the lattice
+property.  For a fixed pair $i,i+1$, the only relevant diagonal patterns are:
+only $i$, only $i+1$, both in one diagonal box, or $i$ in a diagonal box and
+$i+1$ in the next southeast diagonal box.  The first three cases are immediate
+from the two tally scans.  In the last case, one considers the portion of the
+two rows extending through the last $i+1$.  The apparent one-unit difference
+in the backward scan is exactly the forbidden forward tie at the diagonal
+$i$, so the two conventions again agree.
+
+We use the all-primed diagonal convention because it states the $P$ condition
+as a restriction on unprimed entries.  The $R$ condition is likewise naturally
+phrased by excluding an unprimed $i$ from the first relevant box.  The chosen
+convention therefore keeps the priming restrictions in the $Q/R$ and $P$
+settings parallel without changing either the lattice tableaux or the
+conjectured coefficients.
+
+\end{document}

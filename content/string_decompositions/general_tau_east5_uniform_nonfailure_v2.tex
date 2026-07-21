@@ -1,0 +1,787 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\bk}{\operatorname{bk}}
+\newcommand{\RR}{\mathcal R}
+\newcommand{\NN}{\mathcal N}
+
+\title{A Uniform East5 Local Obstruction for Arbitrary Step}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Fix an integer step \(\tau\ge2\).  We define the step-\(\tau\) defect
+statistics and the natural step-\(\tau\) versions of the local maps
+\(\East_3\) and \(\East_5\).  We prove that, for every length \(s\ge5\),
+a failed \(\East_5\) window satisfying the stated normalization
+conditions and the defect bound \(d\le\tau(s-2)-1\) lies strictly above
+the fixed-defect midpoint:
+\[
+  2\area+d>\tau\binom{s}{2}.
+\]
+This uniform local obstruction is the main technical ingredient needed
+to rule out \(\East_5\) failure in the lower-half string decomposition.
+\end{abstract}
+
+\section{Words, statistics, and local tests}
+
+Throughout, \(\tau\ge2\) is a fixed integer, and
+\[
+  x_+=\max(x,0).
+\]
+For words \(U,V\), the notation \(U:V\) means concatenation; a single
+entry may be written without parentheses.
+
+\begin{definition}[Normalized step-\(\tau\) words]
+A \emph{word} of length \(s\) is a sequence
+\[
+  W=(w_0,w_1,\ldots,w_{s-1})
+\]
+of nonnegative integers.  It is a \emph{normalized step-\(\tau\) Dyck
+word} if
+\[
+  w_0=0,
+  \qquad
+  w_{i+1}\le w_i+\tau
+  \quad(0\le i<s-1).
+\]
+\end{definition}
+
+\begin{definition}[Area, dinv, and defect]
+For nonnegative integers \(a,b\), define
+\[
+  d_\tau(a,b)=
+  \begin{cases}
+    \max(0,a+\tau-b),&a\le b,\\[2mm]
+    \max(0,b+\tau+1-a),&a>b.
+  \end{cases}
+\]
+For a length-\(s\) word \(W\), put
+\[
+  \area(W)=\sum_{j=0}^{s-1}w_j,
+  \qquad
+  \dinv_\tau(W)=\sum_{0\le i<j<s}d_\tau(w_i,w_j),
+\]
+\[
+  M_s=\tau\binom{s}{2},
+  \qquad
+  \defc_\tau(W)=M_s-\area(W)-\dinv_\tau(W).
+\]
+For a fixed defect value \(d\), the middle area is
+\[
+  L_d=\left\lfloor\frac{M_s-d}{2}\right\rfloor.
+\]
+A normalized word \(D\) of defect \(d\) is \emph{strictly below the
+middle} when \(\area(D)<L_d\).
+\end{definition}
+
+The complementary pair weight is
+\[
+  K_\tau(a,b)=\tau-d_\tau(a,b)
+  =
+  \begin{cases}
+    \min(\tau,b-a),&a\le b,\\[2mm]
+    \min(\tau,a-b-1),&a>b.
+  \end{cases}
+\]
+Thus \(0\le K_\tau(a,b)\le\tau\).  For
+\(W=(w_0,\ldots,w_{s-1})\), define the lambda increment
+\[
+  \lambda_j(W)=\sum_{i<j}K_\tau(w_i,w_j)-w_j.
+\]
+Since \(K_\tau=\tau-d_\tau\), every word satisfies the exact identity
+\begin{equation}
+  \defc_\tau(W)=\sum_{j=0}^{s-1}\lambda_j(W).
+  \label{eq:defect-lambda}
+\end{equation}
+It will also be convenient to use the midpoint functional
+\[
+  J_\tau(W)=2\area(W)+\defc_\tau(W).
+\]
+Thus \(J_\tau(W)>M_s\) is equivalent to
+\(\area(W)>(M_s-\defc_\tau(W))/2\).
+
+\begin{definition}[Records]
+An occurrence \(w_j\) is a \emph{record} if \(j=0\), or if
+\[
+  w_j>\max\{w_0,\ldots,w_{j-1}\}.
+\]
+Every other occurrence is a \emph{nonrecord}.  The record values of a
+normalized word form a chain
+\[
+  0=r_0<r_1<\cdots<r_{I-1}=m
+\]
+with \(1\le r_i-r_{i-1}\le\tau\).  The number \(m\) is the
+\emph{record peak}.
+\end{definition}
+
+Indeed, when a new record is created, the preceding entry is no larger
+than the previous record peak, while normalization permits an increase of
+at most \(\tau\).
+
+\begin{definition}[The local tests \(\East_3\) and \(\East_5\)]
+On a three-window \((x_{-1},x_0,x_1)\), the test \(\East_3\) is defined
+exactly when
+\[
+  x_0\le x_1+\tau.
+\]
+When defined, it leaves the window unchanged.
+
+Suppose \(\East_3\) has failed on the inner three entries of a five-window
+\[
+  (a,b,c,p,q),
+  \qquad c>p+\tau.
+\]
+Define
+\[
+  \bk_\tau(b,c)=
+  \begin{cases}
+    (c,b),&b>c+\tau,\\
+    (b,c),&b\le c+\tau.
+  \end{cases}
+\]
+The map \(\East_5\) is defined as follows.
+\begin{enumerate}[label=\textup{(\alph*)}]
+  \item If \(b\le p+\tau\), then \(\East_5\) is defined exactly when
+  \(b\le q+\tau\), and its output is
+  \[
+    (a,p,c,b,q).
+  \]
+  \item If \(b>p+\tau\), write
+  \((b',c')=\bk_\tau(b,c)\).  Then \(\East_5\) is defined exactly when
+  \(c'\le q+\tau\), and its output is
+  \[
+    (a,p,b',c',q).
+  \]
+\end{enumerate}
+If the required final inequality fails, \(\East_5\) is said to
+\emph{fail}.
+\end{definition}
+
+\section{Kernel and record lemmas}
+
+\begin{lemma}[A record chain pays a target]
+\label{lem:record-payment}
+Let
+\[
+  0=r_0<r_1<\cdots<r_{I-1}=m,
+  \qquad r_i-r_{i-1}\le\tau.
+\]
+For \(0\le u\le m+\tau\), set
+\[
+  A(u)=\sum_{r_i\le u}K_\tau(r_i,u),
+  \qquad
+  G(u)=\sum_{i=0}^{I-1}K_\tau(r_i,u).
+\]
+Then
+\begin{align}
+  A(u)&\ge u,
+  \label{eq:record-basic}\\
+  G(u)&\ge u+(m-1-u)_+.
+  \label{eq:record-strong}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+If \(u\ge m\), then for \(i<I-1\),
+\[
+  K_\tau(r_i,u)=\min(\tau,u-r_i)\ge r_{i+1}-r_i,
+\]
+and \(K_\tau(m,u)=u-m\).  Summing gives \(A(u)=G(u)\ge u\).
+
+Now suppose \(u<m\), and let \(h\) be the largest index with
+\(r_h\le u\).  For \(i<h\),
+\[
+  K_\tau(r_i,u)\ge r_{i+1}-r_i,
+\]
+while \(K_\tau(r_h,u)=u-r_h\).  Hence the records at or below \(u\)
+pay at least \(u\), proving \eqref{eq:record-basic}.
+
+It remains to prove the extra term in \eqref{eq:record-strong}.  This term
+is zero when \(u\ge m-1\).  If \(u\le m-2\), then
+\[
+  K_\tau(r_{h+1},u)=r_{h+1}-u-1,
+\]
+because \(r_{h+1}\le r_h+\tau\le u+\tau\).  For every
+\(i\ge h+2\),
+\[
+  K_\tau(r_i,u)\ge r_i-r_{i-1}.
+\]
+Thus the records above \(u\) contribute at least
+\[
+  r_{h+1}-u-1+(m-r_{h+1})=m-u-1.
+\]
+Together with \eqref{eq:record-basic}, this proves
+\eqref{eq:record-strong}.
+\end{proof}
+
+\begin{corollary}[Lambda nonnegativity]
+\label{cor:lambda-nonnegative}
+If \(W\) is normalized, then \(\lambda_j(W)\ge0\) at every position.
+In particular, \(\defc_\tau(W)\ge0\).
+\end{corollary}
+
+\begin{proof}
+The assertion is clear at the first position.  At a later position, let
+\(m\) be the preceding record peak and put \(u=w_j\).  If \(u\) is a new
+record, normalization gives \(u\le m+\tau\); otherwise \(u\le m\).
+The preceding records at or below \(u\) contribute at least \(u\) by
+\eqref{eq:record-basic}, which cancels the subtraction in
+\(\lambda_j(W)\).
+\end{proof}
+
+\begin{lemma}[Forward and reverse far-pair bounds]
+\label{lem:far-pairs}
+If \(H\ge L+\tau+1\), then for every nonnegative integer \(x\),
+\begin{align}
+  K_\tau(x,H)+K_\tau(x,L)
+  &\ge \tau+\min\bigl(\tau,(L-x)_+\bigr),
+  \label{eq:forward-far}\\
+  K_\tau(H,x)+K_\tau(L,x)&\ge\tau.
+  \label{eq:reverse-far}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+If \(x\le L\), then \(K_\tau(x,H)=\tau\), and
+\eqref{eq:forward-far} is an equality.  If \(L<x\le H\), put
+\(a=x-L-1\) and \(b=H-x\).  Then \(a,b\ge0\) and
+\(a+b=H-L-1\ge\tau\), so
+\[
+  K_\tau(x,L)+K_\tau(x,H)
+  =\min(\tau,a)+\min(\tau,b)\ge\tau.
+\]
+If \(x>H\), then \(K_\tau(x,L)=\tau\).  This proves
+\eqref{eq:forward-far}.
+
+For \eqref{eq:reverse-far}, the result is immediate when \(x<L\) or
+\(x\ge H\), since one of the two terms is then \(\tau\).  If
+\(L\le x<H\), the two uncapped quantities are \(x-L\) and
+\(H-x-1\), whose sum is \(H-L-1\ge\tau\).  Capping each at \(\tau\)
+therefore leaves a sum of at least \(\tau\).
+\end{proof}
+
+\begin{lemma}[Consequences of an \(\East_5\) failure]
+\label{lem:east5-consequences}
+Suppose
+\[
+  c>p+\tau,
+  \qquad c\le b+\tau,
+\]
+and \(\East_5\) fails on \((a,b,c,p,q)\).  Then:
+\begin{enumerate}[label=\textup{(\roman*)}]
+  \item the four entries \(b,c,p,q\) can be paired as
+  \[
+    (H_1,L_1),\qquad(H_2,L_2),
+  \]
+  where \(\{H_1,H_2\}=\{b,c\}\),
+  \(\{L_1,L_2\}=\{p,q\}\), and
+  \[
+    H_i\ge L_i+\tau+1\qquad(i=1,2);
+  \]
+  \item if
+  \[
+    U=K_\tau(b,c)+K_\tau(b,p)+K_\tau(b,q)
+      +K_\tau(c,p)+K_\tau(c,q)+K_\tau(p,q),
+  \]
+  then
+  \begin{equation}
+    U\ge4\tau+(c-b-1)_+.
+    \label{eq:internal-U}
+  \end{equation}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+There are three failure modes.
+
+If \(b\le p+\tau\), failure means \(b>q+\tau\).  The far pairs are
+\((c,p)\) and \((b,q)\).  Since \(c>p+\tau\) and
+\(c\le b+\tau\), one has
+\[
+  1\le r:=b-p\le\tau,
+  \qquad c>b,
+  \qquad q\le b-\tau-1\le p-1.
+\]
+The three terms \(K_\tau(c,p),K_\tau(b,q),K_\tau(c,q)\) equal
+\(\tau\), while
+\[
+  K_\tau(b,c)=c-b,
+  \qquad
+  K_\tau(b,p)=r-1,
+  \qquad
+  K_\tau(p,q)\ge\tau-r.
+\]
+Thus \(U\ge4\tau+c-b-1\).
+
+If \(b>p+\tau\) and \(b\le c+\tau\), failure means
+\(c>q+\tau\).  The far pairs are \((b,p)\) and \((c,q)\).
+Moreover,
+\[
+  K_\tau(b,p)=K_\tau(c,p)=K_\tau(c,q)=\tau.
+\]
+Applying \eqref{eq:reverse-far} to the far pair \((b,p)\) with target
+\(q\) gives
+\[
+  K_\tau(b,q)+K_\tau(p,q)\ge\tau.
+\]
+Finally, normalization gives
+\[
+  K_\tau(b,c)\ge(c-b-1)_+.
+\]
+Hence \eqref{eq:internal-U} holds.
+
+If \(b>p+\tau\) and \(b>c+\tau\), failure means
+\(b>q+\tau\).  The far pairs are \((c,p)\) and \((b,q)\), and the
+four terms
+\[
+  K_\tau(b,c),\quad K_\tau(b,p),\quad
+  K_\tau(b,q),\quad K_\tau(c,p)
+\]
+all equal \(\tau\).  Here \((c-b-1)_+=0\), so
+\eqref{eq:internal-U} again follows.
+\end{proof}
+
+\section{Suffix and prefix ledgers}
+
+\begin{lemma}[Suffix ledger for a failed window]
+\label{lem:suffix-ledger}
+Let
+\[
+  \Sigma=P:b:c:p:q
+\]
+be a length-\(s\) word, where \(n=|P|=s-4\ge1\), \(P:b:c\) is
+normalized, \(c>p+\tau\), and \(\East_5\) fails on the final five
+entries.  Let \(m\) be the record peak of \(P\), and let \(N\) be the
+number of nonrecords in \(P\).  Define
+\[
+  S=b+c+p+q,
+\]
+\[
+  E_u=\sum_{x\text{ occurring in }P}
+       \min\bigl(\tau,(u-x)_+\bigr),
+  \qquad E=E_p+E_q.
+\]
+\[
+  X=(b+c-2m-2\tau-1)_+,
+\]
+\[
+  Y=(m-1-b)_++(m-1-p)_++(m-1-q)_+.
+\]
+Let \(\Lambda\) be the sum of the final four lambda increments of
+\(\Sigma\).  Then
+\begin{align}
+  E_p&\ge p,
+  &E_q&\ge q,
+  \label{eq:E-pays}\\
+  \Lambda&\ge2\tau n+4\tau+E+X-S,
+  \label{eq:suffix-refined}\\
+  \Lambda&\ge2\tau N+3\tau+Y.
+  \label{eq:suffix-low}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Let \(0=r_0<\cdots<r_{I-1}=m\) be the record chain of \(P\).  If
+\(a\) is the final entry of \(P\), normalization gives
+\[
+  b\le a+\tau\le m+\tau,
+  \qquad c\le b+\tau\le m+2\tau.
+\]
+Since \(c>p+\tau\),
+\[
+  p\le m+\tau-1.
+\]
+By Lemma~\ref{lem:east5-consequences}, \(q\) is the lower member of a
+far pair whose upper member is \(b\) or \(c\); hence also
+\[
+  q\le m+\tau-1.
+\]
+The records at or below \(p\), respectively \(q\), contribute to
+\(E_p\), respectively \(E_q\).  Therefore
+\eqref{eq:record-basic} proves \eqref{eq:E-pays}.
+
+For each occurrence \(x\) in \(P\), pair the four suffix entries as in
+Lemma~\ref{lem:east5-consequences}.  Applying
+\eqref{eq:forward-far} to the two pairs gives
+\[
+  K_\tau(x,b)+K_\tau(x,c)+K_\tau(x,p)+K_\tau(x,q)
+  \ge2\tau+
+  \min\bigl(\tau,(p-x)_+\bigr)+
+  \min\bigl(\tau,(q-x)_+\bigr).
+\]
+Summing over \(P\) gives \(2\tau n+E\).  The six internal terms among
+\(b,c,p,q\) contribute \(U\).  Moreover, since \(b\le m+\tau\),
+\[
+  b+c-2m-2\tau-1\le c-b-1,
+\]
+so \(X\le(c-b-1)_+\).  Equation \eqref{eq:internal-U} now gives
+\[
+  \Lambda\ge2\tau n+E+4\tau+X-S,
+\]
+which is \eqref{eq:suffix-refined}.
+
+For \eqref{eq:suffix-low}, write
+\[
+  G(u)=\sum_{i=0}^{I-1}K_\tau(r_i,u).
+\]
+By \eqref{eq:record-strong},
+\begin{equation}
+  G(b)+G(p)+G(q)\ge b+p+q+Y.
+  \label{eq:G-bpq}
+\end{equation}
+Every nonrecord occurrence of \(P\) contributes at least \(2\tau\) to
+the four suffix lambda sums, by the two far-pair bounds.
+
+It remains to account for the subtraction of \(c\).  We claim that
+\begin{equation}
+  G(c)+U\ge c+3\tau.
+  \label{eq:c-payment}
+\end{equation}
+First,
+\[
+  G(c)+K_\tau(b,c)\ge c.
+\]
+Indeed, if \(b\le m\), then \(c\le m+\tau\), so \(G(c)\ge c\) by
+\eqref{eq:record-basic}.  If \(b>m\), append \(b\) to the record chain;
+since \(b\le m+\tau\) and \(c\le b+\tau\), the extended chain pays
+\(c\).  Therefore, using \(U\ge4\tau\) and
+\(K_\tau(b,c)\le\tau\),
+\[
+  G(c)+U
+  =\bigl(G(c)+K_\tau(b,c)\bigr)
+   +\bigl(U-K_\tau(b,c)\bigr)
+  \ge c+3\tau.
+\]
+
+Combining \eqref{eq:G-bpq}, the \(2\tau N\) contribution of the
+nonrecords, and \eqref{eq:c-payment}, and then subtracting \(S\), yields
+\eqref{eq:suffix-low}.
+\end{proof}
+
+\begin{lemma}[Peak and lower-target mass]
+\label{lem:peak-and-E}
+In the setting of Lemma~\ref{lem:suffix-ledger}, let
+\[
+  \Delta=\sum_{j\text{ in }P}\lambda_j(P),
+  \qquad d=\defc_\tau(\Sigma)=\Delta+\Lambda.
+\]
+If
+\begin{equation}
+  d\le\tau(n+2)-1,
+  \label{eq:defect-range-n}
+\end{equation}
+then
+\begin{align}
+  m&\ge\frac{\tau n}{2},
+  \label{eq:peak-bound}\\
+  E&\ge\tau(1+2N)-1+\Delta.
+  \label{eq:E-bound}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+The prefix \(P\) is normalized, so \(\Delta\ge0\) by
+Corollary~\ref{cor:lambda-nonnegative}.  From
+\eqref{eq:suffix-refined} and \eqref{eq:E-pays},
+\[
+  d=\Delta+\Lambda
+  \ge2\tau n+4\tau+X-(b+c).
+\]
+Using \eqref{eq:defect-range-n},
+\begin{equation}
+  b+c-X\ge\tau(n+2)+1.
+  \label{eq:bc-lower}
+\end{equation}
+By the definition of \(X\),
+\[
+  b+c-X\le2m+2\tau+1.
+\]
+Combining this with \eqref{eq:bc-lower} proves
+\eqref{eq:peak-bound}.
+
+Next, \eqref{eq:suffix-low} and \eqref{eq:defect-range-n} give
+\begin{equation}
+  Y\le\tau(n-1-2N)-1-\Delta.
+  \label{eq:Y-upper}
+\end{equation}
+For \(u=p,q\), equation \eqref{eq:E-pays} implies
+\[
+  E_u+(m-1-u)_+\ge m-1.
+\]
+Since the two displayed positive parts are contained in \(Y\),
+\[
+  E\ge2m-2-Y.
+\]
+Applying \eqref{eq:peak-bound} and \eqref{eq:Y-upper} gives
+\[
+  E\ge\tau n-2-\bigl(\tau(n-1-2N)-1-\Delta\bigr)
+   =\tau(1+2N)-1+\Delta.
+\]
+\end{proof}
+
+\begin{lemma}[Prefix cancellation]
+\label{lem:prefix-cancellation}
+Let \(P\) be a normalized word with record values
+\[
+  0=r_0<r_1<\cdots<r_{I-1}=m
+\]
+and \(N\) nonrecord occurrences.  Put
+\[
+  T=\sum_{0\le i<j<I}K_\tau(r_i,r_j),
+  \qquad
+  \Delta=\sum_{j\text{ in }P}\lambda_j(P).
+\]
+Then
+\begin{equation}
+  \area(P)+\Delta\ge T+N(m-1).
+  \label{eq:prefix-cancellation}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Write \(P=(w_0,\ldots,w_{n-1})\).  By the definition of the lambda
+increments,
+\[
+  \area(P)+\Delta
+  =\sum_{i<j}K_\tau(w_i,w_j),
+\]
+the total \(K_\tau\)-weight of all chronologically ordered pairs in
+\(P\).
+
+Fix a nonrecord occurrence of value \(z\), and let \(r_t\) be the latest
+record preceding it.  Its total \(K_\tau\)-weight with the records, in
+the correct chronological orientation, is
+\[
+  C(z)=
+  \sum_{i=0}^{t}K_\tau(r_i,z)
+  +\sum_{i=t+1}^{I-1}K_\tau(z,r_i).
+\]
+We claim
+\begin{equation}
+  C(z)\ge m-1.
+  \label{eq:cross-payment}
+\end{equation}
+If \(z=r_t\), the preceding records pay \(z\) by
+\eqref{eq:record-basic}, and the later records contribute at least
+\(m-r_t\) by telescoping the record gaps.  Hence \(C(z)\ge m\).
+
+If \(z<r_t\), let \(h\) be the largest index with \(r_h\le z\).  The
+records through \(r_h\) pay \(z\).  The records from \(r_{h+1}\) through
+\(r_t\) contribute at least \(r_t-z-1\): the first term is
+\(r_{h+1}-z-1\), and each later term dominates the next record gap.
+The records after the occurrence of \(z\) contribute at least
+\(m-r_t\).  Thus \(C(z)\ge m-1\), proving
+\eqref{eq:cross-payment}.
+
+Summing \(C(z)\) over the \(N\) nonrecords gives exactly the
+record-to-nonrecord plus nonrecord-to-record \(K_\tau\)-weight.  If
+\(K_{N\to N}\) denotes the nonrecord-to-nonrecord weight, then
+\[
+  \area(P)+\Delta
+  =T+\sum_{z\text{ nonrecord}}C(z)+K_{N\to N}
+  \ge T+N(m-1),
+\]
+since \(K_{N\to N}\ge0\).
+\end{proof}
+
+\begin{lemma}[Record-energy bound]
+\label{lem:record-energy}
+Let
+\[
+  0=r_0<r_1<\cdots<r_{I-1}=m,
+  \qquad r_i-r_{i-1}\le\tau,
+\]
+and set \(x=m/\tau\).  Then
+\begin{equation}
+  \sum_{0\le i<j<I}K_\tau(r_i,r_j)
+  \ge
+  \tau\left(Ix-\frac{x(x+1)}2-\frac18\right).
+  \label{eq:record-energy}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Put
+\[
+  u_j=\frac{r_j-r_{j-1}}{\tau}
+  \qquad(1\le j<I).
+\]
+Then \(0<u_j\le1\), \(\sum_j u_j=x\), and the left side of
+\eqref{eq:record-energy}, divided by \(\tau\), is
+\[
+  \Phi(u_1,\ldots,u_{I-1})
+  =\sum_{0\le i<j<I}
+   \min\bigl(1,u_{i+1}+\cdots+u_j\bigr).
+\]
+Each summand is \(t\mapsto\min(1,t)\) applied to a linear form, so
+\(\Phi\) is concave.  Relax the domain to
+\[
+  0\le u_j\le1,
+  \qquad \sum_j u_j=x.
+\]
+A minimum can be chosen at an extreme point: if a minimizer is a
+nontrivial convex combination, concavity makes one endpoint another
+minimizer.  Such a point has at most one fractional coordinate, since
+otherwise a small amount can be transferred between two fractional
+coordinates in both directions.
+
+First suppose \(x=k\) is an integer.  Place \(I\) abstract slots
+\(0,1,\ldots,I-1\), with \(u_j\) between slots \(j-1\) and \(j\).  The
+\(k\) ones split the slots into \(k+1\) nonempty consecutive blocks.  A
+summand is one exactly when its endpoint slots lie in different blocks,
+so \(\Phi\) counts such pairs.  The number of same-block pairs is at most
+\(\binom{I-k}{2}\), attained by block sizes \(I-k,1,\ldots,1\).  Hence
+\[
+  \Phi\ge q_I(k):=\binom I2-\binom{I-k}{2}
+  =Ik-\frac{k(k+1)}2.
+\]
+
+Now let \(x=k+\theta\), where \(k=\lfloor x\rfloor\) and
+\(0<\theta<1\).  An extreme point has \(k\) ones, one coordinate
+\(\theta\), and the rest zero.  Replacing \(\theta\) by zero and one
+gives \(v,w\) with \(u=(1-\theta)v+\theta w\).  Therefore
+\[
+\begin{aligned}
+  \Phi(u)
+  &\ge(1-\theta)q_I(k)+\theta q_I(k+1)\\
+  &=q_I(k)+\theta(I-k-1)\\
+  &=q_I(x)-\frac{\theta(1-\theta)}2
+  \ge q_I(x)-\frac18,
+\end{aligned}
+\]
+where \(q_I(t)=It-t(t+1)/2\).  This is \eqref{eq:record-energy}.
+\end{proof}
+
+\section{The uniform local obstruction}
+
+\begin{theorem}[A failed \(\East_5\) window lies above the midpoint]
+\label{thm:local-obstruction}
+Let \(\tau\ge2\) and \(s\ge5\).  Suppose
+\[
+  \Sigma=P:b:c:p:q
+\]
+is a length-\(s\) word such that
+\begin{enumerate}[label=\textup{(\roman*)}]
+  \item \(P:b:c\) is a normalized step-\(\tau\) Dyck word;
+  \item \(p,q\) are nonnegative integers;
+  \item \(c>p+\tau\);
+  \item \(\East_5\) fails on the final five entries;
+  \item \(d=\defc_\tau(\Sigma)\le\tau(s-2)-1\).
+\end{enumerate}
+Then
+\begin{equation}
+  J_\tau(\Sigma)=2\area(\Sigma)+d>M_s=\tau\binom{s}{2}.
+  \label{eq:local-conclusion}
+\end{equation}
+Equivalently,
+\[
+  \area(\Sigma)>\frac{M_s-d}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Put \(n=s-4\), so
+\[
+  d\le\tau(n+2)-1.
+\]
+Let \(m\) be the record peak of \(P\), let \(N\) be its number of
+nonrecords, and put \(I=n-N\) and \(x=m/\tau\).  Let \(\Delta\) be the
+prefix lambda sum, \(\Lambda=d-\Delta\) the final-four lambda sum, \(E\)
+the upward prefix-to-\(p,q\) sum, \(X=(b+c-2m-2\tau-1)_+\), and \(T\)
+the record--record \(K_\tau\)-sum.
+
+If \(n=1\), then \(P=(0)\), so \(N=0\) and \(\Delta=0\).  Equation
+\eqref{eq:suffix-low} gives \(d=\Lambda\ge3\tau\), contradicting
+\(d\le3\tau-1\).  Hence no failed window exists in this case.
+
+Assume \(n\ge2\).  By Lemma~\ref{lem:peak-and-E},
+\begin{equation}
+  x\ge\frac n2,
+  \qquad
+  E\ge\tau(1+2N)-1+\Delta.
+  \label{eq:x-E-summary}
+\end{equation}
+Since the \(I-1\) record gaps are at most \(\tau\),
+\begin{equation}
+  x\le I-1\le n-1.
+  \label{eq:x-upper}
+\end{equation}
+
+Rearranging \eqref{eq:suffix-refined} and using
+\(d=\Delta+\Lambda\) gives
+\[
+  b+c+p+q\ge2\tau(n+2)+E+X+\Delta-d.
+\]
+Adding this to \eqref{eq:prefix-cancellation} yields
+\begin{equation}
+  \area(\Sigma)
+  \ge T+N(m-1)+2\tau(n+2)+E+X-d.
+  \label{eq:area-master}
+\end{equation}
+Using \(X\ge0\) and \(-d\ge-\tau(n+2)+1\),
+\begin{align}
+  J_\tau(\Sigma)-M_s
+  &\ge2T+2N(m-1)+4\tau(n+2)+2E+2X-d-M_s\notag\\
+  &\ge2T+2N(m-1)+3\tau(n+2)+1+2E-M_s.
+  \label{eq:J-master}
+\end{align}
+
+By Lemma~\ref{lem:record-energy},
+\(2T\ge\tau(2Ix-x(x+1)-1/4)\).  Also
+\(2N(m-1)=2\tau Nx-2N\), \(I+N=n\), and
+\(M_s=\tau(n+4)(n+3)/2\).  Thus \eqref{eq:J-master} becomes
+\begin{align}
+  J_\tau(\Sigma)-M_s
+  \ge\tau\left(
+    2nx-x(x+1)-\frac14+3(n+2)
+    -\frac{(n+4)(n+3)}2
+  \right)
+  +1-2N+2E.
+  \label{eq:J-x}
+\end{align}
+For \(f(x)=2nx-x(x+1)\), \eqref{eq:x-upper} gives
+\(f'(x)=2n-2x-1\ge1\).  Hence \eqref{eq:x-E-summary} gives
+\(f(x)\ge f(n/2)=3n^2/4-n/2\).  Substitution into \eqref{eq:J-x} gives
+\begin{equation}
+  J_\tau(\Sigma)-M_s
+  \ge
+  \frac{\tau(n^2-4n-1)}4+1-2N+2E.
+  \label{eq:J-before-E}
+\end{equation}
+Finally, \eqref{eq:x-E-summary} and \(\Delta\ge0\) give
+\(E\ge\tau(1+2N)-1\).  Substitution into
+\eqref{eq:J-before-E} yields
+\begin{align*}
+  J_\tau(\Sigma)-M_s
+  &\ge
+  \frac{\tau\bigl((n-2)^2+3\bigr)}4
+  +(4\tau-2)N-1\\
+  &\ge \frac{3\tau}{4}-1
+  \ge\frac12>0.
+\end{align*}
+This proves \eqref{eq:local-conclusion}.
+\end{proof}
+
+\end{document}

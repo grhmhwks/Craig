@@ -1,0 +1,285 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newcommand{\Peak}{\operatorname{Peak}}
+\newcommand{\shape}{\operatorname{shape}}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\ShSet}{\operatorname{ShSet}}
+\newcommand{\SDT}{\operatorname{SDT}}
+\newcommand{\GC}{\mathrm{GC}}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\title{Type \(C\) Grothendieck Functions and a Peakset-Refined Check}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Purpose and status}
+
+This note records computational evidence for a conjectural positive expansion
+of type \(C\) \(K\)-Stanley symmetric functions.  The conjecture appears in
+the paper of Arroyo, Hamaker, Hawkes, and Pan~\cite{AHHP}.  The code included
+here checks a stronger, peakset-refined finite statement.  The checks are
+exact enumerations in bounded rank and degree; they do not construct the
+conjectural bijection and do not prove the general expansion.
+
+We use the standard convention that the type \(C\) Weyl group \(W_a\) has
+simple generators
+\[
+  s_0,s_1,\ldots,s_{a-1}.
+\]
+Thus the alphabet for \(W_a\) is \(\{0,1,\ldots,a-1\}\).
+
+\section{Hecke words and peaksets}
+
+An element of \(W_a\) is a signed permutation
+\(w=[w_1,\ldots,w_a]\).  In the type \(C\) \(0\)-Hecke monoid the Coxeter
+relations are retained and the relation \(s_i^2=1\) is replaced by
+\(s_i\circ s_i=s_i\).  A word
+\[
+  u=(u_1,\ldots,u_n),\qquad u_i\in\{0,\ldots,a-1\},
+\]
+is a \emph{Hecke word} for \(w\) when
+\[
+  w=s_{u_1}\circ\cdots\circ s_{u_n}.
+\]
+Its peakset is
+\[
+  \Peak(u)=\{i:2\le i\le n-1,\ u_{i-1}<u_i>u_{i+1}\}.
+\]
+The reduced finite check uses the subset \(\mathcal H_n^*(w)\) consisting of
+Hecke words with no adjacent equal letters.
+
+The type \(C\) stable Grothendieck polynomial, also called the type \(C\)
+\(K\)-Stanley symmetric function, is denoted \(\GC_w\).  It may be described
+as a generating function over signed unimodal factorizations of Hecke words;
+the monomial records the factor sizes.  This definition is equivalent to the
+coefficient definition in Section~3 of~\cite{AHHP}.
+
+\section{The two tableau families}
+
+A strict partition \(\lambda=(\lambda_1>\cdots>\lambda_k>0)\) determines a
+shifted Young diagram.  Two tableau families of the same strict shape occur in
+the conjecture.
+
+\subsection*{Strict decomposition tableaux}
+
+A word \(r_1\cdots r_m\) is \emph{unimodal} if, for some dip position \(q\),
+\[
+  r_1>\cdots>r_q<r_{q+1}<\cdots<r_m.
+\]
+A strict decomposition tableau is a shifted tableau whose rows are unimodal
+and whose adjacent rows satisfy the type \(C\) column condition of
+Definition~4.3 in~\cite{AHHP}.  Briefly, after the decreasing portions of the
+two rows are signed, the first and last entries of the lower row must lie
+below the first entry of the upper row, and no signed entry outside a column
+may lie in the forbidden interval determined by the two entries in that
+column.  The function \texttt{column\_compatible} in \texttt{code.py}
+implements this condition directly.
+
+Rows are read left to right, from the bottom row to the top row.  Let
+\(\SDT_w(\lambda)\) be the set of strict decomposition tableaux of shape
+\(\lambda\) whose reading words are Hecke words for \(w\), and put
+\[
+  a_w^C(\lambda)=|\SDT_w(\lambda)|.
+\]
+These objects were called type \(C\) unimodal Hecke tableaux in the earlier
+computational formulation.
+
+\subsection*{Standard shifted set-valued tableaux}
+
+A standard shifted set-valued tableau \(Q\) of shape \(\lambda\) fills the
+boxes of the shifted diagram with nonempty sets that partition
+\(\{1,\ldots,n\}\), with entries weakly increasing across rows and down
+columns in the set-valued sense.  The integer \(n\) is the number of labels,
+not the number of boxes.  Its peakset is
+\[
+  \Peak(Q)=\{i: i-1\text{ lies in a column left of }i,
+                 \text{ and }i+1\text{ lies in a row below }i\}.
+\]
+The reduced check further requires that \(i\) and \(i+1\) never occur in the
+same box.
+
+The \(Q\)-Grothendieck function \(GQ_\lambda^{(\beta)}\) is the generating
+function of semistandard shifted set-valued tableaux of shape \(\lambda\),
+with \(\beta\) recording the excess number of entries over boxes.
+
+\section{The conjectural expansions}
+
+The main conjecture of~\cite{AHHP} is the following.
+
+\begin{conjecture}[Arroyo--Hamaker--Hawkes--Pan]
+For every signed permutation \(w\),
+\[
+  \GC_w
+  =
+  \sum_{\lambda\text{ strict}}
+     \beta^{|\lambda|-\ell(w)}
+     a_w^C(\lambda)\,GQ_\lambda^{(\beta)}.
+\]
+Equivalently, the coefficient of \(GQ_\lambda^{(\beta)}\) is counted by
+strict decomposition tableaux of shape \(\lambda\) whose reading word is a
+Hecke word for \(w\).
+\end{conjecture}
+
+A useful normalized form separates the sign choices on the factorization side
+from the priming choices on the tableau side.  Let \(\GC_w^+\) retain only
+factorizations in which every factor has a unique entry of least absolute
+value and that entry has positive sign.  Let \(GR_\lambda\) be the
+corresponding submodel of \(GQ_\lambda\) in which the first occurrence of
+\(i\) or \(i'\), in the prescribed reading order, is the unprimed \(i\).  The
+stronger normalized prediction is schematically
+\[
+  \GC_w^+=\sum_{P\in\SDT_w}\beta^{|P|-\ell(w)}GR_{\shape(P)}.
+\]
+Removing these parallel normalizations gives the \(\GC_w\)-to-\(GQ\)
+expansion.  Thus the normalized statement contains the unrestricted one.
+
+\section{The reduced peakset statement}
+
+The computational backbone is smaller than either full symmetric-function
+identity.  For a signed permutation \(w\), degree \(n\), and peakset \(S\),
+define
+\[
+  \mathcal W(w,n,S)
+  =\{u\in\mathcal H_n^*(w):\Peak(u)=S\}
+\]
+and
+\[
+  \mathcal P(w,n,S)
+  =\left\{(P,Q):
+  \begin{array}{l}
+    P\in\SDT_w(\lambda)\text{ for some strict }\lambda,\\
+    Q\in\ShSet_n(\lambda),\quad \Peak(Q)=S,\\
+    \text{no box of }Q\text{ contains consecutive labels}
+  \end{array}\right\}.
+\]
+The strongest finite comparison is
+\[
+  |\mathcal W(w,n,S)|=|\mathcal P(w,n,S)|
+  \qquad\text{for every }(w,n,S)
+\]
+in the selected rank and degree range.
+
+This is the natural standardized form of the conjecture.  Standardization of
+shifted set-valued tableaux organizes \(GQ\) into peak quasisymmetric
+functions, while adjacent repetitions in a Hecke word correspond to
+consecutive recording labels sharing a box.  Consequently, a
+peakset-preserving bijection between the reduced objects would inflate to the
+normalized \((G_w^C)^+\)-to-\(GR\) correspondence, and then to the unrestricted
+\(GC_w\)-to-\(GQ\) expansion.  The program verifies the resulting
+peakset-refined equinumerosity in finite ranges; it does not supply the
+bijection.
+
+\section{What the Python program checks}
+
+The program constructs three count tables.
+
+\paragraph{Word table.}
+It grows repetition-free words one letter at a time.  Storing all words would
+be wasteful, so partial words with identical continuation data are merged.
+A state records the current signed permutation, the last letter, whether the
+previous comparison was a rise, and the peakset bitmask.  Appending a generator updates the \(0\)-Hecke product,
+forbids repetition of the last letter, and decides whether the previous
+position becomes a peak.  The result is
+\[
+  W[w][(n,S)]=|\mathcal W(w,n,S)|.
+\]
+
+\paragraph{Recording-tableau table.}
+Starting from the empty tableau, the next label is placed either in a valid
+existing outer-corner box or in a new outer-corner box.  Consecutive labels
+are forbidden in the same box, and states with the same shape, last two
+positions, and peakset are merged.  This gives
+\[
+  R[\lambda][(n,S)]
+  =\#\{Q\in\ShSet_n(\lambda):\Peak(Q)=S,
+            \text{ no consecutive labels share a box}\}.
+\]
+
+\paragraph{Hecke-tableau table.}
+The code first generates all unimodal rows over \(\{0,\ldots,a-1\}\), then
+builds strict decomposition tableaux row by row using the column condition.
+It records
+\[
+  H[w][\lambda]=|\SDT_w(\lambda)|.
+\]
+
+\paragraph{Comparison.}
+The tableau-pair count is obtained without explicitly constructing the
+Cartesian product:
+\[
+  P[w][(n,S)]
+  =\sum_\lambda H[w][\lambda]R[\lambda][(n,S)].
+\]
+The program compares \(W[w][(n,S)]\) and \(P[w][(n,S)]\) for every key.
+It uses only the Python standard library.
+
+For example,
+\begin{verbatim}
+python code.py --rank 4 --max-degree 12
+\end{verbatim}
+checks \(W_4\), with generators \(0,1,2,3\), through degree \(12\).
+This run passed with no mismatched peakset bins.
+
+\section{Recorded evidence}
+
+The paper reports that Conjecture~1.3 was checked through degree \(9\) for
+\(w\in W_4\) and through degree \(11\) for \(w\in W_3\)~\cite{AHHP}.
+The readable Python implementation supplied here was additionally run for
+\(W_4\) through degree \(12\), again with no mismatches.
+
+For larger experiments, the item also includes
+\texttt{type\_c\_peakset\_check.cpp}.  Its internal optimizations are not needed to
+understand the check.  Compiled with
+\begin{verbatim}
+g++ -O3 -march=native -DNDEBUG -std=c++20 -pthread \
+    type_c_peakset_check.cpp -o type_c_peakset_check
+\end{verbatim}
+and run as
+\begin{verbatim}
+./type_c_peakset_check 15 4
+\end{verbatim}
+it verified \(W_6\), with generators \(0,\ldots,5\), through degree \(15\).
+The degree-zero case is the common empty object and is immediate.  The run
+reported
+\[
+\begin{array}{rcl}
+\text{repetition-free words counted} &=& 45{,}776{,}367{,}186,\\
+\text{strict decomposition tableaux} &=& 915{,}518,\\
+\text{eligible recording tableaux} &=& 3{,}031{,}815,\\
+\text{nonzero peakset bins compared} &=& 14{,}441{,}690,\\
+\text{mismatches} &=& 0.
+\end{array}
+\]
+On the machine used for this item, the wall time was approximately
+\(2.82\) seconds and peak resident memory was approximately \(636\) MiB.
+Runtime is machine-dependent.
+
+\section{Interpretation}
+
+The computations provide substantial evidence for a peakset-preserving
+correspondence, and hence for the conjectural \(GR\) and \(GQ\) expansions of type \(C\) \(K\)-Stanley functions.
+They establish exact equality of all reduced finite bins in the stated ranges,
+but they do not explain the equality.  The central open problem remains to
+construct a peakset-preserving bijection
+\[
+  u\longleftrightarrow(P,Q)
+\]
+between repetition-free type \(C\) Hecke words and compatible pairs of strict
+decomposition and shifted set-valued recording tableaux.
+
+\begin{thebibliography}{9}
+\bibitem{AHHP}
+Joshua Arroyo, Zachary Hamaker, Graham Hawkes, and Jianping Pan,
+\emph{Type C \(K\)-Stanley symmetric functions and
+Kra\'skiewicz--Hecke insertion},
+arXiv:2503.16641, 2025.
+\end{thebibliography}
+
+\end{document}

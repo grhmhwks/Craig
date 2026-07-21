@@ -1,0 +1,263 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{url}
+
+\DeclareMathOperator{\area}{area}
+\DeclareMathOperator{\dinv}{dinv}
+\DeclareMathOperator{\RR}{RR}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\title{Dyck Skeleton--Tableau Formulas}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This note records a two-column skeleton--tableau formula for the
+\(q,t\)-Catalan polynomial.  In the classical Dyck case the formula is a
+proved theorem of the 2026 paper \emph{Dyck Symmetric Functions and
+Applications to \(q,t\)-Catalan Polynomials}.  The same expression has a
+natural rational analogue in the family
+\[
+  r=s\tau+1,
+\]
+where \(s\) is the path length and \(\tau\) is a nonnegative integer step
+parameter.  For \(\tau>1\) this rational analogue is conjectural, but it has
+been checked in finite ranges by comparing the direct \(q,t\)-coefficient
+polynomial with the skeleton--tableau expansion.
+
+The formula is useful because it separates a Dyck path into two pieces.  The
+first piece is a skeleton \(F\), which records a rigid part of the path.  The
+second piece is an at-most-two-column Dyck tableau \(P\), whose shape produces
+a two-variable Schur factor.  Thus the formula rewrites a sum over individual
+Dyck paths as a sum over pairs \((F,P)\).
+
+Throughout the note, \(q\) records area and \(t\) records dinv.  The step
+parameter is written \(\tau\) to avoid confusing it with the variable \(t\).
+
+\section{The classical formula}
+
+A classical Dyck sequence of length \(n\) is a sequence
+\[
+  D=(D_0,\ldots,D_{n-1})
+\]
+of nonnegative integers such that \(D_0=0\) and
+\[
+  D_{i+1}\le D_i+1
+  \qquad(0\le i<n-1).
+\]
+Its area is
+\[
+  \area(D)=\sum_i D_i,
+\]
+and its classical dinv statistic is
+\[
+  \dinv(D)=\#\{(i,j):0\le i<j<n,
+      \ D_i=D_j\text{ or }D_i=D_j+1\}.
+\]
+The ordinary \(q,t\)-Catalan polynomial in this convention is
+\[
+  C_n(q,t)=\sum_D q^{\area(D)}t^{\dinv(D)},
+\]
+where \(D\) ranges over all Dyck sequences of length \(n\).
+
+The formula below uses Dyck \(m\)-skeletons and Dyck tableaux.  Informally, a
+Dyck \(m\)-skeleton is a Dyck sequence whose final entry is its maximum
+\(m\), and which has no nonfinal entry that can be extracted by the skeleton
+reduction rule.  A Dyck tableau is a left-aligned tableau whose rows are dual
+Dyck sequences and whose columns are affine Dyck sequences.  The formula only
+uses tableaux with at most two columns and with entries in \([0,m-1]\).  If
+\(P\) is such a tableau, \(\lambda(P)\) denotes its partition shape and
+\(\RR(P)\) denotes its row-reading word, read from bottom row to top row and
+left to right inside each row.
+
+\begin{theorem}[Hawkes, two-column tableau formula]
+For every \(n\ge1\),
+\[
+  C_n(q,t)
+  =
+  \sum_{(F,P)}
+  q^{\area(F:\RR(P))}
+  t^{\dinv(F:\RR(P))-|P|}
+  s_{\lambda(P)'}(q,t).
+\]
+The sum is over all pairs \((F,P)\) such that \(F\) is a Dyck
+\(m\)-skeleton for some \(m\ge0\), \(P\) is an at-most-two-column Dyck
+tableau with entries in \([0,m-1]\), and
+\[
+  |F|+|\RR(P)|=n.
+\]
+Here \(\lambda(P)'\) is the conjugate partition and
+\(s_{\lambda(P)'}(q,t)\) is the Schur function in the two variables \(q,t\).
+\end{theorem}
+
+The Schur factor comes from the proof.  The 2026 paper constructs a chain of
+area- and dinv-preserving correspondences from Dyck sequences to triples
+\((F,P,Q)\), where \(F\) is the skeleton, \(P\) is the two-column Dyck
+tableau, and \(Q\) is a binary reverse semistandard tableau of the same shape
+as \(P\).  After \((F,P)\) is fixed, summing over all possible binary
+recording tableaux \(Q\) gives the two-variable Schur function on the
+conjugate shape.  The factor \(t^{-|P|}\) appears because a cell of \(Q\)
+contributes either a \(q\)-weight or a compensating negative \(t\)-shift before
+this sum is rewritten as a Schur polynomial.
+
+\section{The rational \(r=s\tau+1\) model}
+
+Now fix integers \(s\ge1\) and \(\tau\ge0\).  A normalized \(\tau\)-Dyck
+sequence of length \(s\) is a sequence
+\[
+  D=(D_0,\ldots,D_{s-1})
+\]
+of nonnegative integers such that
+\[
+  D_0=0,
+  \qquad
+  D_{i+1}\le D_i+\tau
+  \qquad(0\le i<s-1).
+\]
+For any finite integer word \(x=(x_0,\ldots,x_{\ell-1})\), define
+\[
+  \dinv_\tau(x)
+  =
+  \sum_{0\le i<j<\ell} d_\tau(x_i,x_j),
+\]
+where
+\[
+  d_\tau(a,b)=
+  \begin{cases}
+    \max(0,a+\tau-b),& a\le b,\\
+    \max(0,b+1+\tau-a),& a>b.
+  \end{cases}
+\]
+The rational \(q,t\)-Catalan polynomial in this model is
+\[
+  C_{s,\tau}(q,t)
+  =
+  \sum_D q^{\area(D)}t^{\dinv_\tau(D)},
+\]
+where \(D\) ranges over normalized \(\tau\)-Dyck sequences of length \(s\).
+For \(\tau=1\) this is the classical Dyck case with \(n=s\).
+
+The rational skeleton and tableau definitions parallel the classical ones.  An
+entry \(D_j=e\) of a normalized \(\tau\)-Dyck sequence is called extractable if
+\(e>0\), exactly one earlier entry lies in the predecessor interval
+\[
+  [\max(0,e-\tau),e),
+\]
+and deleting \(D_j\) preserves the adjacent \(\tau\)-Dyck inequality.  If
+\(0<j<s-1\), the deletion condition is
+\[
+  D_{j+1}\le D_{j-1}+\tau.
+\]
+If \(j=s-1\), there is no new adjacent pair to check.  A rational
+\(m\)-skeleton is a normalized \(\tau\)-Dyck sequence whose final entry is its
+maximum \(m\), and which has no nonfinal extractable entry.  A final
+extractable entry is allowed.
+
+A rational Dyck tableau of step \(\tau\) is a left-aligned tableau whose row
+lengths form a partition, whose rows are dual \(\tau\)-Dyck sequences
+\[
+  P_i[j+1]>P_i[j]+\tau,
+\]
+and whose columns, read from bottom to top, are affine \(\tau\)-Dyck
+sequences.  Equivalently, if row \(i\) is immediately above row \(i+1\), then
+\[
+  P_i[j]\le P_{i+1}[j]+\tau
+\]
+whenever both entries exist.  Its row-reading word \(\RR(P)\) is read from
+bottom row to top row, left to right within each row.
+
+\begin{conjecture}[Rational two-column skeleton--tableau formula]
+For \(\tau\ge0\) and \(s\ge1\),
+\[
+  C_{s,\tau}(q,t)
+  =
+  \sum_{(F,P)}
+  q^{\area(F:\RR(P))}
+  t^{\dinv_\tau(F:\RR(P))-|P|}
+  s_{\lambda(P)'}(q,t).
+\]
+The sum is over all pairs \((F,P)\) such that \(F\) is a rational
+\(m\)-skeleton of step \(\tau\) for some \(m\ge0\), \(P\) is an
+at-most-two-column rational Dyck tableau of step \(\tau\) with entries in
+\([0,m-1]\), and
+\[
+  |F|+|\RR(P)|=s.
+\]
+\end{conjecture}
+
+For \(\tau=1\), this is exactly the classical theorem above.  For \(\tau=0\),
+the model is degenerate: the only normalized \(\tau\)-Dyck sequence of each
+length is the all-zero sequence, and the formula reduces to the single empty
+tableau contribution.  For \(\tau>1\), the displayed identity is a conjecture.
+The code accompanying this item checks it by direct finite enumeration.
+
+\section{Computational checks}
+
+The file \texttt{code.py} is a readable reference checker for the rational
+formula.  For each requested pair \((\tau,s)\), it builds two coefficient
+Dictionaries indexed by \((\area,\dinv)\):
+\begin{itemize}
+  \item the direct dictionary, obtained by enumerating all normalized
+        \(\tau\)-Dyck sequences of length \(s\);
+  \item the formula dictionary, obtained by enumerating rational
+        \(m\)-skeletons, at-most-two-column rational Dyck tableaux, and the
+        two-variable Schur expansion of \(s_{\lambda(P)'}(q,t)\).
+\end{itemize}
+The check passes exactly when these two dictionaries agree for every exponent
+pair.
+
+The default command is deliberately small:
+\[
+  \texttt{python code.py}
+\]
+It checks \(\tau=2\) and \(1\le s\le5\).  Larger cases were verified for this
+item with optimized code.  The recorded verified ranges are
+\[
+\begin{array}{c|c}
+\tau & \text{verified lengths}\\
+\hline
+2 & 1\le s\le14\\
+3 & 1\le s\le12\\
+4 & 1\le s\le10.
+\end{array}
+\]
+Those optimized runs compare the same two coefficient dictionaries, but use a
+more efficient implementation than the readable file included here.
+
+The computational evidence does not prove the conjecture for all \(s\) when
+\(\tau>1\).  It does, however, give a precise finite formulation: for each
+checked \((\tau,s)\), every coefficient of the direct rational
+\(q,t\)-Catalan polynomial agrees with the corresponding coefficient predicted
+by the rational skeleton--tableau expansion.
+
+\section{Status}
+
+The classical two-column skeleton--tableau formula is theorem-level material:
+it is Theorem 4.20 of the 2026 paper.  The rational \(r=s\tau+1\) formula is
+known in the classical specialization \(\tau=1\) and is tautological in the
+degenerate specialization \(\tau=0\).  For \(\tau>1\), it should be read as a
+conjectural extension supported by the finite checks listed above.  A general
+proof, or a conceptual bijection explaining why the same two-column
+skeleton--tableau structure survives for \(\tau>1\), remains open.
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2026DyckSymmetric}
+Graham Hawkes,
+\emph{Dyck Symmetric Functions and Applications to \(q,t\)-Catalan Polynomials},
+arXiv:2605.13003, 2026.
+\[
+  \texttt{https://arxiv.org/abs/2605.13003}
+\]
+
+\end{thebibliography}
+
+\end{document}

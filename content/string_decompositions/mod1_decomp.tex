@@ -1,0 +1,1042 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\UP}{\operatorname{UP}}
+\newcommand{\DOWN}{\operatorname{DOWN}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\West}{\operatorname{West}}
+\newcommand{\inj}{\operatorname{inj}}
+\newcommand{\bk}{\operatorname{bk}}
+\newcommand{\Cat}{\operatorname{Cat}}
+\newcommand{\NN}{\mathbb N}
+
+\title{The Modulo-One String Decomposition}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Statement and conventions}
+
+Fix integers
+\[
+  \tau\ge2,
+  \qquad s\ge6,
+  \qquad r=\tau s+1,
+  \qquad M_s=\tau\binom{s}{2}.
+\]
+A \emph{normalized step-$\tau$ Dyck word} of length $s$ is a word
+\[
+  D=(x_0,\ldots,x_{s-1})
+\]
+of nonnegative integers such that
+\[
+  x_0=0,
+  \qquad x_{i+1}\le x_i+\tau.
+\]
+Its statistics are
+\[
+  \area(D)=\sum_i x_i
+\]
+and
+\[
+  \dinv_\tau(D)=\sum_{i<j}d_\tau(x_i,x_j),
+\]
+where
+\[
+ d_\tau(u,v)=
+ \begin{cases}
+   (u+\tau-v)_+,&u\le v,\\
+   (v+\tau+1-u)_+,&u>v.
+ \end{cases}
+\]
+Here $z_+=\max(0,z)$.  We put
+\[
+  \defc_\tau(D)=M_s-\area(D)-\dinv_\tau(D).
+\]
+For a fixed defect $d$, write
+\[
+  L_d=\left\lfloor\frac{M_s-d}{2}\right\rfloor.
+\]
+Thus $D$ is in the weak lower half of its defect layer precisely when
+$\area(D)\le L_d$, and it is strictly below the middle when
+$\area(D)\le L_d-1$.
+
+We write $A:B$ for concatenation.  An occurrence $x_j=e>0$ is
+\emph{extractable} if exactly one earlier occurrence lies in
+\[
+  [\max(0,e-\tau),e)
+\]
+and deleting $x_j$ leaves a normalized word.  If $0<j<s-1$, the latter
+condition is the splice inequality
+\[
+  x_{j+1}\le x_{j-1}+\tau.
+\]
+The extraction convention always chooses the leftmost extractable
+occurrence.
+
+Conversely, if $e>0$ and a normalized word contains an occurrence in
+\[
+  [\max(0,e-\tau),e),
+\]
+then $\inj_e$ inserts $e$ immediately after the first such occurrence.
+This is the inverse of extracting the inserted occurrence whenever the
+resulting insertion is admissible.
+
+A \emph{full skeleton} is a normalized word with no extractable occurrence.
+For $s\ge4$, let
+\[
+  \epsilon_{s,\tau}
+  =(0,0,1,\underbrace{0,\ldots,0}_{s-4\text{ entries}},\tau).
+\]
+A \emph{special skeleton} is a full skeleton other than
+$\epsilon_{s,\tau}$.  The exceptional skeleton and the word
+$(0,\ldots,0,\tau)$ both have defect $\tau(s-2)$, one beyond the range
+treated below.
+
+The rational $q,t$-Catalan polynomial in this normalization is
+\[
+  \Cat_{\tau s+1,s}(q,t)
+  =\sum_D q^{\dinv_\tau(D)}t^{\area(D)},
+\]
+where the sum is over normalized step-$\tau$ Dyck words of length $s$.
+
+\subsection{The local moves}
+
+On a three-window $(a,c,p)$, the map $\East_3$ is defined when
+\[
+  c\le p+\tau
+\]
+and is then the identity.  Suppose instead that $c>p+\tau$ in a
+five-window $(a,b,c,p,q)$.  Put
+\[
+  \bk_\tau(b,c)=
+  \begin{cases}
+    (c,b),&b>c+\tau,\\
+    (b,c),&b\le c+\tau.
+  \end{cases}
+\]
+The map $\East_5$ is defined as follows.
+\begin{enumerate}
+\item If $b\le p+\tau$, it is defined when $b\le q+\tau$ and sends
+\[
+  (a,b,c,p,q)\longmapsto(a,p,c,b,q).
+\]
+\item If $b>p+\tau$, write $(b',c')=\bk_\tau(b,c)$.  It is defined when
+$c'\le q+\tau$ and sends
+\[
+  (a,b,c,p,q)\longmapsto(a,p,b',c',q).
+\]
+\end{enumerate}
+The maps $\West_3$ and $\West_5$ are obtained by reversing the input,
+applying the corresponding East map, and reversing the output.
+
+\subsection{The three assumptions}
+
+The proof below isolates the three facts being assumed.
+
+\begin{assumption}[Special-skeleton position]
+\label{ass:skeleton-area}
+Every special skeleton $S$ satisfies
+\[
+  \area(S)\le\defc_\tau(S).
+\]
+\end{assumption}
+
+\begin{assumption}[East5 nonfailure]
+\label{ass:east5}
+Every $\East_5$ stage arising from a strictly lower-half word of defect at
+most $\tau(s-2)-1$ is in the domain of $\East_5$.
+\end{assumption}
+
+\begin{assumption}[West5 nonfailure]
+\label{ass:west5}
+Every $\West_5$ stage arising from a weakly lower-half nonskeleton of defect
+at most $\tau(s-2)-1$ is in the domain of $\West_5$.
+\end{assumption}
+
+We also assume the known symmetry
+\[
+  \Cat_{\tau s+1,s}(q,t)=\Cat_{\tau s+1,s}(t,q).
+\]
+
+\begin{theorem}[Modulo-one skeleton decomposition]
+\label{thm:main}
+Under the preceding assumptions, put
+\[
+  B=\tau(s-2)-1.
+\]
+Then
+\begin{align*}
+ &\sum_{\substack{D\text{ normalized}\\\defc_\tau(D)\le B}}
+ q^{\dinv_\tau(D)}t^{\area(D)}\\
+ &\qquad=
+ \sum_{\substack{S\text{ special skeleton}\\\defc_\tau(S)\le B}}
+ \frac{
+ q^{\dinv_\tau(S)+1}t^{\area(S)}
+ -q^{\area(S)}t^{\dinv_\tau(S)+1}
+ }{q-t}.
+\end{align*}
+\end{theorem}
+
+\section{Common structural lemmas}
+
+Define the complementary kernel
+\[
+ K_\tau(u,v)=\tau-d_\tau(u,v)
+ =
+ \begin{cases}
+   \min(\tau,v-u),&u\le v,\\
+   \min(\tau,u-v-1),&u>v.
+ \end{cases}
+\]
+For $X=(x_0,\ldots,x_{N-1})$, put
+\[
+  \lambda_j(X)=\sum_{i<j}K_\tau(x_i,x_j)-x_j.
+\]
+Then
+\begin{equation}
+  \defc_\tau(X)=\sum_{j=0}^{N-1}\lambda_j(X),
+  \label{eq:defect-lambda}
+\end{equation}
+where the defect on the left is computed using
+$\tau\binom N2$.
+
+\begin{lemma}[Record payment]
+\label{lem:record-payment}
+Let
+\[
+  0=r_0<r_1<\cdots<r_h=m,
+  \qquad r_i-r_{i-1}\le\tau,
+\]
+be a chain of record values.  For $0\le u\le m+\tau$,
+\[
+  \sum_{r_i\le u}K_\tau(r_i,u)\ge u.
+\]
+Consequently every lambda increment of a normalized word is nonnegative.
+If a normalized word begins with two zeros and has record peak $m$, then
+\[
+  \defc_\tau(X)\ge m.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $r_j$ be the largest record at most $u$.  For $i<j$,
+\[
+  K_\tau(r_i,u)\ge r_{i+1}-r_i,
+\]
+while $K_\tau(r_j,u)=u-r_j$.  The sum telescopes to $u$.  In a normalized
+word, the preceding records at or below the current entry therefore pay the
+subtraction in its lambda increment.
+
+If the word begins with two zeros, the second zero is not needed for these
+payments.  At a positive record $r_i$ it contributes
+$K_\tau(0,r_i)=\min(\tau,r_i)$.  Thus the unused contributions of the second
+zero are at least
+\[
+  \sum_{i=1}^h\min(\tau,r_i)
+  \ge\sum_{i=1}^h(r_i-r_{i-1})=m.
+\]
+Equation~\eqref{eq:defect-lambda} completes the proof.
+\end{proof}
+
+\begin{lemma}[Failed-splice propagation]
+\label{lem:propagation}
+Let $X=(x_0,\ldots,x_{N-1})$ be normalized and suppose $x_1>0$.  If none
+of $x_1,\ldots,x_h$ is extractable, then the entries through $x_{h+1}$ are
+strictly increasing records and
+\begin{equation}
+  x_{i+2}>x_i+\tau
+  \qquad(0\le i<h).
+  \label{eq:rapid}
+\end{equation}
+In particular:
+\begin{enumerate}
+\item every full skeleton of length at least two begins with $(0,0)$;
+\item a leftmost extractable occurrence is a record;
+\item if appending an entry validly blocks an extractable final occurrence,
+the unique-predecessor chain continues to the appended entry, which is
+extractable at the new right boundary.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+The occurrence $x_1$ has the unique predecessor $x_0=0$.  If it is not
+extractable, its splice fails, so $x_2>x_0+\tau$.  Normalization gives
+$x_1\le x_0+\tau$ and $x_2\le x_1+\tau$, whence $x_2>x_1$ and $x_1$ is
+the unique predecessor of $x_2$.  The same argument iterates.  At the right
+boundary a unique-predecessor occurrence is automatically extractable, which
+proves the three consequences.
+\end{proof}
+
+\begin{lemma}[Extraction transport]
+\label{lem:transport}
+Let $e$ be the leftmost extractable occurrence of a normalized word $D$,
+let $C$ be obtained by deleting it, and put $p=e-1$.  Then
+\begin{align}
+ \area(C:p)&=\area(D)-1,\notag\\
+ \dinv_\tau(C:p)&=\dinv_\tau(D)+1,\label{eq:transport}\\
+ \defc_\tau(C:p)&=\defc_\tau(D).\notag
+\end{align}
+These identities remain valid even if the final adjacency of $C:p$ fails.
+\end{lemma}
+
+\begin{proof}
+Write $D=A:e:B$.  For $b\in B$,
+\[
+  d_\tau(e,b)=d_\tau(b,e-1).
+\]
+For $a\in A$, the difference
+\[
+  d_\tau(a,e-1)-d_\tau(a,e)
+\]
+is $1$ precisely when $a$ lies in the predecessor interval of $e$, is
+$-1$ when $e<a\le e+\tau$, and is zero otherwise.  By
+Lemma~\ref{lem:propagation}, $e$ is a record, so the negative case does not
+occur.  Extractability gives exactly one predecessor and hence a total dinv
+increase of $1$.  The area decreases by $1$, proving all three identities.
+\end{proof}
+
+\begin{lemma}[Double-zero boundary ledger]
+\label{lem:boundary-ledger}
+The following four statements hold.
+\begin{enumerate}
+\item If a normalized length-$s$ word begins with $(0,0)$ and only its final
+occurrence is extractable, then its defect is at least $\tau(s-2)$.
+\item Let $R$ be a full normalized word of length $s-1$, and let $p$ be the
+lowered value arising at a first-extraction stage.  If $R:p$ is invalid or is
+not full, then
+\[
+  \defc_\tau(R:p)\ge\tau(s-2).
+\]
+\item Let $C:p$ be a first-extraction stage, where $|C|=s-1$, $C$ begins
+with $(0,0)$, $C[-1]>p+\tau$, and $C$ has no extractable occurrence outside
+its final two positions.  Then
+\[
+  \defc_\tau(C:p)\ge\tau(s-2).
+\]
+\item Let $R:p:q$ be a second-extraction stage, where $|R|=s-2$, $R$ begins
+with $(0,0)$, $p>R[-1]+\tau$, and $R$ has no extractable occurrence outside
+its final position.  Then
+\[
+  \defc_\tau(R:p:q)\ge\tau(s-2).
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+All four assertions are the same kernel ledger.  At every occurrence use the
+preceding record chain to pay the negative part of its lambda increment, as
+in Lemma~\ref{lem:record-payment}.  The second initial zero is not used in
+those payments.  Scan the remaining occurrences from left to right.  If an
+occurrence has two or more predecessors, the corresponding two kernel
+triangles provide a full $\tau$-unit.  If it has a unique predecessor and is
+not extractable, Lemma~\ref{lem:propagation} forces its outgoing splice to
+fail.  The unpaid portion of the same $\tau$-unit is carried to the next
+record.  Record jumps are at most $\tau$, so these carries are nonnegative
+and telescope.
+
+At the right boundary the last carry is closed, respectively, by the
+extractable final entry, by the invalid or fullness-obstructing append, by
+the far pair $C[-1]>p+\tau$, or by the reverse far pair
+$p>R[-1]+\tau$ together with the two extraction anchors.  The ledger contains
+$s-2$ full $\tau$-units.  In the two local-window forms the count is
+\[
+  \underbrace{\tau}_{\text{second zero}}
+  +\underbrace{(s-5)\tau}_{\text{interior}}
+  +\underbrace{2\tau}_{\text{terminal block}}
+  =\tau(s-2).
+\]
+The first two forms merely move one entry between the interior and terminal
+blocks.  All omitted kernel terms are nonnegative.
+
+For the first assertion one may see the count explicitly as follows.  If
+$e$ is the final extractable value, then $e\ge\tau+1$.  Pair every nonrecord
+middle occurrence $u$ with $0$ and $e$ and use
+\[
+  K_\tau(0,u)+K_\tau(u,e)\ge\tau.
+\]
+The record chain supplies the same $\tau$-unit for each record, and the
+second zero supplies the final unit.  There are $s-2$ units in total.
+\end{proof}
+
+\begin{lemma}[Rapid-chain estimates]
+\label{lem:rapid}
+Let
+\[
+  R=(r_0,\ldots,r_{m-1}),
+  \qquad r_0=0,
+\]
+be strictly increasing and normalized, and suppose
+\[
+  r_{i+2}>r_i+\tau.
+\]
+If $c=r_{m-1}$, then
+\begin{align}
+ \dinv_\tau(R)&=\tau(m-1)-c,\label{eq:rapid-dinv}\\
+ \sum_i d_\tau(r_i,u)&\le2\tau
+ \quad\text{for every }u\ge0.\label{eq:rapid-target}
+\end{align}
+If $m\ge5$, then
+\begin{equation}
+  \area(R)>\tau(m-1)\ge\dinv_\tau(R).
+  \label{eq:rapid-area}
+\end{equation}
+If $m\ge3$, then
+\begin{equation}
+  \area(R)+3c+2>\tau(m+1).
+  \label{eq:short-rapid}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Only adjacent pairs of $R$ contribute to dinv, and their contributions
+ telescope:
+\[
+ \sum_{i=0}^{m-2}\bigl(\tau-(r_{i+1}-r_i)\bigr)
+ =\tau(m-1)-c.
+\]
+For a fixed target $u$, split the contributing records at $u$.  On each side
+their contributions form a truncated triangle of slope one.  The rapid
+condition prevents three records on the same side from occupying an interval
+of width $\tau$; pairing the two closest possible records on the two sides
+gives the bound $2\tau$.
+
+Integrality gives
+\[
+  r_{2k}\ge k(\tau+1),
+  \qquad r_{2k+1}\ge1+k(\tau+1),
+\]
+which implies~\eqref{eq:rapid-area}.  For~\eqref{eq:short-rapid}, the minimal
+length-three chain $(0,1,\tau+1)$ has surplus $7$.  If a chain ending at $c$
+is extended by $c'>c$, the surplus in~\eqref{eq:short-rapid} increases by
+\[
+  4c'-3c-\tau\ge c+4-\tau\ge5.
+\]
+Induction completes the proof.
+\end{proof}
+
+\section{The three UP lemmas}
+
+Throughout this section, let $D=(x_0,\ldots,x_{s-1})$ be normalized and
+suppose
+\begin{equation}
+  0\le d=\defc_\tau(D)\le\tau(s-2)-1,
+  \qquad \area(D)\le L_d-1.
+  \label{eq:up-hyp}
+\end{equation}
+Then
+\begin{equation}
+  \dinv_\tau(D)-\area(D)\ge2.
+  \label{eq:strict-lower-gap}
+\end{equation}
+
+\begin{lemma}[Validity of the full-skeleton branch]
+\label{lem:up-skeleton}
+Suppose $D$ is full.  Then $x_{s-1}+1$ has an injection anchor in the prefix.
+Consequently the full-skeleton branch of $\UP$ is defined and produces a
+normalized word.
+\end{lemma}
+
+\begin{proof}
+Put $a=x_{s-1}$, let $R=(x_0,\ldots,x_{s-2})$, and let $m=\max R$.
+Suppose no prefix entry lies in
+\[
+  [\max(0,a+1-\tau),a].
+\]
+Then $a\ge\tau$.  Moreover every prefix entry is at most $a$: the first
+entry greater than $a$, if one existed, would have an immediate predecessor
+in the forbidden interval.  Hence $m\le a-\tau$.  The final Dyck inequality
+now gives
+\[
+  a\le x_{s-2}+\tau\le m+\tau\le a,
+\]
+so
+\begin{equation}
+  a=m+\tau,
+  \qquad x_{s-2}=m.
+  \label{eq:max-final-jump}
+\end{equation}
+
+By Lemma~\ref{lem:propagation}, $D$ begins with two zeros.  The prefix lambda
+sum is at least $m$ by Lemma~\ref{lem:record-payment}.  Every prefix entry is
+at most $a-\tau$, so every prefix-to-final kernel equals $\tau$.  Therefore
+\[
+  \lambda_{s-1}(D)=\tau(s-1)-a=\tau(s-2)-m.
+\]
+It follows that
+\[
+  \defc_\tau(D)\ge m+\tau(s-2)-m=\tau(s-2),
+\]
+contrary to~\eqref{eq:up-hyp}.
+
+Thus the anchor exists.  Inserting $a+1$ after the first anchor gives a valid
+new left adjacency.  The old Dyck inequality gives the new right adjacency,
+and all other adjacencies are unchanged.
+\end{proof}
+
+\begin{lemma}[A nonfinal first extraction]
+\label{lem:up-first-position}
+If $D$ is not full, then it has an extractable occurrence outside its final
+position.  In particular its leftmost extractable occurrence is nonfinal.
+\end{lemma}
+
+\begin{proof}
+Suppose the only extractable occurrence is final.  If $x_1=0$, the first
+part of Lemma~\ref{lem:boundary-ledger} gives
+\[
+  \defc_\tau(D)\ge\tau(s-2),
+\]
+a contradiction.  If $x_1>0$, Lemma~\ref{lem:propagation} makes the whole
+word rapid, and Lemma~\ref{lem:rapid} gives
+$\area(D)>\dinv_\tau(D)$, contradicting~\eqref{eq:strict-lower-gap}.
+\end{proof}
+
+\begin{lemma}[A second extraction after East3 failure]
+\label{lem:up-second-position}
+Let $e_1$ be the leftmost extractable occurrence of $D$, let $C_1$ be the
+normalized word obtained by deleting it, and put
+\[
+  \Sigma_1=C_1:(e_1-1).
+\]
+If $\East_3$ fails on the final three entries of $\Sigma_1$, then $C_1$ has
+an extractable occurrence outside its final two positions.
+\end{lemma}
+
+\begin{proof}
+Put $e=e_1$, $p=e-1$, $C=C_1$, and $\Sigma=C:p$.  Write $c=C[-1]$.
+East3 failure says
+\begin{equation}
+  c>p+\tau.
+  \label{eq:east3-fail}
+\end{equation}
+Suppose $C$ has no extraction outside its final two positions.
+
+If $C[1]=0$, the third part of Lemma~\ref{lem:boundary-ledger} and
+Lemma~\ref{lem:transport} give
+\[
+  \defc_\tau(D)=\defc_\tau(\Sigma)\ge\tau(s-2),
+\]
+a contradiction.  Hence $C[1]>0$.
+
+Lemma~\ref{lem:propagation} makes
+\[
+  R=C[0:-1]=(r_0,\ldots,r_{m-1}),
+  \qquad m=s-2,
+\]
+a rapid chain.  Write $B=r_{m-1}$.  The pair $(c,p)$ has zero dinv by
+\eqref{eq:east3-fail}.  Equations~\eqref{eq:rapid-dinv} and
+\eqref{eq:rapid-target}, applied to the two suffix targets $c,p$, give
+\[
+  \dinv_\tau(\Sigma)
+  \le\tau(m-1)-B+4\tau.
+\]
+Since $B\ge1$, transport gives
+\begin{equation}
+  \dinv_\tau(D)\le\tau(s+1)-2.
+  \label{eq:up3-upper}
+\end{equation}
+The defect cutoff and~\eqref{eq:strict-lower-gap} imply
+\begin{equation}
+  2\dinv_\tau(D)
+  \ge M_s-\tau(s-2)+3.
+  \label{eq:up3-lower}
+\end{equation}
+For $s\ge7$, the two bounds are incompatible because
+\[
+ \bigl(M_s-\tau(s-2)+3\bigr)
+ -2\bigl(\tau(s+1)-2\bigr)
+ =\tau\frac{s(s-7)}2+7>0.
+\]
+
+It remains to treat $s=6$.  Write
+\[
+  R=(0,a,b,c),
+  \qquad \Sigma=(0,a,b,c,z,p).
+\]
+Rapid growth, normalization, and East3 failure give
+\begin{equation}
+\begin{gathered}
+  1\le a\le\tau,
+  \qquad \tau<b\le a+\tau,
+  \qquad a+\tau<c\le b+\tau,\\
+  z\le c+\tau,
+  \qquad z>p+\tau.
+\end{gathered}
+\label{eq:six-constraints}
+\end{equation}
+Put
+\[
+ I=\sum_{r\in\{0,a,b,c\}}
+ \bigl(d_\tau(r,z)+d_\tau(r,p)\bigr),
+ \qquad X=a+b+z+p.
+\]
+Then
+\begin{equation}
+  \area(\Sigma)=X+c,
+  \qquad \dinv_\tau(\Sigma)=3\tau-c+I.
+  \label{eq:six-stats}
+\end{equation}
+We use the elementary four-record estimate
+\begin{equation}
+  \dinv_\tau(\Sigma)-\area(\Sigma)\ge4
+  \quad\Longrightarrow\quad
+  X+I\le8\tau.
+  \label{eq:four-record}
+\end{equation}
+For completeness, substitute the two triangular formulas for $d_\tau$ and
+split according to the positions of $p$ and $z$.  The possible cases are
+\[
+\begin{array}{c|c|c}
+ p<a & z\le b & X+I\le8\tau\\
+ p<a & b<z\le c & X+I\le8\tau\\
+ p<a & z>c & X+I\le8\tau\\
+ a\le p<b & b<z\le c & X+I\le8\tau\\
+ a\le p<b & z>c & X+I\le8\tau\\
+ b\le p<c & z>c & X+I\le8\tau.
+\end{array}
+\]
+The remaining cases are excluded by~\eqref{eq:six-constraints}.  Within each
+row, the further subdivisions at kernel endpoints give the same affine
+inequality.  The midpoint hypothesis is used in the equivalent form
+\[
+  I\ge X+2c-3\tau+4.
+\]
+This proves~\eqref{eq:four-record}.
+
+By transport and~\eqref{eq:strict-lower-gap}, the hypothesis of
+\eqref{eq:four-record} holds.  Hence
+\[
+ \area(\Sigma)+\dinv_\tau(\Sigma)
+ =X+3\tau+I\le11\tau.
+\]
+This sum equals $\area(D)+\dinv_\tau(D)$, whereas the defect cutoff for
+$s=6$ requires it to be at least $11\tau+1$.  This contradiction completes
+the proof.
+\end{proof}
+
+\begin{remark}
+The restriction $s\ge6$ is necessary for this position lemma.  For
+$s=5$ and $\tau\ge7$,
+\[
+  D=(0,1,\tau,\tau+1,\tau+1)
+\]
+has defect $3\tau-1$, lies strictly below the middle, and after its first
+extraction East3 fails while the only next extraction is penultimate.
+\end{remark}
+
+\section{The three DOWN lemmas}
+
+Throughout this section, let $D$ be normalized and suppose
+\begin{equation}
+  0\le d=\defc_\tau(D)\le\tau(s-2)-1,
+  \qquad \area(D)\le L_d.
+  \label{eq:down-hyp}
+\end{equation}
+Assume $D$ is not a special-skeleton root.  Let $e_1$ be its leftmost
+extractable occurrence and let $C_1$ be the normalized remainder.  Skeleton
+and extraction tests are always made on the current prefix alone; lowered
+entries already moved to the right are not included.
+
+\begin{lemma}[The DOWN skeleton branch]
+\label{lem:down-skeleton}
+Under the preceding hypotheses,
+\[
+  C_1\text{ is full}
+  \quad\Longleftrightarrow\quad
+  C_1:(e_1-1)\text{ is a normalized full skeleton}.
+\]
+In particular, if $C_1$ is full, then
+\[
+  e_1-1\le C_1[-1]+\tau.
+\]
+\end{lemma}
+
+\begin{proof}
+Put $p=e_1-1$ and $P=C_1:p$.  If $P$ is full, then $C_1$ is full.  Indeed,
+every nonfinal extraction of $C_1$ persists after appending $p$, while if
+the only extraction of $C_1$ is final and the append blocks it,
+Lemma~\ref{lem:propagation} makes $p$ extractable at the new right boundary.
+
+Conversely, suppose $C_1$ is full.  It begins with $(0,0)$.  If $P$ were
+invalid or not full, the second part of Lemma~\ref{lem:boundary-ledger} and
+transport would give
+\[
+  \defc_\tau(D)=\defc_\tau(P)\ge\tau(s-2),
+\]
+contrary to~\eqref{eq:down-hyp}.  Hence $P$ is normalized and full, including
+the asserted final adjacency.
+\end{proof}
+
+\begin{lemma}[Existence of the second DOWN extraction]
+\label{lem:down-second}
+If $C_1$ is not full, then it has an extractable occurrence.  Thus the second
+leftmost extraction is defined on $C_1$, with no position restriction.
+\end{lemma}
+
+\begin{proof}
+This is the definition of a full skeleton.
+\end{proof}
+
+Let $e_2$ be this second extracted value, let $C_2$ be the normalized
+remainder, and form
+\[
+  T_1=C_2:(e_1-1):(e_2-1).
+\]
+
+\begin{lemma}[A nonfinal extraction after West3 failure]
+\label{lem:down-third-position}
+If $\West_3$ fails on the final three entries of $T_1$, then $C_2$ has an
+extractable occurrence outside its final position.
+\end{lemma}
+
+\begin{proof}
+Put
+\[
+  p=e_1-1,
+  \qquad q=e_2-1,
+  \qquad c=C_2[-1].
+\]
+West3 failure is
+\begin{equation}
+  p>c+\tau.
+  \label{eq:west3-fail}
+\end{equation}
+Suppose $C_2$ has no extraction outside its final position.  Two applications
+of transport and the weak lower-half inequality give
+\begin{equation}
+  \dinv_\tau(T_1)-\area(T_1)
+  =\dinv_\tau(D)-\area(D)+4\ge4.
+  \label{eq:down-gap}
+\end{equation}
+
+If $C_2[1]=0$, the fourth part of Lemma~\ref{lem:boundary-ledger} gives
+\[
+  \defc_\tau(D)=\defc_\tau(T_1)\ge\tau(s-2),
+\]
+a contradiction.  Hence $C_2[1]>0$.
+
+Lemma~\ref{lem:propagation} makes
+\[
+  C_2=R=(r_0,\ldots,r_{m-1}),
+  \qquad m=s-2,
+  \qquad c=r_{m-1},
+\]
+a rapid chain.  The unique predecessor of $e_1=p+1$ has value at least
+$p+1-\tau>c$.  Since every entry remaining in $C_2$ is at most $c$, this
+predecessor must be the second extracted value $e_2$.  Therefore
+\begin{equation}
+  q=e_2-1\ge p-\tau>c.
+  \label{eq:q-above-c}
+\end{equation}
+
+No pair from $R$ to $p$ contributes to dinv.  The rapid estimates give
+\[
+ \dinv_\tau(T_1)
+ \le\tau(m-1)-c+2\tau+\tau
+ =\tau(m+2)-c.
+\]
+By integrality in~\eqref{eq:west3-fail} and~\eqref{eq:q-above-c},
+\[
+ \area(T_1)=\area(R)+p+q
+ \ge\area(R)+2c+\tau+2.
+\]
+Equation~\eqref{eq:short-rapid} now gives
+\[
+ \area(T_1)-\dinv_\tau(T_1)
+ \ge\area(R)+3c+2-\tau(m+1)>0,
+\]
+contradicting~\eqref{eq:down-gap}.
+\end{proof}
+
+\section{Definition and totality of the maps}
+
+We now define the maps only in the defect range under consideration.  The
+two exceptional global words have defect $\tau(s-2)$ and do not occur.
+
+\subsection{The UP map}
+
+Let $D$ be strictly below the middle.
+\begin{enumerate}
+\item If $D=C:a$ is full, set
+\[
+  \UP(D)=\inj_{a+1}(C).
+\]
+\item Otherwise extract $e_1$, leaving $C_1$, and form
+$\Sigma_1=C_1:(e_1-1)$.  If East3 succeeds, apply it to the final window,
+raise the final two local output entries by one, and inject them from right
+to left into the remaining prefix.
+\item If East3 fails, extract $e_2$ from $C_1$, leaving $C_2$, and form
+\[
+  \Sigma_2=C_2:(e_1-1):(e_2-1).
+\]
+Apply East5 to the final window, raise its final three output entries by one,
+and inject them from right to left into the remaining prefix.
+\end{enumerate}
+
+Lemmas~\ref{lem:up-skeleton}--\ref{lem:up-second-position} give all required
+anchors and position bounds.  Assumption~\ref{ass:east5} supplies East5
+nonfailure.  A direct check of the local inequalities shows that the raised
+outputs have prefix anchors and that the resulting word is normalized.
+Thus $\UP$ is defined on every word satisfying~\eqref{eq:up-hyp}.
+
+\subsection{The DOWN map}
+
+Let $D$ be weakly below the middle and not a special skeleton.
+\begin{enumerate}
+\item Extract $e_1$, leaving $C_1$.  If $C_1$ is full, set
+\[
+  \DOWN(D)=C_1:(e_1-1).
+\]
+\item Otherwise extract $e_2$, leaving $C_2$, and form
+\[
+  T_1=C_2:(e_1-1):(e_2-1).
+\]
+If West3 succeeds, apply it and raise and inject the final local output entry.
+\item If West3 fails, extract $e_3$ from $C_2$, leaving $C_3$, and form
+\[
+  T_2=C_3:(e_1-1):(e_2-1):(e_3-1).
+\]
+Apply West5, raise its final two output entries by one, and inject them from
+right to left.
+\end{enumerate}
+
+Lemmas~\ref{lem:down-skeleton}--\ref{lem:down-third-position} give the
+required skeleton, extraction, and position statements.
+Assumption~\ref{ass:west5} supplies West5 nonfailure.  The local inequalities
+give the remaining anchor and normalization checks.  Thus $\DOWN$ is defined
+on every weakly lower-half nonskeleton in the stated defect range.
+
+\section{Statistics and invertibility}
+
+\begin{lemma}[Local preservation]
+\label{lem:local-preservation}
+East3 preserves area and dinv.  On its relevant domain, East5 also preserves
+area and dinv.
+\end{lemma}
+
+\begin{proof}
+East3 is the identity.  East5 only rearranges five entries, so it preserves
+area.  Every interaction with an earlier prefix occurrence is unchanged
+because the multiset of the five entries is unchanged.  It remains to compare
+the six internal pairs among the four moved entries.  Substitution of the
+two formulas defining $d_\tau$ in the two East5 cases gives
+\[
+  \sum_{i<j}d_\tau(w_i,w_j)
+  =\sum_{i<j}d_\tau(w'_i,w'_j),
+\]
+where $w,w'$ are the input and output windows.  In the second case,
+$\bk_\tau$ fixes or switches the middle pair according to precisely the gap
+at which the two formulas exchange.  This proves local dinv preservation.
+\end{proof}
+
+\begin{proposition}[Statistic change]
+\label{prop:statistics}
+Whenever $\UP$ is defined,
+\[
+ \area(\UP(D))=\area(D)+1,
+ \qquad
+ \dinv_\tau(\UP(D))=\dinv_\tau(D)-1.
+\]
+Consequently $\UP$ preserves defect.  Once invertibility is established,
+$\DOWN$ has the reverse statistic change.
+\end{proposition}
+
+\begin{proof}
+If a branch makes $k$ extractions before its local East move, repeated use of
+Lemma~\ref{lem:transport} gives stage statistics
+\[
+  (\area(D)-k,\dinv_\tau(D)+k).
+\]
+The local East move preserves them.  Extraction and injection are inverse:
+raising a terminal $p$ to $p+1$ and injecting it reverses one extraction
+transport and therefore changes the statistics by $(+1,-1)$.  UP makes
+$k+1$ such raised injections.  Its net change is consequently $(+1,-1)$.
+The full-skeleton branch is the case $k=0$.
+\end{proof}
+
+We next establish invertibility.  We use the following two elementary facts.
+First, entries injected right to left in an admissible local configuration
+are successively extracted in reverse injection order.  Second, successive
+leftmost extracted values satisfy
+\begin{equation}
+  e_1\le e_2+\tau.
+  \label{eq:successive-extraction}
+\end{equation}
+Indeed, if the reverse inequality held, deleting $e_1$ would not improve
+either the predecessor count or splice of $e_2$, unless the two were
+adjacent; adjacency gives the original Dyck inequality and again contradicts
+the reverse inequality.
+
+The local maps have the corresponding recognition property.  If
+\begin{equation}
+  \East_5(*,b,c,x,y)=(*,r,j,k,y),
+  \label{eq:east5-symbolic}
+\end{equation}
+then
+\begin{equation}
+  j>r+\tau,
+  \qquad
+  \West_5(*,r,j,k,y)=(*,b,c,x,y).
+  \label{eq:east-west-inverse}
+\end{equation}
+In East5 case 2b, $(r,j,k)=(x,c,b)$ and the first inequality is the original
+East3 failure.  In case 2a it follows from the defining gap and the possible
+$\bk_\tau$ switch.  The second identity, and its converse, follow by the same
+two-case check.
+
+\begin{proposition}[Invertibility]
+\label{prop:inverse}
+On the stated domains,
+\[
+  \DOWN\circ\UP=\mathrm{id},
+  \qquad
+  \UP\circ\DOWN=\mathrm{id}.
+\]
+\end{proposition}
+
+\begin{proof}
+We pair the three UP branches with the three DOWN branches.
+
+\smallskip
+\noindent\emph{UP skeleton, then DOWN.}
+Write the full skeleton as $S=C:a$.  The prefix $C$ is full: an extraction
+in $C$ would persist in $S$, or its obstruction would propagate to an
+extraction of $a$.  UP injects $a+1$ into $C$.  The inserted occurrence is
+the first extractable one.  DOWN extracts it, recognizes the full prefix
+$C$, and appends $(a+1)-1=a$.
+
+\smallskip
+\noindent\emph{UP East3, then DOWN West3.}
+Write $D=P:b$ and $P=\inj_{x+1}(P')$.  The East3 stage is $P':b:x$, and the
+UP output is
+\[
+  \inj_{b+1}\bigl(\inj_{x+1}(P')\bigr).
+\]
+DOWN extracts $b+1$ and then $x+1$, so its skeleton branch does not apply.
+The word $P':b$ is normalized because the original extraction was valid;
+therefore the West3 condition holds.  West3 is the identity, and injecting
+$x+1$ into $P':b$ recovers $P:b$.
+
+\smallskip
+\noindent\emph{UP East5, then DOWN West5.}
+After two UP extractions, write the stage as $P':b:c:x:y$, and use
+\eqref{eq:east5-symbolic}.  The raised entries $y+1,k+1,j+1$ inject before
+the retained $r$, so the UP output is $Q:r$.  DOWN successively extracts
+$j+1,k+1,y+1$.  After the second extraction its West3 window is $(r,j,k)$,
+which fails by~\eqref{eq:east-west-inverse}.  The third extraction reaches
+$P':r:j:k:y$, West5 returns $P':b:c:x:y$, and injecting $y+1$ and then
+$x+1$ reverses the original two extractions.
+
+\smallskip
+For the other composition, first suppose DOWN takes its skeleton branch.
+It extracts $x+1$, leaves a full prefix $C$, and returns $C:x$.
+Lemma~\ref{lem:down-skeleton} says $C:x$ is full, so UP removes $x$, raises
+it, and injects $x+1$ back into $C$.
+
+If DOWN takes West3 after extracting $x+1,y+1$, write its stage as
+$P':b:x:y$.  It injects $y+1$ before the retained $x$, producing $Q:x$.
+UP extracts $y+1$, so its skeleton branch does not apply.  Inequality
+\eqref{eq:successive-extraction} gives $x\le y+\tau$, exactly the East3
+condition.  East3 is the identity, and the two reverse injections recover
+the DOWN input.
+
+Finally suppose DOWN takes West5 after extracting $x+1,y+1,z+1$.  Write
+\[
+  \West_5(*,b,x,y,z)=(*,j,k,r,z).
+\]
+DOWN injects $z+1,r+1$ before the retained $j,k$, producing $Q:j:k$.
+UP extracts $r+1$.  The East3 window $(j,k,r)$ fails because $k>r+\tau$,
+the converse recognition inequality to~\eqref{eq:east-west-inverse}.  UP
+extracts $z+1$, East5 returns $(*,b,x,y,z)$, and injecting
+$z+1,y+1,x+1$ reverses the three original extractions.
+\end{proof}
+
+\begin{corollary}
+Whenever $\DOWN$ is defined,
+\[
+ \area(\DOWN(D))=\area(D)-1,
+ \qquad
+ \dinv_\tau(\DOWN(D))=\dinv_\tau(D)+1,
+\]
+and $\DOWN$ preserves defect.
+\end{corollary}
+
+\begin{proof}
+This follows from Proposition~\ref{prop:statistics} and
+Proposition~\ref{prop:inverse}.
+\end{proof}
+
+\section{Proof of the decomposition formula}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Put $B=\tau(s-2)-1$.  We first locate the roots.  If $S$ is a special
+skeleton of defect $d\le B$, Assumption~\ref{ass:skeleton-area} gives
+\[
+  2\area(S)+d\le3d\le3B.
+\]
+For $s\ge6$,
+\[
+  M_s-3B
+  =\tau\frac{(s-3)(s-4)}2+3>0.
+\]
+Thus $2\area(S)+d<M_s$, so every root is strictly below the middle.  Since
+the exceptional skeleton has defect $B+1$, every full skeleton in the range
+is special.
+
+Fix a defect $d\le B$.  The UP lemmas, Assumption~\ref{ass:east5}, and the
+local validity checks show that UP is defined on every word of defect $d$
+with area at most $L_d-1$.  The DOWN lemmas, Assumption~\ref{ass:west5}, and
+the local validity checks show that DOWN is defined on every weakly
+lower-half nonskeleton of defect $d$.  By Propositions~\ref{prop:statistics}
+and~\ref{prop:inverse}, they preserve defect, move area by one in opposite
+directions, and are inverse.
+
+Starting from any weakly lower-half word, iterate DOWN until it is undefined.
+Area decreases at every step, so the process terminates.  It can terminate
+only at a full, hence special, skeleton.  Invertibility makes this root and
+the entire descent unique.  Conversely, starting at a special skeleton $S$
+and iterating UP produces exactly one word at each area
+\[
+  \area(S),\area(S)+1,\ldots,L_d.
+\]
+Thus the weak lower half of the defect-$d$ layer is the disjoint union of
+these rooted strings.
+
+Put $N=M_s-d$.  Along the string rooted at $S$, the word of area $j$ has
+dinv $N-j$.  Its lower-half contribution is
+\[
+  \sum_{j=\area(S)}^{\lfloor N/2\rfloor}q^{N-j}t^j.
+\]
+The assumed $q,t$ symmetry supplies the reflected upper half, with the
+central term counted once when $N$ is even.  Since
+$\dinv_\tau(S)=N-\area(S)$, the complete string contributes
+\begin{align*}
+  \sum_{j=\area(S)}^{\dinv_\tau(S)}q^{N-j}t^j
+  &=
+  \frac{
+  q^{\dinv_\tau(S)+1}t^{\area(S)}
+  -q^{\area(S)}t^{\dinv_\tau(S)+1}
+  }{q-t}.
+\end{align*}
+Summing over all special skeletons of defect at most $B$ proves the theorem.
+\end{proof}
+
+\end{document}

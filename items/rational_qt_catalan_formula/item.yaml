@@ -1,8 +1,0 @@
-title: Rational qt-Catalan Formula
-slug: rational_qt_catalan_formula
-status_summary: Conjectural formula from the 2024 rational qt-Catalan paper, supported by computational checks.
-source_paths:
-  - ../Conjectures-and-Computations/qt-catalan/qt-conjecture.py
-  - ../Conjectures-and-Computations/testing/catest.py
-downloads:
-  - explanation.tex

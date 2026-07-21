@@ -1,0 +1,31 @@
+Shifted Littlewood-Richardson bounded check, default run summary
+
+Command:
+
+  python code/check_shifted_lr.py
+
+Default parameters:
+
+  degree: 5
+  shape/skew: [3, 1]/[1]
+  variables: 3
+
+Key output:
+
+  GP shifted LR bounded check
+    direct monomial terms: 3
+    conjectural rule terms: 3
+    reconstructed monomial terms: 3
+    PASS: True
+
+  GQ/GR shifted LR bounded check
+    direct monomial terms: 3
+    conjectural rule terms: 3
+    reconstructed monomial terms: 3
+    PASS: True
+
+Additional sanity check run during curation:
+
+  python code/check_shifted_lr.py --degree 6 --shape 3,1 --skew 1 --num-vars 3
+
+Both GP and GQ/GR checks passed for that degree-6 case as well.

@@ -1,0 +1,357 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\DeclareMathOperator{\area}{area}
+\DeclareMathOperator{\lowest}{lowest}
+\DeclareMathOperator{\sym}{sym}
+\newtheorem{theorem}{Theorem}
+
+\title{Computer-Assisted Proofs for a Rational \(q,t\)-Catalan Formula}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The theorem and the role of the computations}
+
+This note explains the computer-assisted part of the proof in
+Hawkes's paper \emph{A conjectured formula for the rational
+\(q,t\)-Catalan polynomial}~\cite{Hawkes2024}.  The paper proposes a
+symmetric-string formula for the rational \(q,t\)-Catalan polynomial.  The
+formula remains conjectural in general, but the paper proves it through
+bounded deficit in the family
+\[
+  r\equiv 1\pmod s.
+\]
+Write
+\[
+  s=\ell+1,
+  \qquad
+  r=(\ell+1)m+1,
+  \qquad
+  M_{\ell,m}=m\binom{\ell+1}{2}.
+\]
+The proved result is the following.
+
+\begin{theorem}[Hawkes]
+If \(r=(\ell+1)m+1\) with \(m\geq1\), then the conjectured
+symmetric-string formula is correct in every deficit layer
+\[
+  0\leq d\leq20.
+\]
+\end{theorem}
+
+The computation is not a search for supporting examples.  It verifies two
+finite obligations that the symbolic proof isolates.  We call them
+\emph{Computation A} and \emph{Computation B}:
+\begin{itemize}
+\item Computation A verifies the proposed formula directly in the finite base
+      range.
+\item Computation B verifies that the explicitly constructed canonical
+      strings do not run past their prescribed endpoints.
+\end{itemize}
+The symbolic part of the proof then completes the canonical strings at one
+critical length and transports the resulting decomposition to every larger
+length.
+
+More generally, the paper shows that for any fixed cutoff \(d^*\), producing
+this kind of combinatorial proof for all layers \(d\leq d^*\) in the family
+\(r\equiv1\pmod s\) is equivalent to a finite verification problem.  The
+choice \(d^*=20\) is therefore not intrinsic to the method.  A larger cutoff
+would require additional finite calculations, which have not been recorded
+here.
+
+\section{The proposed strings}
+
+Let \(D_{\ell,m}^d\) denote the position-coordinate \(m\)-Dyck paths in
+deficit layer \(d\), and let
+\[
+  C_{\ell,m}^d(q,t)
+  =
+  \sum_{x\in D_{\ell,m}^d}
+  q^{\area(x)}t^{M_{\ell,m}-d-\area(x)}.
+\]
+The distinguished roots form a subset \(T_{\ell,m}^d\).  In the position
+coordinates used by the code, a path is a sequence
+\[
+  x=(a_0,a_1,\ldots,a_\ell),
+  \qquad
+  a_0=0,
+  \qquad
+  0\leq a_{i+1}\leq a_i+m,
+\]
+and the roots in \(T_{\ell,m}^d\) are characterized by beginning
+\[
+  (0,0,\ldots).
+\]
+
+For integers \(a,b\), define the signed symmetric interval
+\[
+  \sym(a,b)
+  =
+  \frac{q^{b+1}t^a-q^a t^{b+1}}{q-t}.
+\]
+When \(a\leq b\), this is the ordinary positive string
+\[
+  q^a t^b+q^{a+1}t^{b-1}+\cdots+q^b t^a.
+\]
+The conjectured layer formula is
+\[
+  C_{\ell,m}^d(q,t)
+  =
+  \sum_{x\in T_{\ell,m}^d}
+  \sym\bigl(\area(x),M_{\ell,m}-d-\area(x)\bigr).
+  \tag{1}
+\]
+Thus every root prescribes a ``string holster'': one slot at every consecutive
+area from the root area to its symmetric terminal area.
+
+When \(d<(\ell-1)m\), the paper constructs the roots from fitting partitions.
+If \(P_{\ell-1}^d\) is the set of partitions of \(d\) whose largest part is at
+most \(\ell-1\), then maps \(g\) and \(f\) give a bijection
+\[
+  f\circ g:P_{\ell-1}^d\longrightarrow T_{\ell,m}^d.
+\]
+For \(m=1\), once \(\ell-1\geq d\), these fitting partitions are simply all
+partitions of \(d\).
+
+\section{Canonical initial strings}
+
+For each fitting partition \(\lambda\), let
+\[
+  x_\lambda=f(g(\lambda)).
+\]
+The paper defines a local operation \(\operatorname{right}\).  Beginning at
+\(x_\lambda\), repeatedly apply this operation until it is no longer
+possible:
+\[
+  x_\lambda,
+  \operatorname{right}(x_\lambda),
+  \operatorname{right}^2(x_\lambda),
+  \ldots,
+  \lowest(x_\lambda).
+\]
+Each step raises area by one while preserving the deficit.  These are the
+\emph{canonical initial strings}.
+
+The following facts are proved symbolically in the paper:
+\begin{itemize}
+\item distinct canonical strings are disjoint;
+\item the maps \(\operatorname{left}\) and \(\operatorname{right}\) are
+      inverse where they are defined;
+\item the canonical strings partition the subset
+      \(C_{\ell,m}^d\subseteq D_{\ell,m}^d\) of connected paths.
+\end{itemize}
+The remaining paths
+\[
+  N_{\ell,m}^d=D_{\ell,m}^d\setminus C_{\ell,m}^d
+\]
+are available to complete the canonical strings.  The added tails need only
+occupy consecutive area levels; they are not required to continue the
+\(\operatorname{right}\) operation.
+
+\section{The critical length}
+
+Fix a cutoff \(d^*\).  For each \(m\), define
+\[
+  \ell^*(m,d^*)
+  =
+  \min\{\ell:(\ell-1)m>d^*\}.
+\]
+The proof has three stages:
+\begin{enumerate}
+\item verify the formula directly for \(\ell\leq\ell^*\);
+\item prove that the canonical strings at \(\ell=\ell^*\) can be completed;
+\item propagate that completed decomposition symbolically to every
+      \(\ell>\ell^*\).
+\end{enumerate}
+For the theorem, \(d^*=20\).
+
+\section{Computation A: the finite formula check}
+
+Computation A is Lemma 3 of Section 9; it is called ``computation 2'' in the
+paper's appendix.  For each required pair \((m,\ell)\), it verifies equation
+\((1)\) for all generated deficit layers \(d\leq20\).
+
+The code represents the monomial
+\[
+  q^j t^{M_{\ell,m}-d-j}
+\]
+by the pair \((j,M_{\ell,m}-d)\).  It creates three multisets:
+\begin{itemize}
+\item \emph{all}: one record for every generated path;
+\item \emph{plus}: all positive string slots prescribed by the roots
+      \(a_1=0\);
+\item \emph{minus}: the correction slots coming from roots whose signed
+      interval is oriented past its midpoint.
+\end{itemize}
+It then checks the exact multiset identity
+\[
+  \text{plus}=\text{all}+\text{minus}.
+  \tag{2}
+\]
+This is a direct coefficient-by-coefficient verification of the conjectured
+formula in the finite base range
+\[
+  0\leq d\leq20,
+  \qquad
+  \ell\leq\ell^*(m,20).
+\]
+
+Computation A has two logical uses.  First, it proves the theorem outright for
+all \(\ell\leq\ell^*\).  Second, at \(\ell=\ell^*\), it says that the actual
+paths occur at every area with exactly the multiplicity required by all the
+proposed full string holsters.
+
+In \texttt{code.py}, this is implemented by
+\texttt{check\_lemma3}; the exposition-friendly alias is
+\texttt{check\_computation\_a}.
+
+\section{Computation B: no canonical string overshoots}
+
+Computation B is Lemma 2 of Section 9; it is called ``computation 1'' in the
+paper's appendix.  It is needed only at the critical length \(\ell^*\).
+
+Let \(\lambda\in P_{\ell^*-1}^d\), and let \(h(\lambda)\) be the number of
+parts of \(\lambda\).  The complete string indexed by \(\lambda\) is supposed
+to end at area
+\[
+  R(\lambda)
+  =
+  M_{\ell^*,m}-d-h(\lambda).
+\]
+Computation B constructs the canonical endpoint
+\[
+  \lowest(f(g(\lambda)))
+\]
+and verifies
+\[
+  \area\bigl(\lowest(f(g(\lambda)))\bigr)
+  \leq
+  R(\lambda).
+  \tag{3}
+\]
+Thus the canonical string may be too short, but it is never too long.  If it
+passed its prescribed endpoint, the proof would have to shorten and regroup a
+rigidly constructed string.  Inequality \((3)\) rules out that obstruction.
+
+The program recognizes the roots by the condition \(a_1=0\), computes their
+terminal paths with \texttt{lowest}, and recovers \(h(\lambda)\) through the
+source statistic named \texttt{height}.  In \texttt{code.py}, the check is
+\texttt{check\_lemma2}; the exposition-friendly alias is
+\texttt{check\_computation\_b}.
+
+\section{Why the two computations complete the boundary strings}
+
+At \(\ell=\ell^*\), each canonical string fills a disjoint initial segment of
+its prescribed holster.  Computation B proves that no initial segment extends
+beyond the end of its holster.  Computation A proves that, at each area level,
+the total number of actual paths equals the total number of holster slots.
+
+Subtract the slots already occupied by the canonical strings.  At every area,
+the number of unused paths is then exactly the number of unfilled slots.  Since
+an extension tail is not required to follow \(\operatorname{right}\), the
+unused paths can be assigned area by area to the open slots.  The result is a
+partition of all paths into completed strings with the prescribed starts and
+ends.  In the terminology of the paper, the layer is \emph{extendable}.
+
+The construction is rigid in its canonical prefixes but flexible in its added
+tails.  Correct multiplicities alone would prove the formula at the critical
+length, but the canonical prefixes are essential for the symbolic propagation
+to larger \(\ell\).
+
+\section{Symbolic propagation}
+
+Once every layer \(0\leq d\leq d^*\) is extendable at \(\ell^*\), Claim 16
+of the paper proves symbolically that every such layer is extendable for all
+\[
+  \ell>\ell^*.
+\]
+The induction removes the largest parts from the partition indexing a root,
+uses the extension already constructed one length lower, and prefixes the
+appropriate new coordinate.  The proof checks symbolically that areas,
+deficits, endpoints, and the unused-path partition all transform correctly.
+No further computation is used after the critical length.
+
+Consequently,
+\[
+  \text{Computation A below and at }\ell^*
+  +
+  \text{Computation B at }\ell^*
+  +
+  \text{symbolic propagation}
+\]
+proves the conjectured formula for every \(\ell\).
+
+\section{Example: \(m=3\)}
+
+Take \(m=3\) and \(d^*=20\).  The critical length is
+\[
+  \ell^*=8,
+\]
+because \(7\cdot3>20\), while \(6\cdot3\leq20\).
+
+The proof specializes as follows.
+\begin{enumerate}
+\item \textbf{Finite base range.}  Computation A verifies the formula for
+      every \(0\leq d\leq20\) and every \(\ell\leq8\).
+\item \textbf{Canonical strings at the boundary.}  For each fitting partition
+      of each \(d\), form \(f(g(\lambda))\) and apply
+      \(\operatorname{right}\) until the path is unrightable.  The symbolic
+      theory proves that these canonical strings are disjoint.
+\item \textbf{No overshooting.}  Computation B checks that every canonical
+      endpoint lies at or before its prescribed terminal area.
+\item \textbf{Complete the tails.}  Computation A supplies the exact area
+      multiplicities needed to allocate all leftover paths to the open slots.
+      Hence every layer at \(\ell=8\) is extendable.
+\item \textbf{Propagate.}  Claim 16 proves the formula for every \(\ell>8\)
+      without further computation.
+\end{enumerate}
+
+\section{The finite run and its scope}
+
+For \(d^*=20\), the appendix computation checks \(1\leq m\leq20\).  For
+\(m>20\), the critical length is \(\ell^*=2\), and the paper handles the
+remaining cases directly by symbolic arguments.
+
+The recorded full run generated \(5{,}692{,}942\) source-relevant path
+records.  Computation B found no failures.  Computation A checked 106
+nontrivial \((m,\ell)\)-layers and found no failures.  The stable summary is
+\[
+\begin{array}{l}
+\texttt{lemma2\_status: PASS},\quad
+\texttt{lemma2\_failures: 0},\\
+\texttt{lemma3\_status: PASS},\quad
+\texttt{lemma3\_layers\_checked: 106},\quad
+\texttt{lemma3\_failures: 0}.
+\end{array}
+\]
+
+The readable file \texttt{code.py} closely follows the appendix routines and
+uses only the Python standard library.  Its source defaults are
+\texttt{--max-m 20} and \texttt{--dstar 20}.  Smaller checks can be run, for
+example, with
+\[
+  \texttt{python code.py --max-m 3 --dstar 6}.
+\]
+The options \texttt{--check A} and \texttt{--check B} select the two
+computations in the terminology of this note; \texttt{--lemma 3} and
+\texttt{--lemma 2} are equivalent source-paper labels.
+
+The theorem established here concerns the family \(r\equiv1\pmod s\) through
+deficit \(20\).  The unrestricted formula for arbitrary coprime \((r,s)\),
+and the same family in deficits above \(20\), remain conjectural.
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2024}
+Graham Hawkes,
+\emph{A conjectured formula for the rational \(q,t\)-Catalan polynomial},
+Annals of Combinatorics \textbf{28} (2024), 749--795;
+arXiv:2208.00577.
+
+\end{thebibliography}
+
+\end{document}

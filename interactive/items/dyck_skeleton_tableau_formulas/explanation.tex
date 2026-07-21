@@ -1,0 +1,206 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+
+\DeclareMathOperator{\area}{area}
+\DeclareMathOperator{\dinv}{dinv}
+
+\title{Dyck Skeleton Tableau Formulas}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{What the formula says}
+
+The purpose of this item is to compare two ways of forming the same
+two-variable generating function.  The direct side sums
+\(q^{\area}t^{\dinv}\) over normalized rational Dyck sequences.  The
+skeleton/tableau side groups the same expected polynomial by rational
+skeletons, at-most-two-column rational Dyck tableaux, and a two-variable
+Schur factor.
+
+The checker uses the option name \(t\) for the rational step and \(n\) for the
+length.  In this explanation, the rational step is written \(\tau\) and the
+length is written \(s\), so the congruence family is
+\[
+  r=s\tau+1.
+\]
+Thus the checker's case \(t=1\) is the case \(\tau=1\).  From this point on,
+\(\tau\) denotes the rational step, while \(t\) remains the second variable in
+\(q,t\).
+
+\subsection{Rational Dyck side}
+
+Fix \(s\geq 1\) and \(\tau\geq 0\).  A normalized rational Dyck sequence of
+length \(s\) and step \(\tau\) is a sequence
+\[
+  D=(D_0,\ldots,D_{s-1})
+\]
+of nonnegative integers such that \(D_0=0\) and
+\[
+  D_{i+1}\leq D_i+\tau
+  \qquad(0\leq i<s-1).
+\]
+For a finite integer sequence \(x=(x_0,\ldots,x_{\ell-1})\), define
+\[
+  \dinv_\tau(x)=
+  \sum_{0\leq i<j<\ell} d_\tau(x_i,x_j),
+\]
+where
+\[
+  d_\tau(a,b)=
+  \begin{cases}
+    \max(0,a+\tau-b),& a\leq b,\\
+    \max(0,b+1+\tau-a),& a>b.
+  \end{cases}
+\]
+The area statistic is
+\[
+  \area(x)=\sum_i x_i.
+\]
+The direct rational \(q,t\)-Catalan side in this model is therefore
+\[
+  C_{s,\tau}(q,t)
+  =
+  \sum_D q^{\area(D)}t^{\dinv_\tau(D)},
+\]
+where \(D\) ranges over all normalized rational Dyck sequences of length
+\(s\).
+
+\subsection{Skeleton--tableau side}
+
+The formula decomposes the same polynomial by first choosing a rational
+skeleton and then filling the remaining cells by a two-column rational Dyck
+tableau.
+
+An entry \(D_j=e\) of a normalized rational Dyck sequence is called
+extractable if \(e>0\), exactly one earlier entry lies in the predecessor
+window
+\[
+  \{a\in\mathbb Z_{\geq 0}: \max(0,e-\tau)\leq a\leq e-1\},
+\]
+and deleting \(D_j\) preserves the adjacent rational Dyck inequality.  More
+explicitly, if \(0<j<s-1\), then deletion requires
+\[
+  D_{j+1}\leq D_{j-1}+\tau.
+\]
+If \(j=s-1\), there is no new adjacent pair to check.  For \(\tau=0\), the
+predecessor window is empty.  A rational \(m\)-skeleton is a normalized
+rational Dyck sequence \(F\) with final entry equal to its maximum,
+\[
+  F_{|F|-1}=\max(F)=m,
+\]
+and with no nonfinal extractable entry.  A final extractable entry is allowed
+in an \(m\)-skeleton.
+
+A rational Dyck tableau \(P\) of step \(\tau\) is a left-aligned tableau whose
+row lengths form a partition.  We index its rows in the source-paper
+convention: \(P_0\) is the top row, \(P_1\) is the row immediately below it,
+and so on.  Rows are read left to right and are dual rational Dyck sequences,
+\[
+  P_i[j+1]>P_i[j]+\tau,
+\]
+while columns, read bottom to top, satisfy the affine rational Dyck condition.
+Equivalently, if row \(i\) is immediately above row \(i+1\), then
+\[
+  P_i[j]\leq P_{i+1}[j]+\tau
+\]
+whenever both entries exist.  Its row-reading word is
+\[
+  \operatorname{RR}(P)=P_{\text{bottom}}P_{\text{next}}\cdots P_{\text{top}},
+\]
+with each row read left to right, and \(\lambda(P)\) denotes its shape.
+
+The checked conjectural rational two-column skeleton/tableau identity is
+\[
+  C_{s,\tau}(q,t)
+  =
+  \sum_{(F,P)}
+  q^{\area(F:\operatorname{RR}(P))}
+  t^{\dinv_\tau(F:\operatorname{RR}(P))-|P|}
+  s_{\lambda(P)'}(q,t).
+\]
+The sum is over all pairs \((F,P)\) such that \(F\) is a rational
+\(m\)-skeleton of step \(\tau\) for some \(m\geq 0\), \(P\) is an
+at-most-two-column rational Dyck tableau of step \(\tau\) with entries in
+\([0,m-1]\), and
+\[
+  |F|+|\operatorname{RR}(P)|=s.
+\]
+Here \(F:\operatorname{RR}(P)\) means concatenation, \(|P|\) is the number of
+cells of \(P\), \(\lambda(P)'\) is the conjugate partition, and
+\(s_{\lambda(P)'}(q,t)\) is the Schur function in the two variables \(q,t\).
+This is the checked conjectural identity for general rational step
+\(\tau\).
+
+\section{Source context and status}
+
+Status summary: the identity is proved for \(\tau=1\), degenerate for
+\(\tau=0\), and computationally verified but not proved for the tested
+values \(\tau>1\).
+
+For \(\tau=1\), the formula is exactly the two-column tableau formula for the
+ordinary \(q,t\)-Catalan polynomial proved in the source paper.  In that
+proof, Dyck sequences are sent by the paper's Type 1 through Type 4
+correspondences to Type 4 triples \((F,P,Q)\), where \(F\) is a Dyck
+\(m\)-skeleton, \(P\) is an at-most-two-column Dyck tableau, and \(Q\) is a
+binary reverse semistandard tableau of shape \(\lambda(P)\).
+
+The \(-|P|\) shift in the displayed formula comes from summing over the
+binary recording tableau \(Q\).  For fixed \((F,P)\), one has
+\[
+  q^{\#1(Q)}t^{-\#1(Q)}
+  =
+  t^{-|P|}q^{\#1(Q)}t^{\#0(Q)},
+\]
+since \(\#0(Q)+\#1(Q)=|P|\).  Transposing \(Q\) turns the binary reverse
+semistandard condition on shape \(\lambda(P)\) into the ordinary
+semistandard condition on the conjugate shape \(\lambda(P)'\), giving
+\[
+  \sum_Q q^{\#1(Q)}t^{\#0(Q)}
+  =
+  s_{\lambda(P)'}(t,q)
+  =
+  s_{\lambda(P)'}(q,t).
+\]
+
+The case \(\tau=0\) is degenerate.  The adjacent condition becomes
+\(D_{i+1}\leq D_i\), so a normalized nonnegative sequence starts at \(0\) and
+can only stay at \(0\).  Thus the direct side has only the all-zero sequence
+in each length.  On the formula side, a contributing skeleton must have
+\(m=0\), and a nonempty tableau would need entries in \([0,m-1]=[0,-1]\),
+which is impossible.  Therefore only \(F=(0,\ldots,0)\) with \(P=\varnothing\)
+contributes.
+
+For \(\tau>1\), this item records finite evidence for the conjectural
+rational analogue tested here.  The checker does not prove the formula in
+these cases; it enumerates both sides and compares the resulting coefficient
+dictionaries grouped by \((\area,\dinv)\).
+
+\section{Computational verification}
+
+The checker for the rational two-column skeleton/tableau formula is recorded
+in
+\[
+\texttt{code/check\_rational\_two\_column\_formula.py}.
+\]
+It compares two coefficient dictionaries: one from the direct normalized
+rational Dyck sequence generating function, and one from the formula-side
+expansion described above.  The check passes exactly when the two
+dictionaries agree for every \((\operatorname{area},\operatorname{dinv})\)
+key in the requested finite range.
+
+The official finite checks performed for this item are:
+\begin{itemize}
+\item \(\tau=2\), lengths \(1 \leq s \leq 14\), elapsed time
+      \(4102.814\) seconds;
+\item \(\tau=3\), lengths \(1 \leq s \leq 12\), elapsed time
+      \(25254.334\) seconds;
+\item \(\tau=4\), lengths \(1 \leq s \leq 10\), elapsed time
+      \(494.131\) seconds.
+\end{itemize}
+All three official checks passed.  These finite checks do not prove the
+identity for all lengths for any \(\tau>1\).
+
+\end{document}

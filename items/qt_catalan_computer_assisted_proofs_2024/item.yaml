@@ -1,8 +1,0 @@
-title: qt-Catalan Computer-Assisted Proofs 2024
-slug: qt_catalan_computer_assisted_proofs_2024
-status_summary: Proof-supporting computation for the 2024 rational qt-Catalan paper; computational review still needed for public packaging.
-source_paths:
-  - ../Conjectures-and-Computations/qt-catalan/qt-assisted.py
-  - ../Conjectures-and-Computations/testing/catest.py
-downloads:
-  - explanation.tex

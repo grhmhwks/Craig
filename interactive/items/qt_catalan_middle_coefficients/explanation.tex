@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+
+\title{$q,t$-Catalan Middle Coefficients}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+
+\begin{document}
+\maketitle
+
+\section{Classical flat middle coefficients}
+
+Let
+\[
+  C_n(q,t)=\sum_D q^{\operatorname{area}(D)}t^{\operatorname{dinv}(D)}
+\]
+where the sum is over Dyck area sequences \(D\) of length \(n\).  Put
+\[
+  M=\binom{n}{2}, \qquad
+  \operatorname{defc}(D)=M-\operatorname{area}(D)-\operatorname{dinv}(D).
+\]
+
+The Dyck-skeleton decomposition formula has the following flat-middle
+consequence.
+
+\begin{theorem}[Flat middle coefficients in the skeleton range]
+For \(n\ge 4\), \(M=\binom{n}{2}\), and \(0\le d\le 2n-8\), the coefficient of
+\[
+  q^j t^{M-d-j}
+\]
+in \(C_n(q,t)\) is independent of \(j\) for all integers
+\[
+  d\le j\le M-2d.
+\]
+The common value is the number of special Dyck skeletons of length \(n\) and
+deficit \(d\).
+\end{theorem}
+
+Here a special Dyck skeleton is a full Dyck skeleton other than the exceptional
+full skeleton
+\[
+  (0,0,1,0,\ldots,0,1)
+\]
+when that exceptional sequence exists.  The input from the skeleton
+decomposition is that every special skeleton \(S\) of deficit \(d\) satisfies
+\(\operatorname{area}(S)\le d\), and the skeleton contribution therefore fills
+the displayed middle band with the same coefficient.
+
+\section{Broader conjecture}
+
+The proved statement above is restricted to \(0\le d\le 2n-8\).  The broader
+flat-middle prediction is the following.
+
+\begin{conjecture}[Full flat-middle range]
+Let \(M=\binom{n}{2}\).  For any \(n\ge 1\) and
+\[
+  0\le d\le \left\lfloor \frac{M}{3}\right\rfloor,
+\]
+the coefficient of \(q^j t^{M-d-j}\) in \(C_n(q,t)\) is independent of \(j\)
+for all integers \(d\le j\le M-2d\).
+\end{conjecture}
+
+This conjecture is not a theorem in this item.  The curated code gives bounded
+checks of the theorem range only.
+
+\section{Computer check}
+
+The script \texttt{code/check\_flat\_middle\_coefficients.py} is a
+self-contained port of the bounded check from the Dyck repository.  It
+generates all Dyck area sequences for \(4\le n\le 8\), computes direct
+coefficients in the convention \(q^{\operatorname{area}}t^{\operatorname{dinv}}\),
+counts special skeletons by deficit, and verifies the flat band equality for
+all \(0\le d\le 2n-8\).
+
+The default run checks 2047 Dyck sequences, 25 \((n,d)\)-bands, and 325
+individual middle-band coefficients.  It also checks that the formula
+\[
+  \operatorname{defc}(D)
+  =\binom{n}{2}-\operatorname{area}(D)-\operatorname{dinv}(D)
+\]
+agrees with the explicit deficit-pair count on every generated sequence.
+
+These computations are regression evidence for the implementation and finite
+evidence for the displayed statements; they do not replace the skeleton
+decomposition proof and they do not prove the full flat-middle conjecture.
+
+\end{document}

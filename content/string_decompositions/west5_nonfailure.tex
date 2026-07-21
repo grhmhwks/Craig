@@ -1,0 +1,1184 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\West}{\operatorname{West}}
+\newcommand{\rev}{\operatorname{rev}}
+\newcommand{\bk}{\operatorname{bk}}
+\newcommand{\kap}{\mathcal K}
+
+\title{West5 Nonfailure for Step-$\tau$ Dyck Words}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Fix an integer step $\tau\ge2$.  We prove that, for every length
+$s\ge6$, the level-$5$ West move cannot fail when it is reached by the
+successive leftmost-extraction procedure from a weak-lower-half
+step-$\tau$ Dyck word of defect at most $\tau(s-2)-1$.  The proof uses
+record payment, extraction transport, the far-pair inequalities from the
+companion East5 argument, and a final split according to whether the word
+before the third extraction begins with two zeros or with a positive
+second entry.
+\end{abstract}
+
+\section{Definitions and imported facts}
+
+Throughout, $\tau\ge2$ is fixed.  For words $U,V$, the notation $U:V$
+means concatenation.
+
+\begin{definition}[Normalized words and statistics]
+A word $W=(w_0,\ldots,w_{n-1})$ is a \emph{normalized step-$\tau$ Dyck
+word} if
+\[
+ w_0=0,\qquad w_i\ge0,\qquad w_{i+1}\le w_i+\tau
+ \quad(0\le i<n-1).
+\]
+For nonnegative integers $u,v$, put
+\[
+ d_\tau(u,v)=
+ \begin{cases}
+  (u+\tau-v)_+,&u\le v,\\[1mm]
+  (v+\tau+1-u)_+,&u>v,
+ \end{cases}
+\]
+and
+\[
+ K_\tau(u,v)=\tau-d_\tau(u,v)
+ =
+ \begin{cases}
+  \min(\tau,v-u),&u\le v,\\[1mm]
+  \min(\tau,u-v-1),&u>v.
+ \end{cases}
+\]
+For a word $W$ of length $n$, define
+\[
+ \area(W)=\sum_iw_i,
+ \qquad
+ \dinv_\tau(W)=\sum_{i<j}d_\tau(w_i,w_j),
+\]
+\[
+ M_n=\tau\binom n2,
+ \qquad
+ \defc_\tau(W)=M_n-\area(W)-\dinv_\tau(W).
+\]
+Finally, set
+\[
+ \lambda_j(W)=\sum_{i<j}K_\tau(w_i,w_j)-w_j.
+\]
+Then every word satisfies
+\begin{equation}
+ \defc_\tau(W)=\sum_j\lambda_j(W).
+ \label{eq:lambda-identity}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Extraction]
+Let $W=(w_0,\ldots,w_{n-1})$ be normalized.  An occurrence
+$w_j=e>0$ is \emph{extractable} if exactly one earlier occurrence lies
+in
+\[
+ [\max(0,e-\tau),e),
+\]
+and deleting $w_j$ leaves a normalized word.  Equivalently, when
+$0<j<n-1$, the deletion must satisfy the splice inequality
+\[
+ w_{j+1}\le w_{j-1}+\tau.
+\]
+At every stage we extract the leftmost extractable occurrence.
+\end{definition}
+
+\begin{definition}[The local tests]
+The test $\East_3$ succeeds on $(u,v,w)$ exactly when
+\[
+ v\le w+\tau,
+\]
+and then leaves the triple unchanged.
+
+Suppose $\East_3$ has failed on the inner triple of a five-window
+$(a,b,c,p,q)$, so that $c>p+\tau$.  Put
+\[
+ \bk_\tau(b,c)=
+ \begin{cases}
+  (c,b),&b>c+\tau,\\
+  (b,c),&b\le c+\tau.
+ \end{cases}
+\]
+Then $\East_5$ is defined as follows.
+\begin{enumerate}[label=\textup{(\alph*)}]
+ \item If $b\le p+\tau$, it succeeds exactly when $b\le q+\tau$,
+ and then sends
+ \[
+  (a,b,c,p,q)\longmapsto(a,p,c,b,q).
+ \]
+ \item If $b>p+\tau$, write $(b',c')=\bk_\tau(b,c)$.  It succeeds
+ exactly when $c'\le q+\tau$, and then sends
+ \[
+  (a,b,c,p,q)\longmapsto(a,p,b',c',q).
+ \]
+\end{enumerate}
+The West tests are obtained by reversal:
+\[
+ \West_j=\rev\circ\East_j\circ\rev
+ \qquad(j=3,5).
+\]
+In particular, $\West_3$ succeeds on $(u,v,w)$ exactly when
+$v\le u+\tau$.
+\end{definition}
+
+We use the following facts proved in the common preliminary work and in
+the companion East5 proof.
+
+\begin{lemma}[Imported record and extraction facts]
+\label{lem:imported}
+The following statements hold.
+\begin{enumerate}[label=\textup{(\roman*)}]
+ \item Let
+ \[
+ 0=r_0<r_1<\cdots<r_m=M
+ \]
+ be the record values preceding a target $u$ in a normalized word.
+ If $u\le M+\tau$, then
+ \begin{equation}
+  \sum_iK_\tau(r_i,u)\ge u+(M-1-u)_+.
+  \label{eq:strong-record}
+ \end{equation}
+ In particular, every lambda increment of a normalized word is
+ nonnegative.
+
+ \item If $H\ge L+\tau+1$, then for every $u\ge0$,
+ \begin{align}
+  K_\tau(u,H)+K_\tau(u,L)
+   &\ge \tau+\min\bigl(\tau,(L-u)_+\bigr),
+   \label{eq:forward-far}\\
+  K_\tau(H,u)+K_\tau(L,u)&\ge\tau.
+   \label{eq:reverse-far}
+ \end{align}
+
+ \item If an extractable value $e$ is deleted and $e-1$ is appended,
+ then
+ \begin{equation}
+  (\area,\dinv_\tau,\defc_\tau)
+  \longmapsto
+  (\area-1,\dinv_\tau+1,\defc_\tau).
+  \label{eq:transport}
+ \end{equation}
+ These identities remain valid for the appended stage word even when it
+ is not normalized.
+
+ \item If $e_i,e_{i+1}$ are successive leftmost extracted values, then
+ \begin{equation}
+  e_i\le e_{i+1}+\tau.
+  \label{eq:successive}
+ \end{equation}
+
+ \item A leftmost extractable occurrence is a record.  If a normalized
+ word begins $(0,u,\ldots)$ with $u>0$, then all entries before its first
+ extractable occurrence form a strictly increasing record chain and
+ satisfy
+ \begin{equation}
+  w_{i+2}>w_i+\tau.
+  \label{eq:rapid-propagation}
+ \end{equation}
+
+ \item If a normalized word of length $n$ begins with $(0,0)$ and its
+ only extractable occurrence is the final one, then
+ \begin{equation}
+  \defc_\tau(W)\ge\tau(n-2).
+  \label{eq:double-zero-boundary}
+ \end{equation}
+\end{enumerate}
+\end{lemma}
+
+\section{The common West5 estimates}
+
+Suppose three successive leftmost extractions have values
+\[
+ x+1,\qquad y+1,\qquad z+1.
+\]
+After the third deletion, write the normalized remainder as
+\[
+ C=R:a:b,
+ \qquad |R|=r.
+\]
+The corresponding level-$5$ stage is
+\begin{equation}
+ T=R:a:b:x:y:z.
+ \label{eq:T-stage}
+\end{equation}
+In the application below, $r=s-5\ge1$.
+
+\begin{lemma}[Consequences of West5 failure]
+\label{lem:west-consequences}
+Assume that $\West_3$ has failed before the third extraction and that
+$\West_5$ fails on $(a,b,x,y,z)$.  Then
+\begin{equation}
+ x>b+\tau,
+ \qquad x\le y+\tau,
+ \qquad y\le z+\tau.
+ \label{eq:history-ineqs}
+\end{equation}
+Moreover, exactly one of the following modes occurs:
+\begin{align*}
+ \mathrm{W1}:&\quad y\le b+\tau,\\[-1mm]
+ &\quad y>a+\tau;\\[1mm]
+ \mathrm{W2}:&\quad y>b+\tau,
+ \quad y\le x+\tau,
+ \quad x>a+\tau;\\[1mm]
+ \mathrm{W3}:&\quad y>b+\tau,
+ \quad y>x+\tau,
+ \quad y>a+\tau.
+\end{align*}
+In modes W1 and W3, the far pairs are $(x,b)$ and $(y,a)$; in mode W2,
+they are $(x,a)$ and $(y,b)$.  Thus each pair $(H,L)$ satisfies
+$H\ge L+\tau+1$.
+
+If
+\[
+\begin{aligned}
+ U_W={}&K_\tau(a,b)+K_\tau(a,x)+K_\tau(a,y)\\
+ &+K_\tau(b,x)+K_\tau(b,y)+K_\tau(x,y),
+\end{aligned}
+\]
+then
+\begin{equation}
+ U_W\ge4\tau+K_\tau(a,b).
+ \label{eq:UW}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+West3 failure gives $x>b+\tau$.  Equation
+\eqref{eq:successive}, applied twice, gives the other two inequalities in
+\eqref{eq:history-ineqs}.
+
+West5 on $(a,b,x,y,z)$ is East5 on $(z,y,x,b,a)$.  Substitution into the
+two East5 cases gives precisely W1--W3.
+
+For \eqref{eq:UW}, consider the three modes.  In W1,
+\[
+ K_\tau(a,x)=K_\tau(a,y)=K_\tau(b,x)=\tau,
+\]
+and the reverse far-pair bound for $(x,b)$ at target $y$ gives
+\[
+ K_\tau(x,y)+K_\tau(b,y)\ge\tau.
+\]
+In W2,
+\[
+ K_\tau(a,x)=K_\tau(b,x)=K_\tau(b,y)=\tau,
+\]
+and the reverse far-pair bound for $(x,a)$ at target $y$ gives
+\[
+ K_\tau(x,y)+K_\tau(a,y)\ge\tau.
+\]
+In W3,
+\[
+ K_\tau(a,y)=K_\tau(b,x)=K_\tau(b,y)=K_\tau(x,y)=\tau.
+\]
+Adding the unused nonnegative term $K_\tau(a,b)$ proves
+\eqref{eq:UW} in all cases.
+\end{proof}
+
+Define
+\[
+ E_a=\sum_{u\text{ in }R}\min\bigl(\tau,(a-u)_+\bigr),
+ \qquad
+ E_b=\sum_{u\text{ in }R}\min\bigl(\tau,(b-u)_+\bigr),
+\]
+\begin{equation}
+ E=E_a+E_b,
+ \qquad
+ H=E+K_\tau(a,b)-a-b.
+ \label{eq:E-H}
+\end{equation}
+Since $R:a:b$ is normalized, record payment gives
+\begin{equation}
+ E_a\ge a,
+ \qquad
+ E_b+K_\tau(a,b)\ge b,
+ \qquad
+ H\ge0.
+ \label{eq:H-nonnegative}
+\end{equation}
+Also put
+\begin{equation}
+ \Delta=\defc_\tau(R),
+ \qquad
+ A_z=\sum_{u\text{ in }C}K_\tau(u,z)-z.
+ \label{eq:Delta-Az}
+\end{equation}
+The unique predecessor of the extracted value $z+1$ survives in $C$.
+Hence $z$ lies at most $\tau-1$ above some entry of $C$, and record
+payment gives
+\begin{equation}
+ A_z\ge0.
+ \label{eq:Az-nonnegative}
+\end{equation}
+The last lambda increment of $T$ is
+\begin{equation}
+ \lambda_z(T)=A_z+K_\tau(x,z)+K_\tau(y,z).
+ \label{eq:lambda-z}
+\end{equation}
+
+\begin{lemma}[West suffix ledger]
+\label{lem:west-ledger}
+Let $\Lambda$ be the sum of the final five lambda increments of $T$.
+If West5 fails, then
+\begin{equation}
+ \Lambda\ge
+ 2\tau r+4\tau+E+K_\tau(a,b)+\lambda_z(T)
+ -(a+b+x+y).
+ \label{eq:west-ledger}
+\end{equation}
+If, in addition,
+\begin{equation}
+ d:=\defc_\tau(T)\le\tau(r+3)-1,
+ \label{eq:defect-cutoff-r}
+\end{equation}
+then
+\begin{equation}
+ x+y\ge
+ \Delta+\tau(r+1)+1+\lambda_z(T)+H.
+ \label{eq:xy-lower}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+For each occurrence $u$ in $R$, apply the forward far-pair inequality to
+the two pairs supplied by Lemma~\ref{lem:west-consequences}.  This gives
+\[
+\begin{aligned}
+ &K_\tau(u,a)+K_\tau(u,b)+K_\tau(u,x)+K_\tau(u,y)\\
+ &\qquad\ge2\tau+
+ \min\bigl(\tau,(a-u)_+\bigr)+
+ \min\bigl(\tau,(b-u)_+\bigr).
+\end{aligned}
+\]
+Summing over $R$, adding \eqref{eq:UW}, retaining the complete last
+increment $\lambda_z(T)$, and subtracting $a+b+x+y$ proves
+\eqref{eq:west-ledger}.
+
+By \eqref{eq:lambda-identity}, $d=\Delta+\Lambda$.  Combine
+\eqref{eq:west-ledger} with \eqref{eq:defect-cutoff-r}, then use the
+definition of $H$ in \eqref{eq:E-H}, to obtain
+\eqref{eq:xy-lower}.
+\end{proof}
+
+\begin{lemma}[Tail inequality]
+\label{lem:tail}
+If $x\le y+\tau$ and $y\le z+\tau$, then
+\begin{equation}
+ x+y\le
+ 2z+K_\tau(x,z)+K_\tau(y,z)+\tau+1.
+ \label{eq:tail}
+\end{equation}
+Consequently, under the hypotheses of Lemma~\ref{lem:west-ledger},
+\begin{equation}
+ 2z\ge\Delta+\tau r+A_z+H.
+ \label{eq:z-master}
+\end{equation}
+In particular,
+\begin{equation}
+ z\ge\frac{\tau r}{2}.
+ \label{eq:z-basic}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Put $\phi_z(u)=u-K_\tau(u,z)$.  Directly from the definition of
+$K_\tau$,
+\[
+ \phi_z(u)\le z\quad(u\le z),
+ \qquad
+ \phi_z(u)=z+1\quad(z<u\le z+\tau+1),
+\]
+and
+\[
+ \phi_z(u)=u-\tau\quad(u>z+\tau+1).
+\]
+Since $y\le z+\tau$, one has $\phi_z(y)\le z+1$.  If
+$x\le z+\tau+1$, then
+\[
+ \phi_z(x)+\phi_z(y)\le2z+2\le2z+\tau+1.
+\]
+If $x>z+\tau+1$, then
+\[
+ \phi_z(x)=x-\tau\le y,
+\]
+so
+\[
+ \phi_z(x)+\phi_z(y)\le y+z+1\le2z+\tau+1.
+\]
+This is \eqref{eq:tail}.
+
+Substitute \eqref{eq:lambda-z} into \eqref{eq:xy-lower} and compare with
+\eqref{eq:tail}.  The terms $K_\tau(x,z)+K_\tau(y,z)$ cancel, giving
+\eqref{eq:z-master}.  Equation \eqref{eq:z-basic} follows from
+$\Delta,A_z,H\ge0$.
+\end{proof}
+
+For a word $W$, define its total chronological $K$-energy by
+\begin{equation}
+ \kap(W)=\sum_{i<j}K_\tau(w_i,w_j)
+ =\area(W)+\defc_\tau(W).
+ \label{eq:K-energy}
+\end{equation}
+For the stage \eqref{eq:T-stage}, put
+\begin{equation}
+ F=\kap(R)+E+K_\tau(a,b)+\lambda_z(T)+z.
+ \label{eq:F}
+\end{equation}
+
+\begin{lemma}[Midpoint-energy reduction]
+\label{lem:energy-reduction}
+Assume \eqref{eq:defect-cutoff-r}.  Then
+\begin{equation}
+ J(T):=2\area(T)+\defc_\tau(T)
+ \ge2F+3\tau r+5\tau+1.
+ \label{eq:J-lower}
+\end{equation}
+If
+\begin{equation}
+ \Theta_r=\frac{\tau(r^2+3r+10)}4-\frac12,
+ \label{eq:Theta}
+\end{equation}
+and $F>\Theta_r$, then
+\begin{equation}
+ J(T)>M_{r+5}.
+ \label{eq:J-above}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Rearrange \eqref{eq:west-ledger} and use
+$\kap(R)=\area(R)+\Delta$ to obtain
+\[
+ \area(T)\ge F+2\tau r+4\tau-d,
+ \qquad d=\defc_\tau(T).
+\]
+Thus
+\[
+ J(T)\ge2F+4\tau r+8\tau-d.
+\]
+Using $d\le\tau(r+3)-1$ gives \eqref{eq:J-lower}.
+Finally,
+\[
+ 2\Theta_r+3\tau r+5\tau+1
+ =\tau\frac{(r+5)(r+4)}2=M_{r+5},
+\]
+which proves the last assertion.
+\end{proof}
+
+\section{The double-zero branch}
+
+Let $D_2$ be the normalized word after the first two extractions and
+before the third.  Write
+\begin{equation}
+ D_2=A:(z+1):B,
+ \qquad |A|=h,
+ \qquad |B|=k\ge1.
+ \label{eq:D2-decomposition}
+\end{equation}
+The third extraction is nonfinal, so $B$ is nonempty.  Since
+$D_2$ has length $s-2$,
+\begin{equation}
+ h+k=s-3.
+ \label{eq:h-k}
+\end{equation}
+
+\begin{proposition}[Double-zero branch]
+\label{prop:double-zero}
+Suppose $D_2[1]=0$.  If West5 fails, then
+\begin{equation}
+ \defc_\tau(T)\ge\tau(s-2).
+ \label{eq:double-zero-contradiction}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The word $A:(z+1)$ begins with $(0,0)$ and has only its final occurrence
+extractable.  Indeed, $z+1$ is the leftmost extractable occurrence of
+$D_2$, and removing the suffix $B$ does not change the predecessor or
+splice conditions of an earlier occurrence.  By
+\eqref{eq:double-zero-boundary},
+\[
+ \defc_\tau(A:(z+1))\ge\tau(h-1).
+\]
+Transporting the final extraction gives
+\begin{equation}
+ \defc_\tau(A:z)\ge\tau(h-1).
+ \label{eq:Az-base-defect}
+\end{equation}
+We prove
+\begin{equation}
+ \defc_\tau(T)-\defc_\tau(A:z)\ge\tau(k+2).
+ \label{eq:double-zero-increment}
+\end{equation}
+Together with \eqref{eq:h-k} and \eqref{eq:Az-base-defect}, this yields
+\eqref{eq:double-zero-contradiction}.
+
+\medskip
+\noindent\emph{Case 1: $k\ge2$.}
+Write
+\[
+ B=B':a:b,
+ \qquad
+ P=A:B'.
+\]
+Then $|P|=r=h+k-2$.  Put
+\[
+ \mu=\defc_\tau(P)-\defc_\tau(A)\ge0;
+\]
+the inequality follows from lambda nonnegativity in the normalized word
+$P$.
+
+Apply the West suffix ledger with $P$ as prefix, and let $H_P\ge0$ be
+the corresponding surplus from \eqref{eq:E-H}.  Subtracting
+$\defc_\tau(A:z)$ gives
+\[
+\begin{aligned}
+ \defc_\tau(T)-\defc_\tau(A:z)
+ \ge{}&2\tau r+4\tau+\mu+H_P\\
+ &+\sum_{v\text{ in }B}K_\tau(v,z)
+ +K_\tau(x,z)+K_\tau(y,z)-x-y.
+\end{aligned}
+\]
+By the tail inequality,
+\begin{equation}
+ \defc_\tau(T)-\defc_\tau(A:z)
+ \ge2\tau r+3\tau-1+\mu+H_P
+ +\sum_{v\text{ in }B}K_\tau(v,z)-2z.
+ \label{eq:kge2-difference}
+\end{equation}
+Because $D_2$ begins with two zeros and $z+1$ occurs at index $h$,
+\[
+ z\le(h-1)\tau-1.
+\]
+Using $r=h+k-2$ in \eqref{eq:kge2-difference} and dropping nonnegative
+terms gives
+\[
+\begin{aligned}
+ \defc_\tau(T)-\defc_\tau(A:z)
+ &\ge2\tau(h+k-2)+3\tau-1
+   -2\bigl((h-1)\tau-1\bigr)\\
+ &=2\tau k+\tau+1\\
+ &\ge\tau(k+2).
+\end{aligned}
+\]
+This proves \eqref{eq:double-zero-increment} when $k\ge2$.
+
+\medskip
+\noindent\emph{Case 2: $k=1$.}
+Now $B=(b)$ and $A=R:a$.  Since $z+1$ is a record and its immediate
+left neighbor $a$ is its unique predecessor, no earlier entry of $A$
+can exceed $a$; hence $a$ is the record peak of $A$.  Moreover,
+\begin{equation}
+ a\le z\le a+\tau-1.
+ \label{eq:a-z}
+\end{equation}
+The second initial zero gives
+\begin{equation}
+ a\le(h-2)\tau,
+ \label{eq:a-height}
+\end{equation}
+and the splice condition for deleting $z+1$ gives
+\begin{equation}
+ b\le a+\tau.
+ \label{eq:b-splice}
+\end{equation}
+
+For $t\ge0$, put
+\[
+ G_A(t)=\sum_{u\text{ in }A}K_\tau(u,t),
+\]
+\begin{equation}
+ m_b=\min(\tau,b)+(a-1-b)_+,
+ \label{eq:mb}
+\end{equation}
+and
+\begin{equation}
+ \gamma(t)=
+ \begin{cases}
+  t+\tau,&t\le a+\tau,\\
+  h\tau,&t>a+\tau.
+ \end{cases}
+ \label{eq:gamma}
+\end{equation}
+Use the record chain of $A$ with the second initial zero omitted, then
+add the contribution of that zero.  The strong record estimate gives
+\begin{equation}
+ G_A(b)-b\ge m_b.
+ \label{eq:Gb}
+\end{equation}
+In every West5 failure mode, $x,y>\tau$.  Therefore the second zero
+contributes a full $\tau$-unit to both targets, and
+\begin{equation}
+ G_A(t)\ge\gamma(t)
+ \qquad(t=x,y).
+ \label{eq:Ggamma}
+\end{equation}
+
+Set
+\[
+ I=\defc_\tau(T)-\defc_\tau(A:z).
+\]
+An exact lambda calculation gives
+\[
+\begin{aligned}
+ I={}&[G_A(b)-b]+K_\tau(b,z)\\
+ &+[G_A(x)+K_\tau(b,x)-x]\\
+ &+[G_A(y)+K_\tau(b,y)+K_\tau(x,y)-y]\\
+ &+K_\tau(x,z)+K_\tau(y,z).
+\end{aligned}
+\]
+Hence, by \eqref{eq:Gb}--\eqref{eq:Ggamma},
+\begin{equation}
+\begin{aligned}
+ I\ge\Psi:={}&m_b+K_\tau(b,z)+\gamma(x)-x+\gamma(y)-y\\
+ &+K_\tau(b,x)+K_\tau(b,y)+K_\tau(x,y)\\
+ &+K_\tau(x,z)+K_\tau(y,z).
+\end{aligned}
+\label{eq:Psi}
+\end{equation}
+We prove $\Psi\ge3\tau$ in the three failure modes.
+
+\smallskip
+\noindent\emph{Mode W1.}
+Here $b>a$.  Put
+\[
+ \alpha=y-b,
+ \qquad
+ \beta=x-y,
+ \qquad
+ t=z-b.
+\]
+Then
+\[
+ 1\le\alpha\le\tau,
+ \qquad
+ \tau-\alpha+1\le\beta\le\tau.
+\]
+Substitution in \eqref{eq:Psi} gives
+\begin{equation}
+ \Psi=m_b+K_\tau(b,z)+2(h\tau-b)+\tau-2
+      +K_\tau(x,z)-t.
+ \label{eq:Psi-W1}
+\end{equation}
+If $t\ge0$, then $K_\tau(b,z)=t$,
+$K_\tau(x,z)\ge\tau-t$ by the reverse far-pair bound for $(x,b)$,
+and
+\[
+ h\tau-b\ge\tau+1+t.
+\]
+Thus $\Psi\ge m_b+4\tau+t\ge3\tau$.  If $t<0$, then
+\[
+ K_\tau(b,z)=-t-1,
+ \qquad
+ K_\tau(x,z)=\tau,
+ \qquad
+ h\tau-b\ge\tau,
+\]
+so
+\[
+ \Psi\ge m_b+4\tau-3-2t\ge4\tau-1\ge3\tau.
+\]
+
+\smallskip
+\noindent\emph{Mode W2 with $y\le a+\tau$.}
+Put
+\[
+ u=x-a-\tau\ge1,
+ \qquad
+ v=a+\tau-y\ge0.
+\]
+Then $u+v\le\tau$ and
+$K_\tau(x,y)=u+v-1$.  The pair $(y,b)$ is far, so
+\[
+ K_\tau(b,z)+K_\tau(y,z)\ge\tau.
+\]
+Moreover,
+\[
+ K_\tau(b,x)=K_\tau(b,y)=\tau.
+\]
+Writing $g=(h-2)\tau-a\ge0$, we have
+\[
+ \gamma(x)-x=\tau+g-u,
+ \qquad
+ \gamma(y)-y=\tau.
+\]
+Therefore
+\[
+ \Psi\ge m_b+5\tau+g+v-1+K_\tau(x,z)
+ \ge5\tau-1\ge3\tau.
+\]
+
+\smallskip
+\noindent\emph{Mode W2 with $y>a+\tau$.}
+Put
+\[
+ u=x-a-\tau,
+ \qquad
+ v=y-a-\tau,
+ \qquad
+ \delta=z-a.
+\]
+Then
+\[
+ u,v\ge1,
+ \qquad
+ v\le\delta\le\tau-1,
+ \qquad
+ |u-v|\le\tau.
+\]
+Again
+\[
+ K_\tau(b,z)+K_\tau(y,z)\ge\tau,
+ \qquad
+ K_\tau(b,x)=K_\tau(b,y)=\tau,
+\]
+and
+\[
+ \gamma(x)-x=\tau+g-u,
+ \qquad
+ \gamma(y)-y=\tau+g-v.
+\]
+We claim
+\begin{equation}
+ K_\tau(x,y)+K_\tau(x,z)\ge u+v-\tau+1.
+ \label{eq:ux-bound}
+\end{equation}
+If $u\le v$, the left side is
+\[
+ v-u+\tau+u-\delta-1,
+\]
+and \eqref{eq:ux-bound} follows from $u+\delta\le2\tau-2$.
+If $v<u\le\delta$, the difference between the two sides of
+\eqref{eq:ux-bound} is
+\[
+ 2\tau+u-2v-\delta-3\ge0.
+\]
+If $u>\delta$, then the difference is
+\[
+ 2(\tau-v-1)\ge0.
+\]
+Thus
+\[
+ \Psi\ge m_b+5\tau+2g-u-v+K_\tau(x,y)+K_\tau(x,z)
+ \ge m_b+4\tau+2g+1\ge3\tau.
+\]
+
+\smallskip
+\noindent\emph{Mode W3.}
+If $x>a+\tau$, then
+\[
+ y>x+\tau>a+2\tau,
+\]
+contrary to $y\le z+\tau\le a+2\tau-1$.  Hence $x\le a+\tau$ and
+$\gamma(x)-x=\tau$.  Also
+\[
+ \gamma(y)-y=h\tau-y\ge g+1.
+\]
+Furthermore,
+\[
+ K_\tau(b,x)=K_\tau(b,y)=K_\tau(x,y)=\tau,
+\]
+and the reverse far-pair bound for $(y,x)$ at target $z$ gives
+\[
+ K_\tau(x,z)+K_\tau(y,z)\ge\tau.
+\]
+Consequently
+\[
+ \Psi\ge5\tau+g+1\ge3\tau.
+\]
+
+Thus $I\ge3\tau=\tau(k+2)$ when $k=1$.  This proves
+\eqref{eq:double-zero-increment} and completes the proposition.
+\end{proof}
+
+\section{The positive-second-entry branch}
+
+\begin{lemma}[Rapid-prefix identities]
+\label{lem:rapid-identities}
+Assume $D_2[1]>0$ and write
+\[
+ D_2=A:(z+1):B,
+ \qquad
+ A=(q_0,\ldots,q_{h-1}),
+ \qquad q_0=0.
+\]
+Put $q=q_{h-1}$.  Then $A:(z+1)$ is a strictly increasing rapid record
+chain, and
+\begin{equation}
+ z+1-\tau\le q\le z,
+ \qquad
+ q_i\le z-\tau\quad(i\le h-2).
+ \label{eq:q-z}
+\end{equation}
+Moreover,
+\begin{align}
+ \kap(A)&=q+\tau\binom{h-1}{2},
+ \label{eq:KA}\\
+ \sum_{u\text{ in }A}K_\tau(u,z)
+ &=\tau(h-1)+z-q,
+ \label{eq:A-to-z}\\
+ \kap(A)+\sum_{u\text{ in }A}K_\tau(u,z)
+ &=z+\tau\binom h2.
+ \label{eq:rapid-energy}
+\end{align}
+For every $w\ge0$,
+\begin{equation}
+ \sum_{u\text{ in }A}K_\tau(u,w)+K_\tau(w,z)\ge z.
+ \label{eq:rapid-target}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Because $z+1$ is the first extractable occurrence and $D_2[1]>0$,
+failed-splice propagation gives a strictly increasing record chain and
+\eqref{eq:rapid-propagation}.  The immediate left neighbor $q$ lies in
+the predecessor interval of $z+1$ and is its unique predecessor.  This
+proves \eqref{eq:q-z}.
+
+Only adjacent pairs of $A$ contribute less than a full $\tau$-unit to
+$K$-energy.  The adjacent gaps telescope to $q$, while the nonadjacent
+pairs contribute $\tau$.  This proves \eqref{eq:KA}.  By
+\eqref{eq:q-z}, every occurrence before $q$ contributes $\tau$ to target
+$z$, and $q$ contributes $z-q$, proving \eqref{eq:A-to-z}.  Their sum is
+\eqref{eq:rapid-energy}.
+
+For \eqref{eq:rapid-target}, first suppose $w\le q+\tau$.  Strong record
+payment gives
+\[
+ \sum_{u\text{ in }A}K_\tau(u,w)
+ \ge w+(q-1-w)_+.
+\]
+If $w\le q-1$, then
+\[
+ K_\tau(w,z)\ge z-q+1.
+\]
+If $q\le w\le z$, then $K_\tau(w,z)=z-w$.  If $w>z$, the prefix
+contribution alone exceeds $z$.  These cases prove
+\eqref{eq:rapid-target} when $w\le q+\tau$.
+
+If $w>q+\tau$, every entry of $A$ contributes $\tau$, so the left side
+is at least $h\tau$.  Normalization of $A:(z+1)$ gives
+$z+1\le h\tau$, and \eqref{eq:rapid-target} follows.
+\end{proof}
+
+\begin{proposition}[Positive-second-entry branch]
+\label{prop:positive}
+Suppose $D_2[1]>0$, $r=s-5\ge1$, and West5 fails under the defect cutoff
+\eqref{eq:defect-cutoff-r}.  Then
+\begin{equation}
+ F>\Theta_r.
+ \label{eq:F-positive}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Use the decomposition \eqref{eq:D2-decomposition}.
+
+\medskip
+\noindent\emph{Case 1: $k=|B|\ge2$ and $r\ge2$.}
+Write
+\[
+ B=B':a:b,
+ \qquad
+ R=A:B'.
+\]
+Then $|B'|=r-h$.  Combine the exact identity
+\eqref{eq:rapid-energy} with the target estimate
+\eqref{eq:rapid-target}, once for each occurrence of $B'$.  Discard the
+nonnegative internal $K$-energy of $B'$.  Finally, apply the two reverse
+far-pair bounds at target $z$ and use
+$E+K_\tau(a,b)\ge a+b$.  This gives
+\begin{equation}
+ F\ge(r-h+1)z+\tau\binom h2+2\tau+a+b.
+ \label{eq:F-kge2}
+\end{equation}
+
+If $r\ge5$, substitute \eqref{eq:z-basic} into
+\eqref{eq:F-kge2} and drop $a+b$.  Completing the square gives
+\begin{equation}
+\begin{aligned}
+ F-\Theta_r
+ \ge{}&\frac{\tau}{2}
+ \left(h-\frac{r+1}{2}\right)^2\\
+ &+\frac{\tau(r^2-4r-5)}8+\frac12>0.
+\end{aligned}
+\label{eq:large-r-square}
+\end{equation}
+
+It remains in this case to treat $2\le r\le4$.  Normalization gives
+$z\le h\tau-1$, while \eqref{eq:z-basic} gives
+$z\ge\tau r/2$.  Also $k\ge2$ implies $h\le r$.  Hence
+\[
+ (r,h)\in
+ \{(2,2),(3,2),(3,3),(4,3),(4,4)\}.
+\]
+Using only $z\ge\tau r/2$ in \eqref{eq:F-kge2}, one obtains
+\begin{equation}
+ F-\Theta_r\ge a+b+
+ \begin{cases}
+  \frac12-\tau,&(r,h)=(2,2),(3,2),\\[1mm]
+  \frac12-\frac\tau2,&(r,h)=(3,3),(4,3),\\[1mm]
+  \frac12+\frac\tau2,&(r,h)=(4,4).
+ \end{cases}
+ \label{eq:small-r-table}
+\end{equation}
+Thus all these cases are finished if $a+b\ge\tau$.
+
+Assume $a+b\le\tau-1$.  Since $z\ge\tau$, an elementary cap
+calculation gives
+\begin{equation}
+ K_\tau(a,z)+K_\tau(b,z)\ge\min(z+1,2\tau).
+ \label{eq:cap-ab}
+\end{equation}
+Indeed, if $z\ge2\tau$, both terms are $\tau$.  If
+$\tau\le z\le2\tau-1$, either both terms are uncapped, in which case
+their sum is at least $2z-(\tau-1)\ge z+1$, or a capped term only
+increases the same lower bound.
+
+By \eqref{eq:A-to-z},
+\[
+ A_z\ge\tau(h-1)-q+K_\tau(a,z)+K_\tau(b,z)
+ \ge K_\tau(a,z)+K_\tau(b,z).
+\]
+Therefore \eqref{eq:z-master} and \eqref{eq:cap-ab} give
+\[
+ 2z\ge\tau r+\min(z+1,2\tau).
+\]
+The alternative $z\le2\tau-1$ would imply
+$z\ge\tau r+1\ge2\tau+1$, impossible.  Hence
+\begin{equation}
+ z\ge\frac{\tau(r+2)}2.
+ \label{eq:z-improved}
+\end{equation}
+For $(r,h)=(2,2),(3,2),(4,3)$ this contradicts $z\le h\tau-1$.
+For $(r,h)=(3,3)$, equation \eqref{eq:F-kge2} gives
+\[
+ F\ge z+5\tau\ge\frac{15\tau}{2}>7\tau-\frac12=\Theta_3.
+\]
+The pair $(4,4)$ was already positive in \eqref{eq:small-r-table}.
+This completes Case~1.
+
+\medskip
+\noindent\emph{Case 2: $k=1$ and $r\ge2$.}
+Here $A=R:a$.  Write
+\[
+ A=(q_0,\ldots,q_{r-1},a).
+\]
+The rapid-chain identities give
+\begin{align}
+ \kap(R)&=q_{r-1}+\tau\binom{r-1}{2},
+ \label{eq:KR-k1}\\
+ E_a&=\tau(r-1)+a-q_{r-1}.
+ \label{eq:Ea-k1}
+\end{align}
+Every occurrence of $R$ lies outside the predecessor interval of
+$z+1$, so
+\begin{equation}
+ \sum_{u\text{ in }R}K_\tau(u,z)=r\tau.
+ \label{eq:R-to-z-k1}
+\end{equation}
+The two reverse far-pair bounds at target $z$ contribute another
+$2\tau$, while $E_b+K_\tau(a,b)\ge b\ge0$.  Hence
+\begin{equation}
+ F\ge a+\tau\left(\binom{r-1}{2}+2r+1\right).
+ \label{eq:F-k1}
+\end{equation}
+The unique-predecessor relation gives
+\[
+ a\ge z+1-\tau\ge\frac{\tau r}{2}+1-\tau.
+\]
+Substitution into \eqref{eq:F-k1} yields
+\begin{equation}
+ F-\Theta_r\ge
+ \frac{\tau(r+3)(r-2)}4+\frac32>0.
+ \label{eq:F-k1-positive}
+\end{equation}
+
+\medskip
+\noindent\emph{Case 3: $r=1$.}
+Now
+\[
+ R=(0),
+ \qquad
+ C=(0,a,b).
+\]
+Put
+\begin{equation}
+ H=\min(\tau,b)+K_\tau(a,b)-b\ge0.
+ \label{eq:H-r1}
+\end{equation}
+Since $0\le a\le\tau$ and $b\le a+\tau$,
+\begin{equation}
+ a+b+H=
+ \begin{cases}
+  2a-1,&b<a,\\
+  2b,&a\le b\le\tau,\\
+  b+\tau,&b>\tau.
+ \end{cases}
+ \label{eq:abH}
+\end{equation}
+The two reverse far-pair bounds at target $z$ imply
+\begin{equation}
+ F\ge a+b+H+K_\tau(0,z)+2\tau.
+ \label{eq:F-r1}
+\end{equation}
+
+There are two possible positions for the third extraction.
+
+\smallskip
+\noindent\emph{Subcase $h=1$.}
+Then
+\[
+ D_2=(0,z+1,a,b),
+ \qquad
+ 0\le z\le\tau-1.
+\]
+Here $K_\tau(0,z)=z$, and \eqref{eq:z-master} becomes
+\begin{equation}
+ 2z\ge\tau+K_\tau(a,z)+K_\tau(b,z)+H.
+ \label{eq:r1-h1-z}
+\end{equation}
+In particular, $z\ge\tau/2$.  We claim
+\begin{equation}
+ a+b+H+z\ge\frac{3\tau}{2}.
+ \label{eq:r1-h1-claim}
+\end{equation}
+If $b<a$ and $a\le z$, equation \eqref{eq:r1-h1-z} reduces to
+$2b+1\ge\tau$, hence $2a-1\ge\tau$.  If $b<a$ and $a>z$, then
+$2a-1+z\ge3z+1$.  If $a\le b\le\tau$ and $b\le z$, equation
+\eqref{eq:r1-h1-z} reduces to $2a\ge\tau$, hence $2b\ge\tau$.
+If $a\le b\le\tau$ and $b>z$, then $2b+z\ge3z+2$.  Finally,
+$b>\tau$ makes \eqref{eq:r1-h1-claim} immediate from
+\eqref{eq:abH}.  Thus the claim holds.  Equations
+\eqref{eq:F-r1} and \eqref{eq:r1-h1-claim} give
+\[
+ F\ge\frac{7\tau}{2}>\frac{7\tau}{2}-\frac12=\Theta_1.
+\]
+
+\smallskip
+\noindent\emph{Subcase $h=2$.}
+Then
+\[
+ D_2=(0,a,z+1,b),
+ \qquad
+ 1\le a\le\tau,
+ \qquad
+ \tau\le z\le a+\tau-1.
+\]
+Now $K_\tau(0,z)=\tau$, and \eqref{eq:z-master} becomes
+\begin{equation}
+ 2z\ge2\tau-a+K_\tau(b,z)+H.
+ \label{eq:r1-h2-z}
+\end{equation}
+We claim
+\begin{equation}
+ a+b+H\ge\frac\tau2.
+ \label{eq:r1-h2-claim}
+\end{equation}
+If $b<a$, then
+$K_\tau(b,z)\ge z-a+1$.  Combining
+\eqref{eq:r1-h2-z} with $z\le a+\tau-1$ gives
+$2a+b\ge\tau+1$.  Since $b\le a-1$, this implies
+$a\ge(\tau+2)/3$ and hence $2a-1\ge\tau/2$.  If
+$a\le b\le\tau$, then $K_\tau(b,z)=z-b$, and
+\eqref{eq:r1-h2-z} with $z\le a+\tau-1$ gives
+$3a\ge\tau+1$; hence $2b\ge2a\ge\tau/2$.  If $b>\tau$,
+\eqref{eq:r1-h2-claim} is immediate.  Therefore
+\[
+ F\ge3\tau+\frac\tau2
+ =\frac{7\tau}{2}>\Theta_1.
+\]
+
+All cases give \eqref{eq:F-positive}.
+\end{proof}
+
+\section{West5 nonfailure}
+
+\begin{theorem}[West5 nonfailure]
+\label{thm:west5}
+Let $\tau\ge2$ and $s\ge6$.  Let $D$ be a normalized step-$\tau$ Dyck
+word satisfying
+\begin{equation}
+ d=\defc_\tau(D)\le\tau(s-2)-1,
+ \qquad
+ \area(D)\le\dinv_\tau(D).
+ \label{eq:main-hypotheses}
+\end{equation}
+Suppose the DOWN procedure reaches its level-$5$ stage: the first two
+leftmost extractions are made, West3 fails, and a third leftmost
+extraction is made outside the final position.  Then the resulting
+West5 test succeeds.
+\end{theorem}
+
+\begin{proof}
+Suppose, for contradiction, that West5 fails.  Let the three extracted
+values be $x+1,y+1,z+1$, and use the notation
+\[
+ T=R:a:b:x:y:z,
+ \qquad
+ r=s-5.
+\]
+By three applications of extraction transport,
+\begin{equation}
+ \area(T)=\area(D)-3,
+ \qquad
+ \dinv_\tau(T)=\dinv_\tau(D)+3,
+ \qquad
+ \defc_\tau(T)=d.
+ \label{eq:three-transports}
+\end{equation}
+Since $\area(D)\le\dinv_\tau(D)$,
+\[
+ \dinv_\tau(T)-\area(T)
+ =\dinv_\tau(D)-\area(D)+6\ge6.
+\]
+Equivalently,
+\begin{equation}
+ J(T)=2\area(T)+d\le M_s-6.
+ \label{eq:J-below}
+\end{equation}
+Also $d\le\tau(r+3)-1$, so all the common estimates above apply.
+
+Let $D_2$ be the word before the third extraction.  If $D_2[1]=0$,
+Proposition~\ref{prop:double-zero} gives
+\[
+ d=\defc_\tau(T)\ge\tau(s-2),
+\]
+contrary to \eqref{eq:main-hypotheses}.
+
+If $D_2[1]>0$, Proposition~\ref{prop:positive} gives
+$F>\Theta_r$.  Lemma~\ref{lem:energy-reduction} then gives
+\[
+ J(T)>M_s,
+\]
+contrary to \eqref{eq:J-below}.
+
+Both alternatives are impossible.  Therefore West5 succeeds.
+\end{proof}
+
+\end{document}

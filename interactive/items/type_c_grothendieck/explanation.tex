@@ -1,0 +1,102 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+
+\title{Type C Grothendieck}
+\author{}
+\date{}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+\section{Objects}
+
+For a signed permutation \(\omega\), the type \(C\) stable Grothendieck
+polynomial, or \(K\)-theoretic Stanley symmetric function of type \(C\), is
+defined in the source note as
+\[
+  GC_\omega=\sum_{f\in F_\omega} \mathbf{x}^{\operatorname{wt}(f)}.
+\]
+Here \(F_\omega\) is the set of signed factorizations for \(\omega\).  Such a
+factorization begins with a word in the ordered alphabet
+\[
+  \cdots < -3 < -2 < -1 < -0 < 0 < 1 < 2 < 3 < \cdots,
+\]
+where \(i\) and \(-i\), for \(i\ne 0\), represent the simple transposition
+\(s_i\), while \(0\) and \(-0\) represent the type \(C\) generator \(s_0\).  The
+word is subdivided into strictly increasing factors, and the weight records the
+factor sizes.
+
+The \(Q\)-Grothendieck function is
+\[
+  GQ_\lambda=\sum_{q\in Q_\lambda}\mathbf{x}^{\operatorname{wt}(q)},
+\]
+where \(Q_\lambda\) is the set of semistandard shifted set-valued tableaux of
+\(Q\)-type.
+
+\section{Conjectural expansion}
+
+The source conjecture predicts a positive \(GQ\)-expansion
+\[
+  GC_\omega = \sum_{t\in T_\omega} GQ_{\operatorname{shape}(t)},
+\]
+where \(T_\omega\) is the set of conjectural type \(C\) unimodal Hecke tableaux
+for \(\omega\).
+
+The source note also states a stronger \(GR\)-model formulation
+\[
+  GC_\omega^+ = \sum_{t\in T_\omega} GR_{\operatorname{shape}(t)}.
+\]
+Here \(GC_\omega^+\) restricts the signed factorizations by requiring a unique
+minimum-absolute-value entry in each factor, with positive sign.  The \(GR\)
+model is the shifted set-valued tableau submodel in which the first \(i\) or
+\(i'\), read left to right and bottom to top, is constrained to be \(i\).
+
+\section{Three checked levels}
+
+The source code tests three increasingly strong finite statements.
+
+\begin{conjecture}[Basic count level]
+For each signed permutation \(\omega\) and word length \(n\), Hecke words of
+length \(n\) for \(\omega\) are counted by pairs \((t,r)\), where
+\(t\in T_\omega\), \(r\) is a standard shifted set-valued tableau with \(n\)
+entries, and \(t\) and \(r\) have the same shape.
+\end{conjecture}
+
+\begin{conjecture}[Strong count level]
+The same count holds after restricting to Hecke words with no adjacent equal
+letters and to standard shifted set-valued tableaux with no consecutive entries
+in the same box.
+\end{conjecture}
+
+\begin{conjecture}[Peakset-preserving level]
+The correspondence can also be made peakset-preserving: a peak
+\(w_{i-1}<w_i>w_{i+1}\) in the Hecke word corresponds to a peak at \(i\) in the
+recording shifted set-valued tableau.
+\end{conjecture}
+
+\begin{remark}
+The source note explains that the peakset-preserving level would imply the
+positive \(GQ\)-expansion for \(GC_\omega\), with coefficients counted by type
+\(C\) unimodal tableaux of the corresponding shape.
+\end{remark}
+
+\section{Computer check}
+
+The script \texttt{code/check\_type\_c\_grothendieck.py} is a curated combined
+port of the three source scripts.  Its default run checks all three levels with
+max word length \(4\) and generator indices \(0,\ldots,3\).  During curation,
+all three levels were also checked with max word length \(5\) and generator
+indices \(0,\ldots,3\).
+
+The original source scripts use larger default parameters, including length
+\(8\), largest generator \(4\) for the basic and strong checks, and length
+\(11\), largest generator \(4\) for the strongest check.  The curated defaults
+are smaller so that the item remains quick to run.
+
+These computations are finite evidence and regression checks.  They do not
+construct the conjectural bijections and they do not prove the conjectures.
+
+\end{document}

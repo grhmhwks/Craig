@@ -1,0 +1,328 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\DeclareMathOperator{\dinv}{dinv}
+\DeclareMathOperator{\di}{di}
+\DeclareMathOperator{\RR}{RR}
+\DeclareMathOperator{\SSYT}{SSYT}
+\newcommand{\DS}{\operatorname{DS}}
+\newcommand{\DSstar}{\operatorname{DS}^{\ast}}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\Zge}{\mathbb Z_{\ge 0}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\title{Dyck Symmetric Functions}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This note explains Dyck and dual Dyck symmetric functions and the
+\(r=s\tau+1\) rational analogue.  The guiding picture has three levels.
+At \(\tau=0\), the theory is a version of the classical RSK and dual RSK
+correspondences.  At \(\tau=1\), the ordinary Dyck and dual Dyck symmetric
+functions are theorem-level objects: the 2026 paper proves the dual formula by
+an explicit tableau insertion bijection and derives the affine formula by the
+standard involution on symmetric functions.  For \(\tau>1\), the same
+Schur-expansion statements are conjectural.  They are supported here by finite
+computations, but no insertion algorithm is currently known for the rational
+case.
+
+The terminology ``affine'' and ``dual'' refers to the two local inequalities
+allowed inside each factor of a factorization.  The affine inequality is
+\(x_{i+1}\le x_i+\tau\).  The dual inequality is
+\(x_{i+1}>x_i+\tau\).  When \(\tau=1\), the dual condition becomes
+\(x_{i+1}\ge x_i+2\), which is the condition used in the 2026 insertion
+algorithm.  When \(\tau=0\), the dual condition becomes strict increase, so
+the dual side reduces to the familiar dual-RSK setting.
+
+\section{Step-$\tau$ dinv and rational Dyck factors}
+
+Fix a nonnegative integer \(\tau\).  For a finite integer sequence
+\(w=(w_0,\ldots,w_{\ell-1})\), define
+\[
+  \dinv_\tau(w)=\sum_{0\le i<j<\ell} d_\tau(w_i,w_j),
+\]
+where
+\[
+  d_\tau(a,b)=
+  \begin{cases}
+    \max(0,a+\tau-b),& a\le b,\\
+    \max(0,b+1+\tau-a),& a>b.
+  \end{cases}
+\]
+The rational family considered here corresponds to slopes
+\[
+  r=s\tau+1.
+\]
+This note does not attempt to treat arbitrary coprime rational slopes.
+
+A finite integer sequence is called an \emph{affine \(\tau\)-Dyck sequence} if
+\[
+  w_{i+1}\le w_i+\tau
+  \qquad(0\le i<\ell-1),
+\]
+and a \emph{dual \(\tau\)-Dyck sequence} if
+\[
+  w_{i+1}>w_i+\tau
+  \qquad(0\le i<\ell-1).
+\]
+The empty sequence and one-entry sequences satisfy both conditions vacuously.
+
+Let \(S\) be a finite multiset of integers.  A factorization of \(S\) is a
+sequence
+\[
+  \mathcal F=(F_0,F_1,F_2,\ldots)
+\]
+of finite words, all but finitely many empty, whose concatenation is a
+rearrangement of \(S\).  It is affine, respectively dual, if every factor is an
+affine, respectively dual, \(\tau\)-Dyck sequence.  We use zero-indexed
+symmetric-function variables
+\(\mathbf x=(x_0,x_1,x_2,\ldots)\), and write
+\[
+  x^{\mathcal F}=\prod_{i\ge0} x_i^{|F_i|}.
+\]
+The affine and dual rational Dyck symmetric functions are
+\[
+  \DS^{(\tau)}(S,d;\mathbf x)
+  =
+  \sum_{\substack{\mathcal F\text{ affine }\tau\text{-Dyck factorization of }S\\
+                  \dinv_\tau(F_0F_1F_2\cdots)=d}}
+       x^{\mathcal F}
+\]
+and
+\[
+  \operatorname{DS}^{\ast,(\tau)}(S,d;\mathbf x)
+  =
+  \sum_{\substack{\mathcal F\text{ dual }\tau\text{-Dyck factorization of }S\\
+                  \dinv_\tau(F_0F_1F_2\cdots)=d}}
+       x^{\mathcal F}.
+\]
+
+\section{Rational Dyck tableaux}
+
+A rational Dyck tableau of step \(\tau\) is a left-aligned tableau whose row
+lengths form a partition.  Rows are indexed from top to bottom.  Each row,
+read left to right, is required to be a dual \(\tau\)-Dyck sequence.  Columns
+are read from bottom to top and are required to satisfy the affine
+\(\tau\)-Dyck inequality.  Equivalently, if row \(i\) is immediately above row
+\(i+1\), then entries in a common column satisfy
+\[
+  P_i[j]\le P_{i+1}[j]+\tau.
+\]
+The row-reading word is read from the bottom row upward, each row left to
+right:
+\[
+  \RR(P)=P_{\mathrm{bottom}}P_{\mathrm{next}}\cdots P_{\mathrm{top}}.
+\]
+The shape \(\lambda(P)\) is the partition of row lengths.
+
+For \(\tau=1\), this is the Dyck tableau convention used in the classical
+paper.  For \(\tau>1\), the same definition supplies the conjectural rational
+Schur expansion.
+
+\section{The classical theorem at $\tau=1$}
+
+The 2026 paper states the classical insertion theorem using the statistic
+\[
+  \di(w)=\#\{(i,j):i<j,\ w_i=w_j+1\}.
+\]
+For a fixed multiset \(S\), this is equivalent to the \(\tau=1\) version of
+\(\dinv_\tau\), up to a constant shift.  Indeed, if
+\(m_a\) is the multiplicity of the value \(a\) in \(S\), then every
+rearrangement \(w\) of \(S\) has
+\[
+  \dinv_1(w)=\di(w)+\sum_a \binom{m_a}{2}.
+\]
+Thus grouping by \(\di\) or by \(\dinv_1\) carries the same information once
+\(S\) is fixed.
+
+The theorem-level result is the following Schur expansion.
+
+\begin{theorem}[Classical Dyck symmetric functions]
+Let \(S\) be a finite multiset of integers and let \(d\ge0\).  In the
+classical step-one Dyck setting, the dual Dyck symmetric function has expansion
+\[
+  \DSstar(S,d;\mathbf x)
+  =
+  \sum_P s_{\lambda(P)}(\mathbf x),
+\]
+where \(P\) ranges over Dyck tableaux with entries \(S\) and
+\(\di(\RR(P))=d\).  The affine Dyck symmetric function has the conjugate-shape
+expansion
+\[
+  \DS(S,d;\mathbf x)
+  =
+  \sum_P s_{\lambda(P)'}(\mathbf x),
+\]
+with the same indexing set.
+\end{theorem}
+
+The dual formula is proved by an explicit insertion bijection.  A dual Dyck
+factorization \(\mathcal F=(F_0,F_1,\ldots)\) is sent to a pair \((P,Q)\),
+where \(P\) is a Dyck tableau and \(Q\) is a semistandard Young tableau of the
+same shape.  The content of \(Q\) records the factor lengths:
+\[
+  m_i(Q)=|F_i|.
+\]
+Therefore the monomial \(x^{\mathcal F}\) becomes the ordinary SSYT monomial
+attached to \(Q\).  Summing over all semistandard recording tableaux of fixed
+shape gives the Schur function \(s_{\lambda(P)}(\mathbf x)\).
+
+The affine formula is not proved by a separate nice affine insertion algorithm
+in the paper.  It is derived from the dual formula using the standard
+involution \(\omega\) on symmetric functions, together with
+\(\omega(s_\lambda)=s_{\lambda'}\).  This asymmetry is important: the explicit
+insertion algorithm currently belongs to the dual side.
+
+\section{Why the insertion algorithm is not ordinary row insertion}
+
+The classical dual insertion algorithm is close in spirit to dual RSK, but it
+is not just ordinary row insertion with different notation.  Its distinctive
+feature is that it sometimes inserts chunks rather than individual letters.
+When the next input letter is exactly one more than a row entry, the algorithm
+compares the maximal contiguous \(+2\)-chain in the row with the maximal
+contiguous \(+2\)-chain at the front of the current input.  Depending on which
+chain is shorter, an entire block is either swapped with a row block or passed
+upward.
+
+This chunking depends on the factorization, not merely on the underlying
+concatenated word.  The paper's four-factor example is
+\[
+  F_0|F_1|F_2|F_3
+  =
+  (0,2,4)\,|\,(1,3)\,|\,(1,3,5)\,|\,(0,6).
+\]
+When \(F_1=(1,3)\) is inserted into the row \((0,2,4)\), the row has a longer
+\(+2\)-chain than the input, so the input block passes through and the row is
+unchanged.  Later, when \(F_2=(1,3,5)\) is inserted, the same prefix
+\((1,3)\) belongs to a longer input chain; now the input chain has enough
+length to displace the row chain.  This illustrates why two factorizations
+with the same underlying word can lead to different insertion histories and,
+in general, different insertion tableaux.  The factor boundaries are part of
+the data.
+
+This behavior is also what makes the algorithm interesting as a Dyck
+deformation of dual RSK.  At \(\tau=0\), dual factors are simply strictly
+increasing words, and the Schur expansion is governed by the classical dual
+RSK correspondence.  At \(\tau=1\), strict increase is replaced by the dual
+Dyck gap condition \(w_{i+1}\ge w_i+2\), and ordinary bumping must be replaced
+by chunked row insertion.  Finding an analogous insertion procedure for
+\(\tau>1\) remains open.
+
+\section{The step-zero baseline}
+
+The \(\tau=0\) specialization is not new combinatorics; it is the RSK/dual-RSK
+baseline.  In this case \(d_0(a,b)=0\) for all pairs \((a,b)\), so the dinv
+parameter has only the value \(0\) for each fixed multiset.  Dual factors
+satisfy
+\[
+  w_{i+1}>w_i,
+\]
+so they are strictly increasing.  The dual Schur expansion is therefore the
+usual dual-RSK Schur expansion for strict factor words.  The affine condition
+becomes
+\[
+  w_{i+1}\le w_i,
+\]
+which is the weak/ordinary RSK counterpart after reversing the row convention.
+This is why the \(\tau=1\) insertion theorem should be viewed as the first
+nontrivial Dyck deformation of a respected classical algorithm rather than as
+an isolated construction.
+
+\section{The $r=s\tau+1$ conjecture}
+
+The natural rational conjecture keeps the same tableau indexing set but
+replaces the step-one inequalities and statistic by their step-\(\tau\)
+versions.
+
+\begin{conjecture}[Rational Dyck symmetric functions for \(r=s\tau+1\)]
+Let \(\tau\ge0\), let \(S\) be a finite multiset of integers, and let
+\(d\ge0\).  Then
+\[
+  \operatorname{DS}^{\ast,(\tau)}(S,d;\mathbf x)
+  =
+  \sum_P s_{\lambda(P)}(\mathbf x),
+\]
+and
+\[
+  \DS^{(\tau)}(S,d;\mathbf x)
+  =
+  \sum_P s_{\lambda(P)'}(\mathbf x),
+\]
+where \(P\) ranges over rational Dyck tableaux of step \(\tau\) with entries
+exactly \(S\) and
+\[
+  \dinv_\tau(\RR(P))=d.
+\]
+\end{conjecture}
+
+The conjecture is known at \(\tau=0\) by RSK and dual RSK, and at \(\tau=1\)
+by the 2026 Dyck insertion theorem, after the constant shift between \(\di\)
+and \(\dinv_1\) for fixed multisets.  For \(\tau>1\), the statement is
+conjectural.  The present repository contains finite computational checks, not
+a proof.
+
+\section{Computational evidence and the role of \texttt{code.py}}
+
+The file \texttt{code.py} is intended as a readable reference implementation
+of the finite checks for this item.  It is not designed to be the fastest
+possible implementation.  The larger recorded parameter boxes were checked
+using more optimized code; the simplified file included here exposes the
+mathematical comparison in a compact form.
+
+For a fixed step \(\tau\), alphabet \(\{1,\ldots,A\}\), and maximum length
+\(L\), the finite check proceeds as follows.  It enumerates word classes in the
+bounded alphabet, groups them by multiset and \(\dinv_\tau\), enumerates the
+valid affine and dual factorizations by composition type, and compares the
+resulting coefficient counts with the Schur-side prediction obtained from
+rational Dyck tableaux and semistandard Young tableaux.  Equivalently, for
+each multiset and \(\dinv_\tau\) value, the check verifies that the
+factorization counts agree with the Schur expansions predicted by the
+conjecture.
+
+The exhaustive parameter boxes recorded for the repository are
+\[
+  (\tau,A,L)=(2,10,10),\qquad (3,13,9),\qquad (4,16,8).
+\]
+In addition, sampled class checks were recorded for 100 classes in each of
+\[
+  (\tau,A,L)=(2,11,12),\qquad (3,14,11),\qquad (4,17,10).
+\]
+These computations support the conjecture for \(\tau>1\), but they do not
+supply an insertion proof.  The open problem is to find a conceptual bijection
+that explains the rational Schur expansions in the same way that row insertion
+explains the classical dual case.
+
+\section{Open directions}
+
+Two insertion problems stand out.  First, one would like a genuine
+step-\(\tau\) insertion algorithm for \(\tau>1\) that specializes to dual RSK
+at \(\tau=0\) and to the chunked Dyck insertion algorithm at \(\tau=1\).  Such
+an algorithm should explain why rational Dyck tableaux govern the Schur
+expansion, rather than merely verifying the equality by enumeration.
+
+Second, even in the classical \(\tau=1\) case, the known nice insertion
+algorithm proves the dual formula directly.  The affine formula is obtained by
+applying \(\omega\).  It would be interesting to have an explicit affine Dyck
+insertion algorithm whose output directly produces the conjugate-shape
+expansion.
+
+\begin{thebibliography}{9}
+
+\bibitem{Hawkes2026DyckSymmetric}
+Graham Hawkes,
+\emph{Dyck Symmetric Functions and Applications to \(q,t\)-Catalan
+Polynomials},
+arXiv:2605.13003, 2026.
+
+\end{thebibliography}
+
+\end{document}

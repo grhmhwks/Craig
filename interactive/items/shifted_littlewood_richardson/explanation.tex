@@ -1,0 +1,84 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+
+\title{Shifted Littlewood--Richardson}
+\author{}
+\date{}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+\section{Reading words}
+
+This item records the shifted Littlewood--Richardson conjectures from the
+source note on skewing \(GP\) and \(GQ\) functions.  The objects are shifted
+set-valued tableaux, in either the \(P\)-version or the \(Q\)-version.
+
+The \emph{backword} of such a tableau is read by rows from top to bottom; within
+each row, from right to left; and within each box, primed entries first in
+decreasing order, followed by unprimed entries in decreasing order.  The
+\emph{forword} is read by rows from bottom to top; within each row, from left
+to right; and within each box, unprimed entries first in decreasing order,
+followed by primed entries in decreasing order.
+
+\section{Lattice and primed-starting conditions}
+
+The lattice property is defined by testing each adjacent pair \(i,i+1\).  In
+the backword, count unprimed \(i\)'s and unprimed \((i+1)\)'s; the latter count
+must never exceed the former, and an \((i+1)'\) may not occur when the two
+counts are equal.  In the forword, count primed \(i'\)'s and primed
+\((i+1)'\)'s; again the latter count must never exceed the former, and an
+unprimed \(i\) may not occur when the two counts are equal.
+
+The primed-starting property is used for the \(Q\)-rule.  Read boxes by rows
+from bottom to top and left to right within each row.  For each \(i\), the first
+box containing \(i\) or \(i'\) must contain \(i'\) but not \(i\).
+
+\section{Conjectural rules}
+
+Let \(\mathcal{P}_{\lambda/\mu}\) be the set of shifted set-valued
+\(P\)-tableaux of shape \(\lambda/\mu\) satisfying the lattice property.  Let
+\(\mathcal{Q}_{\lambda/\mu}\) be the set of shifted set-valued \(Q\)-tableaux of
+shape \(\lambda/\mu\) satisfying both the lattice and primed-starting
+properties.
+
+\begin{conjecture}[Skew \(GP\) expansion]
+\[
+  GP_{\lambda/\mu}
+  =
+  \sum_{P\in\mathcal{P}_{\lambda/\mu}} GP_{\operatorname{wt}(P)}.
+\]
+\end{conjecture}
+
+\begin{conjecture}[Skew \(GQ\) expansion]
+\[
+  GQ_{\lambda/\mu}
+  =
+  \sum_{Q\in\mathcal{Q}_{\lambda/\mu}} GQ_{\operatorname{wt}(Q)}.
+\]
+\end{conjecture}
+
+\begin{remark}
+The source \(GQ\) script checks an equivalent-looking rule in a related \(GR\)
+model.  In the source README, \(GR\) is described as the submodel in which, for
+each \(i\), the first \(i\) or \(i'\) in the left-to-right, bottom-to-top
+reading word is constrained.  The source notes that the \(GR\) check implies
+the corresponding \(GQ\) expansion.
+\end{remark}
+
+\section{Computer check}
+
+The script \texttt{code/check\_shifted\_lr.py} is a combined curated port of
+the source \(GP\) and \(GQ\) scripts.  It compares the direct homogeneous
+monomial expansion of a skew shifted Grothendieck function with the homogeneous
+monomial expansion reconstructed from the conjectural rule.
+
+The default run checks both the \(GP\) and \(GQ/GR\) branches for degree \(5\),
+shape/skew \([3,1]/[1]\), and \(3\) variables.  During curation the same shape
+was also checked in degree \(6\).  These computations are finite evidence and
+regression checks; they are not proofs of the conjectures.
+
+\end{document}

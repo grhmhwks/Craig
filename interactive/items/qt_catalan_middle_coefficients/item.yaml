@@ -1,0 +1,13 @@
+title: qt-Catalan Middle Coefficients
+slug: qt_catalan_middle_coefficients
+status_summary: Classical flat middle coefficients are proved for 0 <= d <= 2n-8; the full flat-middle range is conjectural.
+source_paths:
+  - ../Dyck/paper/working_drafts/arxiv_submission.tex
+  - ../Dyck/paper/working_drafts/draft_v3_sections/05_decomposition_formula.tex
+  - ../Dyck/code/codex_project/red_team_flat_middle_coefficients.py
+  - ../Dyck/code/code_assistant/codex_tasks/CA-0011_flat_middle_coefficients.md
+  - ../Dyck/code/code_assistant/reviews/CA-0011_flat_middle_coefficients_review.md
+downloads:
+  - explanation.tex
+  - code/check_flat_middle_coefficients.py
+  - code/flat_middle_coefficients_default_summary.txt
