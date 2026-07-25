@@ -32,6 +32,16 @@ depending on the level of generality: we survey the classical case, the
 we identify important deficit cutoffs and spell out what results are known or
 conjectured at those levels.
 
+Two current workspace proof packages substantially refine the earlier status
+survey.  The directory
+\path{mod1_decomp_formula/} proves the lower-cutoff decomposition and
+partition formula for \(r=\tau s+1\), while
+\path{naive_rational_cyclic_map.tex} formulates and argues for deficit
+preservation of the naive rational cyclic map in the full rational setting.
+We distinguish below between the theorem statements in those manuscripts,
+their external inputs, and any proof issues still recorded by the accompanying
+audit files.
+
 More explicitly, if all terms in a deficit layer have total degree \(N\), then
 a positive symmetric string rooted at area \(A\) has the form
 \[
@@ -232,117 +242,84 @@ The lower cutoff is
 \[
   B_{\mathrm{lower}}=(s-2)\tau-1.
 \]
-In this smaller range, the situation appears to be more explicitly
-decompositional.  The roots of the strings are exactly the normalized
-\(\tau\)-Dyck sequences beginning
+In this smaller range, the situation is explicitly decompositional.  The
+manuscripts in
+\path{mod1_decomp_formula/} now prove the required lower-half decomposition.
+The roots of the strings are exactly the full skeletons in the defect range,
+and these are exactly the normalized \(\tau\)-Dyck sequences beginning
 \[
   (0,0,\ldots).
 \]
 Equivalently, these are the paths whose label-\(1\) position has value \(0\).
-In this lower range, there appear to be no paths beginning \((0,0,\ldots)\)
-that fail to be skeleton roots, and all such roots lie in the weak lower half
-of the deficit layer.
+The final formula manuscript proves the stronger root estimate
+\[
+  \area(S)\le\defc_\tau(S),
+\]
+so all roots in this range lie strictly below the middle of their defect
+layers.
 
-\subsection{The up map through East5}
+\subsection{The proved lower-cutoff decomposition}
 
-The current candidate up map in this lower range follows the same
-extraction-and-injection philosophy as the classical map.  It is implemented
-through the East3 and East5 branches, and deliberately stops before the East7
-branch.  In outline, one extracts the leftmost extractable entry or entries,
-lowers the extracted entries by \(1\), applies a local East move to the final
-window, and then injects the raised output entries back from right to left.
+The proof package splits the construction by length:
+\begin{itemize}
+\item \path{sleq4_decomp.tex} proves the lower-half
+  decomposition for \(s=3,4\).  East3 and West3 cannot fail for \(s=3\).
+  At \(s=4\), all failed level-three stages belong to the single inverse
+  boundary pair
+  \[
+    (0,p+1,a,c)\longleftrightarrow(0,a+1,c+1,p),
+  \]
+  with \(0\le p<a\le\tau-1\) and \(p+\tau<c\le a+\tau\).
+\item \path{s5_decomp.tex} proves the \(s=5\)
+  lower-half decomposition.  It handles the genuinely new failed-West5
+  boundary by mutually inverse saving and repacking operations.
+\item \path{sgeq6_decomp.tex} proves the uniform
+  decomposition for \(s\ge6\), conditional in its statement on the
+  special-skeleton position and East5/West5 nonfailure inputs.
+\item \path{east5_nonfailure.tex} proves that a failed
+  East5 stage in the relevant defect range lies strictly above the midpoint,
+  and \path{west5_nonfailure.tex} proves West5 nonfailure
+  for the weak-lower-half DOWN procedure when \(s\ge6\).
+\item \path{mod1_formula.tex} proves the root-position
+  input, assembles the three length ranges, and identifies the roots with
+  bounded partitions using the bijection from \cite{Hawkes2022}.
+\end{itemize}
 
-The injection operation is the inverse of extraction in the following sense.
-To inject an entry \(e>0\) into a normalized word, find the first entry lying in
-\[
-  [\max(0,e-\tau),e),
-\]
-and insert \(e\) immediately after it.  When several entries are to be injected,
-the current map injects them from right to left.
+The resulting formula can be stated as follows.
 
-There are also two special global branches.  First, the special input
+\begin{theorem}[Modulo-one lower-cutoff partition formula]
+Fix \(\tau\ge2\) and \(s\ge1\), and put
 \[
-  (0,\ldots,0,\tau)
+ M_{s,\tau}=\tau\binom{s}{2},
+ \qquad B=(s-2)\tau-1.
 \]
-maps to the exceptional full skeleton \(\epsilon_{s,\tau}\) when \(s\ge4\).
-Second, if the input is a full skeleton, the up map injects the final entry
-plus \(1\) into the prefix.
+Assume the known \(q,t\)-symmetry of
+\(\operatorname{Cat}_{\tau s+1,s}(q,t)\).  For \(s\ge3\),
+\begin{align*}
+ &\sum_{\substack{x\text{ normalized}\\\defc_\tau(x)\le B}}
+ q^{\dinv_\tau(x)}t^{\area(x)}\\
+ &\quad=
+ \sum_{\substack{\lambda\text{ a partition}\\
+                 \lambda_1\le s-2,\ |\lambda|\le B}}
+ \frac{
+ q^{M_{s,\tau}-|\lambda|-\ell(\lambda)+1}t^{\ell(\lambda)}
+ -
+ q^{\ell(\lambda)}
+ t^{M_{s,\tau}-|\lambda|-\ell(\lambda)+1}
+ }{q-t}.
+\end{align*}
+For \(s=1,2\), the range \(\defc_\tau\le B\) is empty, so the assertion is
+vacuous.  Equivalently, the right side may be indexed by the full skeletons
+of defect at most \(B\), or by the normalized words beginning with two zeros
+in that range.
+\end{theorem}
 
-For non-skeletons, the local branches are as follows.  Extract the leftmost
-extractable entry \(e_1\), delete it, and append \(e_1-1\).  The East3 move is
-then tested on the final three-window.  For a window
-\[
-  (a,c,d),
-\]
-East3 succeeds when
-\[
-  c\le d+\tau,
-\]
-and in the current rational implementation it leaves the local window
-unchanged.  The final two local output entries are then raised by \(1\) and
-injected back from right to left.
-
-If East3 does not apply, extract a second leftmost extractable entry \(e_2\)
-from the word already missing \(e_1\), delete it, and append
-\[
-  (e_1-1,e_2-1).
-\]
-The East5 move is tested on the final five-window.  East5 is used only when the
-centered East3 move on \((b,c,d)\) fails.  For a five-window
-\[
-  (a,b,c,d,e),
-\]
-there are two implemented cases.  If
-\[
-  b\le d+\tau
-  \qquad\text{and}\qquad
-  b\le e+\tau,
-\]
-then East5 sends
-\[
-  (a,b,c,d,e)\longmapsto (a,d,c,b,e).
-\]
-Otherwise, if
-\[
-  b>d+\tau,
-\]
-let
-\[
-(b',c')=
-\begin{cases}
-(c,b), & b>c+\tau,\\
-(b,c), & b\le c+\tau.
-\end{cases}
-\]
-If also
-\[
-  c'\le e+\tau,
-\]
-then East5 sends
-\[
-  (a,b,c,d,e)\longmapsto (a,d,b',c',e).
-\]
-After East5 succeeds, the first two local output entries remain in the base,
-while the final three local output entries are raised by \(1\) and injected
-back from right to left.
-
-If neither East3 nor East5 applies, the current map is not declared to fail
-mathematically.  Instead, the implementation stops and records that an East7
-branch would be needed.  The accompanying code checks successful steps to
-confirm that they preserve deficit, raise area by \(1\), lower
-\(\dinv_\tau\) by \(1\), and produce normalized words.  It also checks the
-corresponding down steps, defined by the West3 and West5 reverse moves, in the
-finite ranges under consideration.  The map checks in this note are interpreted
-only at the lower cutoff; the upper-cutoff evidence is coefficient evidence for
-the formula, not evidence for a complete up-map decomposition.
-
-Thus the \(r=\tau s+1\) story has two different levels of evidence.  At the
-upper cutoff, we have a conjectural refined special-skeleton formula supported
-by coefficient checks.  At the lower cutoff, we have evidence for an actual
-lower-half string decomposition using the up map through East5, with roots
-exactly the paths beginning \((0,0,\ldots)\).  The finite map checks are most
-naturally regarded as nondegenerate for \(s\ge5\); small cases are treated as
-formula-only in the checker.
+Thus the two cutoffs now have sharply different statuses.  The refined
+special-skeleton formula at \(B_{\mathrm{upper}}\) remains conjectural and
+is supported by coefficient checks.  The simpler double-zero and
+partition-indexed formula at \(B_{\mathrm{lower}}\) is proved by the
+manuscripts in \path{mod1_decomp_formula/}, using the known symmetry and the
+Hawkes bounded-partition bijection as external inputs.
 
 \section{The full rational case}
 
@@ -466,10 +443,28 @@ If this first capacity-valid candidate is also a valid rational Dyck path, then
 If the first capacity-valid candidate is not path-valid, then NRCM is
 undefined.
 
-By construction, every defined NRCM move raises area by \(1\).  There is an
-AI-generated proof draft, currently awaiting human review, that whenever NRCM
-is defined it preserves deficit.  Thus, once this proof is accepted, a defined
-NRCM move will also lower dinv by \(1\), exactly as a string move should.
+By construction, every defined NRCM move raises area by \(1\).  The main
+result stated in \path{naive_rational_cyclic_map.tex} is
+\[
+  \defc(\NRCM(Q))=\defc(Q)
+\]
+whenever \(Q\) and \(\NRCM(Q)\) are valid and the map is defined.  Consequently
+a defined NRCM move would change the three string statistics by
+\[
+ (\area,\dinv,\defc)\longmapsto
+ (\area+1,\dinv-1,\defc).
+\]
+
+The logical status of this statement should be recorded precisely.  The
+manuscript gives a detailed threshold-count and endpoint-cancellation proof,
+but the workspace audit \path{NRCM_report.md}, accepted in
+\path{NRCM_reply.md}, identifies two repairs still needed in that proof: the
+transport formulas do not cover a one-column selected suffix, and the central
+endpoint-pairing argument has not yet been derived at the required token-level
+precision.  Thus deficit preservation is the principal NRCM theorem supported
+by the manuscript and extensive finite checks, but within the current
+workspace it remains pending those proof repairs rather than being used as an
+unconditional input to the modulo-one theorem above.
 
 The paths with value \(0\) in the label-\(1\) position naturally appear as
 NRCM bases: such a path cannot be the image of an NRCM move.  Informally, the
@@ -478,13 +473,15 @@ available label, and a zero in the label-\(1\) position gives no room for that
 inverse move.  This agrees with the roots predicted by the rational
 \(q,t\)-Catalan conjecture.
 
-However, NRCM should not be confused with a complete proof of the lower-cutoff
-decomposition.  In general, NRCM does not give a full lower-half decomposition
-throughout the entire intrinsic lower cutoff.  The code checks the lower-cutoff
-positivity prediction separately from the NRCM decomposition behavior.  What
-the computations suggest is that NRCM gives a genuine lower-half decomposition
-in certain still smaller deficit ranges.  In the family \(r=\tau s+1\),
-whenever both maps are defined, NRCM agrees with the up map described above.
+Even after deficit preservation is fully repaired, NRCM should not be
+confused with a complete proof of the intrinsic lower-cutoff decomposition.
+In general, NRCM does not give a full lower-half decomposition throughout that
+entire cutoff.  The code checks the label-\(1\)-zero positivity prediction
+separately from NRCM coverage.  The computations show genuine NRCM
+lower-half decompositions only in certain smaller, case-dependent deficit
+ranges.  In the family \(r=\tau s+1\), whenever both maps are defined, NRCM
+agrees with the proved modulo-one UP map described in
+\path{mod1_decomp_formula/}.
 
 \section{Computational checks}
 
@@ -512,6 +509,8 @@ corresponding positive interval formula matches direct enumeration, and that
 the East3/East5 up and down maps give lower-half coverage in the checked
 nondegenerate cases.  The code deliberately does not use upper-cutoff East7
 obstructions as evidence against the lower-cutoff decomposition claim.
+These lower-cutoff computations are now regression checks for the proof in
+\path{mod1_decomp_formula/}, rather than the primary evidence for that claim.
 
 The original item-level \(r=\tau s+1\) runner is configured on the grid
 \[
@@ -527,13 +526,16 @@ The original item-level \(r=\tau s+1\) runner is configured on the grid
 The consolidated \texttt{code.py} includes an \texttt{official-r1mod} preset
 following this grid, but with the interpretation used in this note: formula
 checks belong to the upper cutoff, while map/decomposition checks belong to the
-lower cutoff.
+lower cutoff.  The separate manuscripts, rather than this finite grid, prove
+the lower-cutoff result for all \(\tau\ge2\) and all lengths.
 
 Third, in the full rational case, the code computes the intrinsic lower cutoff,
 checks the positive label-\(1\)-zero interval formula through that cutoff, and
 separately checks NRCM properties and NRCM lower-half coverage.  The latter is
 expected to work only in smaller case-by-case ranges, not throughout the full
-intrinsic lower cutoff.
+intrinsic lower cutoff.  These computations also support the
+deficit-preservation statement in \path{naive_rational_cyclic_map.tex}, but do
+not replace the two proof repairs recorded in \path{NRCM_report.md}.
 
 \section{Summary of cutoffs}
 
@@ -559,7 +561,7 @@ proved special-skeleton decomposition at upper cutoff
 &
 \((s-2)\tau-1\)
 &
-upper formula conjectural; lower map evidence
+upper formula conjectural; lower decomposition and partition formula proved
 \\
 general rational
 &
@@ -567,7 +569,7 @@ no NRCM upper cutoff
 &
 intrinsic label-\(1\)-zero lower cutoff
 &
-positive formula conjectural; NRCM works lower in examples
+positive formula conjectural; NRCM preservation proof pending recorded repairs
 \end{tabular}
 \end{center}
 
@@ -575,12 +577,14 @@ The important distinction is that the upper cutoff and lower cutoff play
 different roles.  In the classical case, the upper cutoff already gives a
 proved nonnegative special-skeleton decomposition.  In the \(r=\tau s+1\)
 case, the upper cutoff gives a conjectural nonnegative refined-skeleton
-formula, while the lower cutoff is where the simpler roots
-\((0,0,\ldots)\) appear to support an actual lower-half decomposition through
-the currently implemented map.  In the general rational case, the lower cutoff
-is defined by the condition that all label-\(1\)-zero paths lie in the weak
-lower half; NRCM gives a partial structural explanation below that range, but
-not the whole lower-cutoff decomposition in general.
+formula, while the lower cutoff has a proved lower-half decomposition with the
+simpler roots \((0,0,\ldots)\) and a bounded-partition formula.  In the general
+rational case, the lower cutoff is defined by the condition that all
+label-\(1\)-zero paths lie in the weak lower half.  NRCM proposes a structural
+move with the correct statistic change and gives complete strings in smaller
+examples, but it does not cover the whole lower-cutoff decomposition in
+general, and its current deficit-preservation proof still requires the repairs
+recorded above.
 
 \begin{thebibliography}{9}
 

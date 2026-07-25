@@ -1,2 +1,0 @@
-failures: 0
-status: PASS

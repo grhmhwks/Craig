@@ -1,0 +1,1723 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\UP}{\operatorname{UP}}
+\newcommand{\DOWN}{\operatorname{DOWN}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\West}{\operatorname{West}}
+\newcommand{\inj}{\operatorname{inj}}
+\newcommand{\bk}{\operatorname{bk}}
+\newcommand{\Cat}{\operatorname{Cat}}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\Save}{\mathcal S}
+\newcommand{\Repack}{\mathcal R}
+
+\title{The Length-Five Modulo-One Lower-Half Decomposition}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Statement and conventions}
+
+Fix an integer
+\[
+  \tau\ge2,
+  \qquad s=5,
+  \qquad r=5\tau+1,
+  \qquad M=\tau\binom52=10\tau,
+  \qquad B=3\tau-1.
+\]
+A \emph{normalized step-$\tau$ Dyck word} is a word
+\[
+  D=(x_0,x_1,x_2,x_3,x_4)
+\]
+of nonnegative integers such that
+\[
+  x_0=0,
+  \qquad x_{i+1}\le x_i+\tau.
+\]
+Its statistics are
+\[
+  \area(D)=\sum_i x_i
+\]
+and
+\[
+  \dinv_\tau(D)=\sum_{i<j}d_\tau(x_i,x_j),
+\]
+where
+\[
+ d_\tau(u,v)=
+ \begin{cases}
+   (u+\tau-v)_+,&u\le v,\\
+   (v+\tau+1-u)_+,&u>v.
+ \end{cases}
+\]
+Here $z_+=\max(0,z)$.  We put
+\[
+  \defc_\tau(D)=M-\area(D)-\dinv_\tau(D).
+\]
+For a fixed defect $d$, write
+\[
+  L_d=\left\lfloor\frac{M-d}{2}\right\rfloor.
+\]
+Thus $D$ is in the weak lower half of its defect layer precisely when
+$\area(D)\le L_d$, and it is strictly below the middle when
+$\area(D)\le L_d-1$.
+
+We write $A:B$ for concatenation.  An occurrence $x_j=e>0$ is
+\emph{extractable} if exactly one earlier occurrence lies in
+\[
+  [\max(0,e-\tau),e)
+\]
+and deleting $x_j$ leaves a normalized word.  If $0<j<4$, the latter
+condition is the splice inequality
+\[
+  x_{j+1}\le x_{j-1}+\tau.
+\]
+The extraction convention always chooses the leftmost extractable
+occurrence.
+
+Conversely, if $e>0$ and a normalized word contains an occurrence in
+\[
+  [\max(0,e-\tau),e),
+\]
+then $\inj_e$ inserts $e$ immediately after the first such occurrence.
+This is the inverse of extracting the inserted occurrence whenever the
+resulting insertion is admissible.
+
+A \emph{full skeleton} is a normalized word with no extractable occurrence.
+The two global boundary words
+\[
+  (0,0,1,0,\tau),
+  \qquad
+  (0,0,0,0,\tau)
+\]
+have defect $3\tau=B+1$, so neither occurs in the range considered below.
+
+\subsection{The ordinary local moves}
+
+On a three-window $(a,c,p)$, the map $\East_3$ is defined when
+\[
+  c\le p+\tau
+\]
+and is then the identity.  Suppose instead that $c>p+\tau$ in a
+five-window $(a,b,c,p,q)$.  Put
+\[
+  \bk_\tau(b,c)=
+  \begin{cases}
+    (c,b),&b>c+\tau,\\
+    (b,c),&b\le c+\tau.
+  \end{cases}
+\]
+The map $\East_5$ is defined as follows.
+\begin{enumerate}
+\item If $b\le p+\tau$, it is defined when $b\le q+\tau$ and sends
+\[
+  (a,b,c,p,q)\longmapsto(a,p,c,b,q).
+\]
+\item If $b>p+\tau$, write $(b',c')=\bk_\tau(b,c)$.  It is defined when
+$c'\le q+\tau$ and sends
+\[
+  (a,b,c,p,q)\longmapsto(a,p,b',c',q).
+\]
+\end{enumerate}
+The maps $\West_3$ and $\West_5$ are obtained by reversing the input,
+applying the corresponding East map, and reversing the output.
+
+The single extraction preceding an East3 test may occur anywhere except the
+final position.  There is no stronger position guard at level three.
+
+\begin{assumption}[Full-skeleton lower-half position]
+\label{ass:full-lower}
+Every full skeleton $S$ with $\defc_\tau(S)\le B$ lies in the weak lower half
+of its defect layer:
+\[
+  \area(S)\le L_{\defc_\tau(S)}.
+\]
+\end{assumption}
+
+\begin{remark}
+The stronger position estimate $\area(S)\le\defc_\tau(S)$ implies
+Assumption~\ref{ass:full-lower}.  Indeed, for $d\le B$,
+\[
+ 2\area(S)+d\le3d\le9\tau-3<10\tau=M,
+\]
+so such a skeleton is in fact strictly below the middle.
+\end{remark}
+
+For $0\le d\le B$, let
+\[
+ \mathcal L_d
+ =\{D:\ D\text{ normalized},\ \defc_\tau(D)=d,\ \area(D)\le L_d\}
+\]
+and let $\mathcal F_d$ be the set of full skeletons of defect $d$.
+
+\begin{theorem}[Length-five lower-half decomposition]
+\label{thm:main}
+Under Assumption~\ref{ass:full-lower}, there are maps
+\[
+ \UP:\{D\in\mathcal L_d:\area(D)<L_d\}\longrightarrow\mathcal L_d,
+ \qquad
+ \DOWN:\mathcal L_d\setminus\mathcal F_d\longrightarrow\mathcal L_d
+\]
+for every $0\le d\le B$ such that
+\[
+ \area(\UP(D))=\area(D)+1,
+ \qquad
+ \dinv_\tau(\UP(D))=\dinv_\tau(D)-1,
+\]
+\[
+ \area(\DOWN(D))=\area(D)-1,
+ \qquad
+ \dinv_\tau(\DOWN(D))=\dinv_\tau(D)+1,
+\]
+and the two maps are inverse wherever both sides are defined.  Consequently
+\begin{equation}
+ \mathcal L_d
+ =\bigsqcup_{S\in\mathcal F_d}
+   \{\UP^j(S):0\le j\le L_d-\area(S)\}.
+ \label{eq:lower-union}
+\end{equation}
+In particular,
+\begin{equation}
+ \sum_{D\in\mathcal L_d}q^{\dinv_\tau(D)}t^{\area(D)}
+ =\sum_{S\in\mathcal F_d}
+   \sum_{j=\area(S)}^{L_d}q^{M-d-j}t^j.
+ \label{eq:lower-gf}
+\end{equation}
+Summing the defect layers gives
+\begin{align}
+ &\sum_{\substack{D\text{ normalized}\\
+                   \defc_\tau(D)\le B\\
+                   \area(D)\le L_{\defc_\tau(D)}}}
+   q^{\dinv_\tau(D)}t^{\area(D)}\notag\\
+ &\qquad=
+ \sum_{\substack{S\text{ full skeleton}\\\defc_\tau(S)\le B}}
+ \ \sum_{j=\area(S)}^{L_{\defc_\tau(S)}}
+ q^{M-\defc_\tau(S)-j}t^j.
+ \label{eq:aggregate-lower-gf}
+\end{align}
+\end{theorem}
+\section{Common structural lemmas}
+
+Define the complementary kernel
+\[
+ K_\tau(u,v)=\tau-d_\tau(u,v)
+ =
+ \begin{cases}
+   \min(\tau,v-u),&u\le v,\\
+   \min(\tau,u-v-1),&u>v.
+ \end{cases}
+\]
+For $X=(x_0,\ldots,x_{N-1})$, put
+\[
+  \lambda_j(X)=\sum_{i<j}K_\tau(x_i,x_j)-x_j.
+\]
+Then
+\begin{equation}
+  \defc_\tau(X)=\sum_{j=0}^{N-1}\lambda_j(X),
+  \label{eq:defect-lambda}
+\end{equation}
+where the defect on the left is computed using
+$\tau\binom N2$.
+
+\begin{lemma}[Record payment]
+\label{lem:record-payment}
+Let
+\[
+  0=r_0<r_1<\cdots<r_h=m,
+  \qquad r_i-r_{i-1}\le\tau,
+\]
+be a chain of record values.  For $0\le u\le m+\tau$,
+\[
+  \sum_{r_i\le u}K_\tau(r_i,u)\ge u.
+\]
+Consequently every lambda increment of a normalized word is nonnegative.
+If a normalized word begins with two zeros and has record peak $m$, then
+\[
+  \defc_\tau(X)\ge m.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $r_j$ be the largest record at most $u$.  For $i<j$,
+\[
+  K_\tau(r_i,u)\ge r_{i+1}-r_i,
+\]
+while $K_\tau(r_j,u)=u-r_j$.  The sum telescopes to $u$.  In a normalized
+word, the preceding records at or below the current entry therefore pay the
+subtraction in its lambda increment.
+
+If the word begins with two zeros, the second zero is not needed for these
+payments.  At a positive record $r_i$ it contributes
+$K_\tau(0,r_i)=\min(\tau,r_i)$.  Thus the unused contributions of the second
+zero are at least
+\[
+  \sum_{i=1}^h\min(\tau,r_i)
+  \ge\sum_{i=1}^h(r_i-r_{i-1})=m.
+\]
+Equation~\eqref{eq:defect-lambda} completes the proof.
+\end{proof}
+
+\begin{lemma}[Failed-splice propagation]
+\label{lem:propagation}
+Let $X=(x_0,\ldots,x_{N-1})$ be normalized and suppose $x_1>0$.  If none
+of $x_1,\ldots,x_h$ is extractable, then the entries through $x_{h+1}$ are
+strictly increasing records and
+\begin{equation}
+  x_{i+2}>x_i+\tau
+  \qquad(0\le i<h).
+  \label{eq:rapid}
+\end{equation}
+In particular:
+\begin{enumerate}
+\item every full skeleton of length at least two begins with $(0,0)$;
+\item a leftmost extractable occurrence is a record;
+\item if appending an entry validly blocks an extractable final occurrence,
+the unique-predecessor chain continues to the appended entry, which is
+extractable at the new right boundary.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+The occurrence $x_1$ has the unique predecessor $x_0=0$.  If it is not
+extractable, its splice fails, so $x_2>x_0+\tau$.  Normalization gives
+$x_1\le x_0+\tau$ and $x_2\le x_1+\tau$, whence $x_2>x_1$ and $x_1$ is
+the unique predecessor of $x_2$.  The same argument iterates.  At the right
+boundary a unique-predecessor occurrence is automatically extractable, which
+proves the three consequences.
+\end{proof}
+
+\begin{lemma}[Extraction transport]
+\label{lem:transport}
+Let $e$ be the leftmost extractable occurrence of a normalized word $D$,
+let $C$ be obtained by deleting it, and put $p=e-1$.  Then
+\begin{align}
+ \area(C:p)&=\area(D)-1,\notag\\
+ \dinv_\tau(C:p)&=\dinv_\tau(D)+1,\label{eq:transport}\\
+ \defc_\tau(C:p)&=\defc_\tau(D).\notag
+\end{align}
+These identities remain valid even if the final adjacency of $C:p$ fails.
+\end{lemma}
+
+\begin{proof}
+Write $D=A:e:B$.  For $b\in B$,
+\[
+  d_\tau(e,b)=d_\tau(b,e-1).
+\]
+For $a\in A$, the difference
+\[
+  d_\tau(a,e-1)-d_\tau(a,e)
+\]
+is $1$ precisely when $a$ lies in the predecessor interval of $e$, is
+$-1$ when $e<a\le e+\tau$, and is zero otherwise.  By
+Lemma~\ref{lem:propagation}, $e$ is a record, so the negative case does not
+occur.  Extractability gives exactly one predecessor and hence a total dinv
+increase of $1$.  The area decreases by $1$, proving all three identities.
+\end{proof}
+
+\begin{lemma}[Double-zero boundary ledger]
+\label{lem:boundary-ledger}
+The following four statements hold.
+\begin{enumerate}
+\item If a normalized length-$s$ word begins with $(0,0)$ and only its final
+occurrence is extractable, then its defect is at least $\tau(s-2)$.
+\item Let $R$ be a full normalized word of length $s-1$, and let $p$ be the
+lowered value arising at a first-extraction stage.  If $R:p$ is invalid or is
+not full, then
+\[
+  \defc_\tau(R:p)\ge\tau(s-2).
+\]
+\item Let $C:p$ be a first-extraction stage, where $|C|=s-1$, $C$ begins
+with $(0,0)$, $C[-1]>p+\tau$, and $C$ has no extractable occurrence outside
+its final two positions.  Then
+\[
+  \defc_\tau(C:p)\ge\tau(s-2).
+\]
+\item Let $R:p:q$ be a second-extraction stage, where $|R|=s-2$, $R$ begins
+with $(0,0)$, $p>R[-1]+\tau$, and $R$ has no extractable occurrence outside
+its final position.  Then
+\[
+  \defc_\tau(R:p:q)\ge\tau(s-2).
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+All four assertions are the same kernel ledger.  At every occurrence use the
+preceding record chain to pay the negative part of its lambda increment, as
+in Lemma~\ref{lem:record-payment}.  The second initial zero is not used in
+those payments.  Scan the remaining occurrences from left to right.  If an
+occurrence has two or more predecessors, the corresponding two kernel
+triangles provide a full $\tau$-unit.  If it has a unique predecessor and is
+not extractable, Lemma~\ref{lem:propagation} forces its outgoing splice to
+fail.  The unpaid portion of the same $\tau$-unit is carried to the next
+record.  Record jumps are at most $\tau$, so these carries are nonnegative
+and telescope.
+
+At the right boundary the last carry is closed, respectively, by the
+extractable final entry, by the invalid or fullness-obstructing append, by
+the far pair $C[-1]>p+\tau$, or by the reverse far pair
+$p>R[-1]+\tau$ together with the two extraction anchors.  The ledger contains
+$s-2$ full $\tau$-units.  In the two local-window forms the count is
+\[
+  \underbrace{\tau}_{\text{second zero}}
+  +\underbrace{(s-5)\tau}_{\text{interior}}
+  +\underbrace{2\tau}_{\text{terminal block}}
+  =\tau(s-2).
+\]
+The first two forms merely move one entry between the interior and terminal
+blocks.  All omitted kernel terms are nonnegative.
+
+For the first assertion one may see the count explicitly as follows.  If
+$e$ is the final extractable value, then $e\ge\tau+1$.  Pair every nonrecord
+middle occurrence $u$ with $0$ and $e$ and use
+\[
+  K_\tau(0,u)+K_\tau(u,e)\ge\tau.
+\]
+The record chain supplies the same $\tau$-unit for each record, and the
+second zero supplies the final unit.  There are $s-2$ units in total.
+\end{proof}
+
+\begin{lemma}[Rapid-chain estimates]
+\label{lem:rapid}
+Let
+\[
+  R=(r_0,\ldots,r_{m-1}),
+  \qquad r_0=0,
+\]
+be strictly increasing and normalized, and suppose
+\[
+  r_{i+2}>r_i+\tau.
+\]
+If $c=r_{m-1}$, then
+\begin{align}
+ \dinv_\tau(R)&=\tau(m-1)-c,\label{eq:rapid-dinv}\\
+ \sum_i d_\tau(r_i,u)&\le2\tau
+ \quad\text{for every }u\ge0.\label{eq:rapid-target}
+\end{align}
+If $m\ge5$, then
+\begin{equation}
+  \area(R)>\tau(m-1)\ge\dinv_\tau(R).
+  \label{eq:rapid-area}
+\end{equation}
+If $m\ge3$, then
+\begin{equation}
+  \area(R)+3c+2>\tau(m+1).
+  \label{eq:short-rapid}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Only adjacent pairs of $R$ contribute to dinv, and their contributions
+ telescope:
+\[
+ \sum_{i=0}^{m-2}\bigl(\tau-(r_{i+1}-r_i)\bigr)
+ =\tau(m-1)-c.
+\]
+For a fixed target $u$, split the contributing records at $u$.  On each side
+their contributions form a truncated triangle of slope one.  The rapid
+condition prevents three records on the same side from occupying an interval
+of width $\tau$; pairing the two closest possible records on the two sides
+gives the bound $2\tau$.
+
+Integrality gives
+\[
+  r_{2k}\ge k(\tau+1),
+  \qquad r_{2k+1}\ge1+k(\tau+1),
+\]
+which implies~\eqref{eq:rapid-area}.  For~\eqref{eq:short-rapid}, the minimal
+length-three chain $(0,1,\tau+1)$ has surplus $7$.  If a chain ending at $c$
+is extended by $c'>c$, the surplus in~\eqref{eq:short-rapid} increases by
+\[
+  4c'-3c-\tau\ge c+4-\tau\ge5.
+\]
+Induction completes the proof.
+\end{proof}
+
+\section{Preliminary UP lemmas}
+
+Throughout this section, let $D=(x_0,\ldots,x_{s-1})$ be normalized and
+suppose
+\begin{equation}
+  0\le d=\defc_\tau(D)\le\tau(s-2)-1,
+  \qquad \area(D)\le L_d-1.
+  \label{eq:up-hyp}
+\end{equation}
+Then
+\begin{equation}
+  \dinv_\tau(D)-\area(D)\ge2.
+  \label{eq:strict-lower-gap}
+\end{equation}
+
+\begin{lemma}[Validity of the full-skeleton branch]
+\label{lem:up-skeleton}
+Suppose $D$ is full.  Then $x_{s-1}+1$ has an injection anchor in the prefix.
+Consequently the full-skeleton branch of $\UP$ is defined and produces a
+normalized word.
+\end{lemma}
+
+\begin{proof}
+Put $a=x_{s-1}$, let $R=(x_0,\ldots,x_{s-2})$, and let $m=\max R$.
+Suppose no prefix entry lies in
+\[
+  [\max(0,a+1-\tau),a].
+\]
+Then $a\ge\tau$.  Moreover every prefix entry is at most $a$: the first
+entry greater than $a$, if one existed, would have an immediate predecessor
+in the forbidden interval.  Hence $m\le a-\tau$.  The final Dyck inequality
+now gives
+\[
+  a\le x_{s-2}+\tau\le m+\tau\le a,
+\]
+so
+\begin{equation}
+  a=m+\tau,
+  \qquad x_{s-2}=m.
+  \label{eq:max-final-jump}
+\end{equation}
+
+By Lemma~\ref{lem:propagation}, $D$ begins with two zeros.  The prefix lambda
+sum is at least $m$ by Lemma~\ref{lem:record-payment}.  Every prefix entry is
+at most $a-\tau$, so every prefix-to-final kernel equals $\tau$.  Therefore
+\[
+  \lambda_{s-1}(D)=\tau(s-1)-a=\tau(s-2)-m.
+\]
+It follows that
+\[
+  \defc_\tau(D)\ge m+\tau(s-2)-m=\tau(s-2),
+\]
+contrary to~\eqref{eq:up-hyp}.
+
+Thus the anchor exists.  Inserting $a+1$ after the first anchor gives a valid
+new left adjacency.  The old Dyck inequality gives the new right adjacency,
+and all other adjacencies are unchanged.
+\end{proof}
+
+\begin{lemma}[A nonfinal first extraction]
+\label{lem:up-first-position}
+If $D$ is not full, then it has an extractable occurrence outside its final
+position.  In particular its leftmost extractable occurrence is nonfinal.
+\end{lemma}
+
+\begin{proof}
+Suppose the only extractable occurrence is final.  If $x_1=0$, the first
+part of Lemma~\ref{lem:boundary-ledger} gives
+\[
+  \defc_\tau(D)\ge\tau(s-2),
+\]
+a contradiction.  If $x_1>0$, Lemma~\ref{lem:propagation} makes the whole
+word rapid, and Lemma~\ref{lem:rapid} gives
+$\area(D)>\dinv_\tau(D)$, contradicting~\eqref{eq:strict-lower-gap}.
+\end{proof}
+
+
+\section{Length-five East totality and UP classification}
+
+\begin{lemma}[Ordinary East5 is automatic at length five]
+\label{lem:east5-total}
+Let
+\[
+ \Sigma=(0,b,c,p,q)
+\]
+be an East5 stage for which $(0,b,c)$ is normalized and East3 has failed:
+\[
+ 0\le b\le\tau,
+ \qquad c\le b+\tau,
+ \qquad c>p+\tau.
+\]
+If $\East_5$ is not defined on $\Sigma$, then
+\[
+ \defc_\tau(\Sigma)\ge3\tau,
+\]
+where the defect is computed with the length-five constant $10\tau$.
+Consequently every East5 stage arising from a source of defect at most
+$B=3\tau-1$ is in the ordinary East5 domain.
+\end{lemma}
+
+\begin{proof}
+If East5 fails, inspection of its two cases gives one of the following three
+possibilities:
+\[
+\begin{array}{c|c|c}
+\text{case}&\text{additional failure}&\text{far pairs}\\ \hline
+b\le p+\tau&b>q+\tau&(c,p),(b,q)\\
+b>p+\tau,\ b\le c+\tau&c>q+\tau&(b,p),(c,q)\\
+b>p+\tau,\ b>c+\tau&b>q+\tau&(c,p),(b,q).
+\end{array}
+\]
+Let
+\begin{align*}
+ U={}&K_\tau(b,c)+K_\tau(b,p)+K_\tau(b,q)\\
+    &+K_\tau(c,p)+K_\tau(c,q)+K_\tau(p,q).
+\end{align*}
+Then
+\begin{equation}
+ U\ge4\tau+(c-b-1)_+.
+ \label{eq:e5-kernel}
+\end{equation}
+Indeed, in the first row put $r=b-p$.  The inequalities imply
+$1\le r\le\tau$, $c>b$, and $q\le p-1$.  The terms belonging to
+$(c,p),(b,q),(c,q)$ equal $\tau$, while
+\[
+ K_\tau(b,c)=c-b,
+ \qquad K_\tau(b,p)=r-1,
+ \qquad K_\tau(p,q)\ge\tau-r.
+\]
+In the second row the three terms for $(b,p),(c,p),(c,q)$ equal $\tau$.
+The far pair $(b,p)$ gives
+\[
+ K_\tau(b,q)+K_\tau(p,q)\ge\tau:
+\]
+if $q\le p$ the first term is already $\tau$; if $p<q<b$, the two
+untruncated terms sum to $b-p-1\ge\tau$; and if $q\ge b$, the second term
+is $\tau$.  Also
+\[
+ K_\tau(b,c)\ge(c-b-1)_+.
+\]
+In the third row the four terms for
+$(b,c),(b,p),(b,q),(c,p)$ all equal $\tau$, and the positive part in
+\eqref{eq:e5-kernel} is zero.
+
+The same far-pair list gives
+\[
+ p,q\le\tau-1.
+\]
+For $p$ this follows from
+$p\le c-\tau-1\le b-1$.  The upper member paired far from $q$ is either
+$b\le\tau$ or $c\le b+\tau$, and gives the same conclusion; a negative
+upper bound merely says that the corresponding subcase is empty.  Hence
+\begin{equation}
+ K_\tau(0,b)=b,
+ \qquad K_\tau(0,p)=p,
+ \qquad K_\tau(0,q)=q.
+ \label{eq:e5-zero-pay}
+\end{equation}
+
+It remains to pay the entry $c$.  If $b=0$, normalization gives
+$c\le\tau$, so $K_\tau(0,c)=c$.  If $b>0$, the record $b$ and the target
+$c\le b+\tau$ satisfy
+\[
+ K_\tau(0,c)+K_\tau(b,c)\ge c.
+\]
+Since $K_\tau(b,c)\le\tau$, equation~\eqref{eq:e5-kernel} yields in either
+case
+\begin{equation}
+ K_\tau(0,c)+U\ge c+3\tau.
+ \label{eq:e5-c-pay}
+\end{equation}
+Using the complementary-kernel defect identity together with
+\eqref{eq:e5-zero-pay} and~\eqref{eq:e5-c-pay}, we obtain
+\begin{align*}
+ \defc_\tau(0,b,c,p,q)
+ &=\sum_{i<j}K_\tau(w_i,w_j)-(b+c+p+q)\\
+ &\ge3\tau.
+\end{align*}
+Two extraction transports preserve defect, so a source of defect at most
+$3\tau-1$ cannot reach a failed East5 stage.
+\end{proof}
+
+\begin{lemma}[UP position dichotomy after East3 failure]
+\label{lem:up-boundary-classification}
+Assume~\eqref{eq:up-hyp}.  Let $e_1=p+1$ be the first UP extraction, let
+$C$ be its four-entry remainder, and suppose East3 fails on $C:p$.
+Then exactly one of the following occurs.
+\begin{enumerate}
+\item The leftmost extraction of $C$ is at index $1$.  This is the ordinary
+East5 branch.
+\item The leftmost extraction of $C$ is penultimate.  There are integers
+$b,z,P,Q$ such that
+\begin{equation}
+ C=(0,z+1,P,Q),
+ \qquad e_1=b+1,
+ \label{eq:up-boundary-shape}
+\end{equation}
+and
+\begin{equation}
+ 0\le b<z\le\tau-1,
+ \qquad
+ \tau<P,Q\le z+\tau,
+ \qquad
+ Q>b+\tau.
+ \label{eq:boundary-data}
+\end{equation}
+In this case the successive extractions from the original word are
+$b+1,P,Q$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Assume the occurrence at index $1$ of $C$ is not extractable.  If $C[1]=0$,
+then $C$ begins with two zeros and has no extraction outside its final two
+positions.  East3 failure and the third part of
+Lemma~\ref{lem:boundary-ledger}, followed by transport, give
+$\defc_\tau(D)\ge3\tau$, a contradiction.  Thus $C[1]>0$.
+Lemma~\ref{lem:propagation} shows that the first three entries of $C$ form a
+rapid chain.
+
+First suppose the penultimate entry is not extractable.  Its unique-anchor
+splice to the final entry must fail, so we may write
+\[
+ C=(0,a,\tau+u,\tau+a+v),
+\]
+where
+\begin{equation}
+ 1\le u\le a\le\tau,
+ \qquad
+ 1\le v\le\tau+u-a,
+ \qquad
+ 0\le p<a+v.
+ \label{eq:up-affine-range}
+\end{equation}
+The last inequality is East3 failure.  Put
+\[
+ f(p)=d_\tau(0,p)+d_\tau(a,p)+(p+1-u)_+.
+\]
+A direct count in the length-five stage $C:p$ gives
+\begin{align}
+ \area(C:p)&=2\tau+2a+u+v+p,\notag\\
+ \dinv_\tau(C:p)&=2\tau-a-v+f(p),
+ \label{eq:up-affine-stats}
+\end{align}
+and therefore
+\begin{align}
+ \dinv_\tau(C:p)-\area(C:p)
+ &=f(p)-(3a+u+2v+p),
+ \label{eq:up-affine-gap}\\
+ \area(C:p)+\dinv_\tau(C:p)
+ &=4\tau+a+u+p+f(p).
+ \label{eq:up-affine-total}
+\end{align}
+One extraction transport has occurred, so strict lower-halfness gives
+\begin{equation}
+ f(p)-(3a+u+2v+p)\ge4.
+ \label{eq:up-affine-gap4}
+\end{equation}
+
+There are three cases.  If $p<a$, then
+\[
+ f(p)=2\tau+1-a+(p+1-u)_+.
+\]
+When the positive part is zero, equation~\eqref{eq:up-affine-gap4} is
+\[
+ 4a+u+2v+p\le2\tau-3.
+\]
+Using $a\ge u$, $v\ge1$, and $p\le u-1$, an elementary integer
+optimization gives $u+p\le\tau-4$: otherwise
+$5u+p\le2\tau-5$ and $u+p\ge\tau-3$ would force $\tau\le2$, while the
+original inequality has no solution for $\tau=2$.  When the positive part
+is nonzero, the gap inequality becomes
+$2a+u+v\le\tau-1$; since $p\ge u$ and $p<a$, it gives
+$2p+1\le\tau-4$.  In both subcases,
+\[
+ \area(C:p)+\dinv_\tau(C:p)\le7\tau-3.
+\]
+If $a\le p<\tau$, then
+\[
+ f(p)=2\tau+a-p+1-u.
+\]
+Equation~\eqref{eq:up-affine-gap4} gives $2a\le\tau-4$, and again the total
+is at most $7\tau-3$.  Finally, if $p\ge\tau$, then
+\[
+ f(p)\le a+p+1-u,
+\]
+so the gap in~\eqref{eq:up-affine-gap} is negative.  This case is
+impossible.
+
+On the other hand, the defect cutoff requires
+\[
+ \area(C:p)+\dinv_\tau(C:p)
+ =M-\defc_\tau(D)\ge7\tau+1,
+\]
+a contradiction.  Hence the penultimate entry $P$ of $C$ is extractable.
+Write
+\[
+ C=(0,a,P,Q).
+\]
+Deleting $P$ gives a normalized word $(0,a,Q)$, so $Q\le a+\tau$.
+East3 failure gives $Q>p+\tau\ge\tau$, and therefore $Q$ is then a final
+extractable occurrence with unique predecessor $a$.  In particular
+$p<a$.  Since reversing the first extraction inserts $p+1$ immediately
+after the initial zero, the original word is
+\begin{equation}
+ D=(0,p+1,a,P,Q).
+ \label{eq:up-original-boundary}
+\end{equation}
+
+It remains to exclude the endpoint equalities that would spoil the boundary
+saving map.  Put
+\[
+ N=\area(D)+\dinv_\tau(D),
+ \qquad
+ G=\dinv_\tau(D)-\area(D).
+\]
+The hypotheses give
+\[
+ N\ge7\tau+1,
+ \qquad G\ge2.
+\]
+A direct pair count gives the following table; after the first row is
+excluded one may use $p\le a-2$, and always $P,Q\ge\tau+1$.
+\[
+\begin{array}{c|c|c}
+\text{endpoint}&N&G\\ \hline
+p=a-1&6\tau+2a&4\tau-4a-2P\\
+P=a+\tau,\ Q<P&5\tau+p+Q+2&3\tau-4a-p-Q\\
+P=a+\tau,\ Q=P&6\tau+a+p+1&2\tau-5a-p-1\\
+Q=a+\tau,\ P<a+\tau
+ &5\tau+p+P+1+E&3\tau-4a-p-P-1+E,
+\end{array}
+\]
+where
+\[
+ E=(p+1+\tau-P)_+.
+\]
+In the first row East3 failure and $Q\le a+\tau$ force
+$Q=a+\tau$.  The total and gap bounds then force respectively
+$2a\ge\tau+1$ and $2a\le\tau-2$.  In the second row,
+$p+Q\le2a+\tau-3$ and $p+Q\ge2\tau-1$ force
+$2a\ge\tau+2$ and $4a\le\tau-1$.  In the third row,
+$a+p\ge\tau$ forces $2a\ge\tau+2$, while the gap gives
+$4a\le\tau-3$.  In the last row, if $E=0$, the total gives
+$p+P\ge2\tau$ and hence $2a\ge\tau+3$, while the gap gives
+$4a\le\tau-3$.  If $E>0$, substitution gives
+\[
+ N=6\tau+2p+2,
+ \qquad
+ G=4\tau-4a-2P,
+\]
+which force $2a\ge\tau+3$ and $2a\le\tau-2$.  Every endpoint is therefore
+impossible.
+
+Set
+\[
+ b=p,
+ \qquad z=a-1.
+\]
+We have proved
+\[
+ 0\le b<z\le\tau-1,
+ \qquad
+ \tau<P,Q\le z+\tau.
+\]
+East3 failure is precisely $Q>b+\tau$.  The penultimate extraction is $P$,
+and after deleting it the final extraction is $Q$, proving the asserted
+successive extraction order.
+\end{proof}
+
+\section{Preliminary DOWN lemmas}
+
+Throughout this section, let $D$ be normalized and suppose
+\begin{equation}
+  0\le d=\defc_\tau(D)\le\tau(s-2)-1,
+  \qquad \area(D)\le L_d.
+  \label{eq:down-hyp}
+\end{equation}
+Assume $D$ is not full.  Let $e_1$ be its leftmost
+extractable occurrence and let $C_1$ be the normalized remainder.  Skeleton
+and extraction tests are always made on the current prefix alone; lowered
+entries already moved to the right are not included.
+
+\begin{lemma}[The DOWN skeleton branch]
+\label{lem:down-skeleton}
+Under the preceding hypotheses,
+\[
+  C_1\text{ is full}
+  \quad\Longleftrightarrow\quad
+  C_1:(e_1-1)\text{ is a normalized full skeleton}.
+\]
+In particular, if $C_1$ is full, then
+\[
+  e_1-1\le C_1[-1]+\tau.
+\]
+\end{lemma}
+
+\begin{proof}
+Put $p=e_1-1$ and $P=C_1:p$.  If $P$ is full, then $C_1$ is full.  Indeed,
+every nonfinal extraction of $C_1$ persists after appending $p$, while if
+the only extraction of $C_1$ is final and the append blocks it,
+Lemma~\ref{lem:propagation} makes $p$ extractable at the new right boundary.
+
+Conversely, suppose $C_1$ is full.  It begins with $(0,0)$.  If $P$ were
+invalid or not full, the second part of Lemma~\ref{lem:boundary-ledger} and
+transport would give
+\[
+  \defc_\tau(D)=\defc_\tau(P)\ge\tau(s-2),
+\]
+contrary to~\eqref{eq:down-hyp}.  Hence $P$ is normalized and full, including
+the asserted final adjacency.
+\end{proof}
+
+\begin{lemma}[Existence of the second DOWN extraction]
+\label{lem:down-second}
+If $C_1$ is not full, then it has an extractable occurrence.  Thus the second
+leftmost extraction is defined on $C_1$, with no position restriction.
+\end{lemma}
+
+\begin{proof}
+This is the definition of a full skeleton.
+\end{proof}
+
+Let $e_2$ be this second extracted value, let $C_2$ be the normalized
+remainder, and form
+\[
+  T_1=C_2:(e_1-1):(e_2-1).
+\]
+
+\begin{lemma}[A nonfinal extraction after West3 failure]
+\label{lem:down-third-position}
+If $\West_3$ fails on the final three entries of $T_1$, then $C_2$ has an
+extractable occurrence outside its final position.
+\end{lemma}
+
+\begin{proof}
+Put
+\[
+  p=e_1-1,
+  \qquad q=e_2-1,
+  \qquad c=C_2[-1].
+\]
+West3 failure is
+\begin{equation}
+  p>c+\tau.
+  \label{eq:west3-fail}
+\end{equation}
+Suppose $C_2$ has no extraction outside its final position.  Two applications
+of transport and the weak lower-half inequality give
+\begin{equation}
+  \dinv_\tau(T_1)-\area(T_1)
+  =\dinv_\tau(D)-\area(D)+4\ge4.
+  \label{eq:down-gap}
+\end{equation}
+
+If $C_2[1]=0$, the fourth part of Lemma~\ref{lem:boundary-ledger} gives
+\[
+  \defc_\tau(D)=\defc_\tau(T_1)\ge\tau(s-2),
+\]
+a contradiction.  Hence $C_2[1]>0$.
+
+Lemma~\ref{lem:propagation} makes
+\[
+  C_2=R=(r_0,\ldots,r_{m-1}),
+  \qquad m=s-2,
+  \qquad c=r_{m-1},
+\]
+a rapid chain.  The unique predecessor of $e_1=p+1$ has value at least
+$p+1-\tau>c$.  Since every entry remaining in $C_2$ is at most $c$, this
+predecessor must be the second extracted value $e_2$.  Therefore
+\begin{equation}
+  q=e_2-1\ge p-\tau>c.
+  \label{eq:q-above-c}
+\end{equation}
+
+No pair from $R$ to $p$ contributes to dinv.  The rapid estimates give
+\[
+ \dinv_\tau(T_1)
+ \le\tau(m-1)-c+2\tau+\tau
+ =\tau(m+2)-c.
+\]
+By integrality in~\eqref{eq:west3-fail} and~\eqref{eq:q-above-c},
+\[
+ \area(T_1)=\area(R)+p+q
+ \ge\area(R)+2c+\tau+2.
+\]
+Equation~\eqref{eq:short-rapid} now gives
+\[
+ \area(T_1)-\dinv_\tau(T_1)
+ \ge\area(R)+3c+2-\tau(m+1)>0,
+\]
+contradicting~\eqref{eq:down-gap}.
+\end{proof}
+
+
+\section{Failed West5 stages at length five}
+
+\begin{lemma}[DOWN boundary classification]
+\label{lem:down-boundary-classification}
+Assume~\eqref{eq:down-hyp}.  Suppose the DOWN construction has failed the
+West3 test, made its guaranteed third nonfinal extraction, and reached
+\[
+ T=(0,b,x,y,z).
+\]
+If ordinary West5 is not defined on $T$, then
+\begin{equation}
+ 0\le b<z\le\tau-1,
+ \qquad
+ \tau<x,y\le z+\tau.
+ \label{eq:down-boundary-bounds}
+\end{equation}
+Moreover the original DOWN source has the form
+\begin{equation}
+ D=(0,z+1,x+1,y+1,b),
+ \label{eq:down-source-shape}
+\end{equation}
+and its first three leftmost extractions are
+$x+1,y+1,z+1$.
+\end{lemma}
+
+\begin{proof}
+After the third extraction the remainder has length two, hence is
+$(0,b)$ with $0\le b\le\tau$.  The third extracted occurrence was nonfinal
+in a three-entry word and therefore occupied index $1$; its unique
+predecessor is the initial zero.  Thus
+\[
+ 0\le z\le\tau-1.
+\]
+West3 failure, successive extraction, and the three possible West5 failure
+modes give
+\begin{equation}
+ x>b+\tau,
+ \qquad x\le y+\tau,
+ \qquad \tau<y\le z+\tau.
+ \label{eq:down-preliminary}
+\end{equation}
+It remains to prove $x\le z+\tau$.
+
+Suppose instead that
+\[
+ y=\tau+v,
+ \qquad
+ x=\tau+z+u,
+\]
+where
+\[
+ 1\le v\le z,
+ \qquad u\ge1,
+ \qquad u\le\tau+v-z.
+\]
+Put
+\[
+ h=(b-v)_+,
+ \qquad
+ k=d_\tau(b,z).
+\]
+A direct count of the ten pairs of $T$ gives
+\begin{align}
+ \dinv_\tau(T)&=3\tau-b-z-u+2+h+k,
+ \label{eq:down-affine-dinv}\\
+ \dinv_\tau(T)-\area(T)
+ &=\tau-2b-3z-2u-v+2+h+k,
+ \label{eq:down-affine-gap}\\
+ \area(T)+\dinv_\tau(T)
+ &=5\tau+z+v+2+h+k.
+ \label{eq:down-affine-total}
+\end{align}
+Three extraction transports and weak lower-halfness imply that the gap in
+\eqref{eq:down-affine-gap} is at least $6$.
+
+If $b\le z$, then
+\[
+ k=b+\tau-z.
+\]
+When $b\le v$, we have $h=0$, and the gap inequality is
+\[
+ b+4z+2u+v\le2\tau-4.
+\]
+Since $z\ge\max(b,v)$ and $u\ge1$, the contrary inequality
+$b+v\ge\tau-3$ would make the left side at least $3\tau-7$; the remaining
+small values $\tau\le3$ admit no solution.  Hence $b+v\le\tau-4$.
+When $b>v$, we have $h=b-v$, and the gap inequality gives
+$2z+u+v\le\tau-2$, hence
+$2b\le\tau-4$.  Substitution into~\eqref{eq:down-affine-total} gives in
+both subcases
+\[
+ \area(T)+\dinv_\tau(T)\le7\tau-2.
+\]
+If $b>z$, then
+\[
+ h=b-v,
+ \qquad
+ k=z+\tau+1-b.
+\]
+The gap inequality gives
+\[
+ b+z+u+v\le\tau-2.
+\]
+Since $b\ge z+1$ and $u,v\ge1$, it follows that
+$2z\le\tau-5$, and again
+\[
+ \area(T)+\dinv_\tau(T)\le7\tau-2.
+\]
+
+Transport preserves defect, whereas the cutoff requires
+\[
+ \area(T)+\dinv_\tau(T)=M-\defc_\tau(D)\ge7\tau+1.
+\]
+This contradiction proves $x\le z+\tau$.  The inequality
+$x>b+\tau$ then gives $b<z$, and~\eqref{eq:down-preliminary} yields all of
+\eqref{eq:down-boundary-bounds}.
+
+With these bounds in hand, reverse the extraction history.  The occurrence
+$z+1$ has only the initial zero before it.  Injecting $y+1$ and then $x+1$
+places both immediately after $z+1$, because $x,y\le z+\tau$; the
+successive-extraction inequality determines their displayed order.  Hence
+the original word has the form~\eqref{eq:down-source-shape}.  Conversely,
+in that word $z+1$ is not extractable because deleting it exposes
+$x+1>\tau+1$ after the initial zero.  The occurrence $x+1$ has unique anchor
+$z+1$ and a valid splice to $y+1$ because $y\le z+\tau$; after its deletion,
+$y+1$ has the same unique anchor and a valid splice to $b$.  Finally
+$z+1$ is extractable and leaves $(0,b)$.  The leftmost extraction order is
+therefore exactly $x+1,y+1,z+1$.
+\end{proof}
+
+\subsection{The formal West extension}
+
+\begin{lemma}[Formal reversal of a failed West5 test]
+\label{lem:formal-west}
+Let
+\[
+ T=(a,b,x,y,z)
+\]
+be a West5 stage satisfying the extraction-history inequalities
+\[
+ x>b+\tau,
+ \qquad x\le y+\tau,
+ \qquad y\le z+\tau.
+\]
+An ordinary West5 failure has exactly one of the following modes:
+\[
+\begin{array}{c|c|c}
+\text{mode}&\text{case test}&\text{failed terminal test}\\ \hline
+\mathrm{W1}&y\le b+\tau&y>a+\tau\\
+\mathrm{W2}&y>b+\tau,\ y\le x+\tau&x>a+\tau\\
+\mathrm{W3}&y>b+\tau,\ y>x+\tau&y>a+\tau.
+\end{array}
+\]
+Define
+\begin{equation}
+ \widetilde{\West}_5(a,b,x,y,z)=
+ \begin{cases}
+  (a,y,x,b,z),&\mathrm{W1},\\
+  (a,x,y,b,z),&\mathrm{W2},\\
+  (a,y,x,b,z),&\mathrm{W3}.
+ \end{cases}
+ \label{eq:formal-west}
+\end{equation}
+If $F=\widetilde{\West}_5(T)$, then ordinary East5 is defined on $F$ and
+\[
+ \East_5(F)=T.
+\]
+\end{lemma}
+
+\begin{proof}
+Reverse $T$, inspect the two cases in the definition of East5, and ignore
+only the final domain inequality.  Reversing the resulting output gives the
+three rows and~\eqref{eq:formal-west}.  In W1 the case inequality
+$y\le b+\tau$ selects East5 case~1 on $F$, while the extraction-history
+inequality $y\le z+\tau$ supplies its terminal test.  In W2 the bracket
+leaves $(x,y)$ in order, and in W3 it switches $(y,x)$ back to $(x,y)$;
+in both cases the same history inequality supplies the terminal test.
+Thus East5 is defined and returns $T$ mode by mode.
+\end{proof}
+
+For a failed length-five stage the first entry is $a=0$.  Write
+\[
+ F=\widetilde{\West}_5(T)=(0,P,Q,b,z),
+\]
+where
+\begin{equation}
+ (P,Q)=
+ \begin{cases}
+  (y,x),&\mathrm{W1}\text{ or }\mathrm{W3},\\
+  (x,y),&\mathrm{W2}.
+ \end{cases}
+ \label{eq:PQ-modes}
+\end{equation}
+The mode conditions always give
+\begin{equation}
+ Q>b+\tau.
+ \label{eq:boundary-east3-fail}
+\end{equation}
+For stages covered by Lemma~\ref{lem:down-boundary-classification},
+\eqref{eq:down-boundary-bounds} also gives
+\[
+ \tau<P,Q\le z+\tau.
+\]
+The W3 row is then vacuous, but retaining it makes the formal reversal table
+exactly symmetric with the ordinary East5 definition.
+
+\subsection{Saving and repacking}
+
+\begin{definition}[Boundary datum]
+\label{def:boundary-datum}
+A quadruple $(b,z,P,Q)$ is a \emph{boundary datum} if
+\[
+ 0\le b<z\le\tau-1,
+ \qquad
+ \tau<P,Q\le z+\tau,
+ \qquad
+ Q>b+\tau.
+\]
+For
+\[
+ F=(0,P,Q,b,z)
+\]
+define the saving operation
+\begin{equation}
+ \Save(F)=(0,b+1,z+1,P,Q).
+ \label{eq:saving}
+\end{equation}
+Conversely, for
+\[
+ U=(0,b+1,z+1,P,Q)
+\]
+define the boundary repacking operation
+\begin{equation}
+ \Repack(U)=(0,P,Q,b,z)=F.
+ \label{eq:repacking}
+\end{equation}
+The definition of $\Repack$ includes the three extractions
+$b+1,P,Q$ and the replacement of the surviving $z+1$ by $z$; it is not an
+ordinary extraction transport.
+\end{definition}
+
+\begin{lemma}[Boundary normalization and recognition]
+\label{lem:boundary-recognition}
+Let $(b,z,P,Q)$ be a boundary datum and put
+\[
+ U=(0,b+1,z+1,P,Q),
+ \qquad F=\Repack(U).
+\]
+Then $U$ is normalized.  Its first extraction is $b+1$, East3 fails after
+that extraction, $z+1$ is not extractable, and the next two extractions are
+$P,Q$.  The word $F$ is in the ordinary East5 domain.  If
+\[
+ T=\East_5(F)=(0,b,x,y,z),
+\]
+then
+\[
+ x>b+\tau,
+ \qquad x\le y+\tau,
+ \qquad \tau<x,y\le z+\tau,
+\]
+and ordinary West5 fails on $T$ with
+\[
+ \widetilde{\West}_5(T)=F.
+\]
+\end{lemma}
+
+\begin{proof}
+The first three adjacencies of $U$ follow from
+\[
+ b+1\le\tau,
+ \qquad z+1\le b+1+\tau,
+ \qquad P\le z+1+\tau.
+\]
+Since $P,Q$ both lie in the interval $(\tau,z+\tau]$ of width less than
+$\tau$, we also have $Q\le P+\tau$.  Thus $U$ is normalized.
+
+The occurrence $b+1$ is extractable at index $1$.  After deleting it,
+East3 tests $Q\le b+\tau$, which fails.  Deleting $z+1$ would expose
+$P>\tau$ immediately after the initial zero, so $z+1$ is not extractable.
+The occurrence $P$ has unique predecessor $z+1$, and deleting it leaves the
+normalized word $(0,z+1,Q)$.  The final occurrence $Q$ then has the same
+unique predecessor.  Hence the extraction order is $b+1,P,Q$.
+
+The inequality $Q>b+\tau$ is the East3 failure condition for the five-word
+$F=(0,P,Q,b,z)$.  If $P\le b+\tau$, East5 case~1 applies and its terminal
+test is $P\le z+\tau$.  If $P>b+\tau$, both entries of
+$\bk_\tau(P,Q)$ are at most $z+\tau$, so East5 case~2 applies.  Thus $F$ is
+in the East5 domain.
+
+The three East5 cases give
+\[
+\begin{array}{c|c|c}
+\text{case on }F&\East_5(F)&\text{failed West mode}\\ \hline
+P\le b+\tau&(0,b,Q,P,z)&\mathrm{W1}\\
+P>b+\tau,\ P\le Q+\tau&(0,b,P,Q,z)&\mathrm{W2}\\
+P>b+\tau,\ P>Q+\tau&(0,b,Q,P,z)&\mathrm{W3}.
+\end{array}
+\]
+In every row $x>b+\tau$, the entries $x,y$ are the pair $P,Q$, and the
+corresponding ordinary West5 terminal test fails because $P>\tau$.
+Lemma~\ref{lem:formal-west} then returns $F$.
+\end{proof}
+
+\begin{lemma}[Boundary statistic ledger]
+\label{lem:boundary-stat}
+For a boundary datum, put
+\[
+ F=(0,P,Q,b,z),
+ \qquad U=\Save(F).
+\]
+Then
+\begin{equation}
+ \area(U)=\area(F)+2,
+ \qquad
+ \dinv_\tau(U)=\dinv_\tau(F)-2.
+ \label{eq:saving-stat}
+\end{equation}
+Consequently, if $T$ is a failed West5 stage and
+$F=\widetilde{\West}_5(T)$, then the boundary DOWN operation has statistic
+change $(-1,+1)$, while the inverse boundary UP operation has change
+$(+1,-1)$.
+\end{lemma}
+
+\begin{proof}
+The area identity is immediate.  Every pair not involving the initial zero
+has the same dinv contribution in $F$ and $U$.  Simultaneously shifting
+$(b,z)$ to $(b+1,z+1)$ preserves their mutual contribution, and for
+$H\in\{P,Q\}$ the boundary inequalities give
+\[
+ d_\tau(H,b)=d_\tau(b+1,H),
+ \qquad
+ d_\tau(H,z)=d_\tau(z+1,H).
+\]
+The two pairs with the initial zero each lose one unit, proving
+\eqref{eq:saving-stat}.
+
+Three ordinary extraction transports take a DOWN source to $T$, changing
+statistics by $(-3,+3)$.  Lemma~\ref{lem:formal-west} and local preservation
+show that $T$ and $F$ have the same statistics, while
+$F\mapsto U$ changes them by $(+2,-2)$.  The net DOWN change is therefore
+$(-1,+1)$.  Conversely, $U\mapsto F$ changes statistics by $(-2,+2)$,
+East5 preserves them, and the three reverse injections change them by
+$(+3,-3)$, giving the UP change $(+1,-1)$ without using global
+invertibility.
+\end{proof}
+
+\section{Definition and totality of the maps}
+
+We first record the ordinary level-three convention in a form that will be
+used below.
+
+\begin{lemma}[Level-three reconstruction without a position guard]
+\label{lem:level3-reconstruction}
+Suppose the first UP extraction is nonfinal and write its normalized
+remainder as $C=A:c$, with extracted value $e$ and $p=e-1$.  If
+$c\le p+\tau$, then
+\[
+ \inj_{c+1}\bigl(\inj_e(A)\bigr)
+\]
+is defined and normalized.  Conversely, the ordinary West3 reconstruction
+after two successive DOWN extractions is defined and reverses this
+operation.  No condition on the position of $e$ is needed beyond
+nonfinality.
+\end{lemma}
+
+\begin{proof}
+Because $e$ was extracted before the final occurrence $c$, injecting $e$
+into $A$ recovers the original word without its last entry.  There is always
+an anchor for $c+1$ in that recovered prefix.  If every prefix entry is at
+most $c$, then $e$ itself is an anchor because
+\[
+ c\le e+\tau-1.
+\]
+If some prefix entry exceeds $c$, take the first such entry; its immediate
+predecessor lies in $[c+1-\tau,c]$ by normalization.  Thus inserting $c+1$
+after the first anchor is normalized.
+
+For DOWN, write the two extracted values as $x+1,y+1$ and the twice-deleted
+word as $C$.  A successful West3 stage is $C:x:y$, with
+\[
+ x\le C[-1]+\tau.
+\]
+Injecting $y+1$ into $C:x$ uses the same first anchor that it used in $C$.
+If $y+1$ was nonfinal after the first extraction, the displayed West3
+inequality supplies the new final adjacency to $x$; if it was final, the
+successive-extraction inequality $x\le y+\tau$ supplies that adjacency.
+In both cases the old extraction splice is preserved, so the inserted
+occurrence is extractable and the inverse East3 test succeeds.
+\end{proof}
+
+We shall also use the following local recognition property of the ordinary
+five-window pair.
+
+\begin{lemma}[Ordinary East5--West5 branch check]
+\label{lem:ordinary-five-recognition}
+Suppose an ordinary East5 stage arising after two successive leftmost UP
+extractions satisfies
+\begin{equation}
+ \East_5(a,b,c,x,y)=(a,r,j,k,y).
+ \label{eq:east5-symbolic-s5}
+\end{equation}
+Then
+\begin{equation}
+ j>r+\tau,
+ \qquad
+ \West_5(a,r,j,k,y)=(a,b,c,x,y).
+ \label{eq:east-west-inverse-s5}
+\end{equation}
+The raised values $y+1,k+1,j+1$ can be injected from right to left into
+$(a,r)$, and are then the first three successive extractions in reverse
+order.  Conversely, a successful ordinary West5 stage arising after three
+successive DOWN extractions admits the two prescribed reverse injections
+and is recognized by the ordinary East5 branch.
+\end{lemma}
+
+\begin{proof}
+The algebraic recognition is a direct check in the two East5 cases.  In
+case~1 the output is $(a,x,c,b,y)$.  In case~2 the pair $(b,c)$ is retained
+or switched exactly at the gap $b>c+\tau$.  The original East3 failure gives
+$j>r+\tau$ in all three resulting subcases, and reversing the same case
+returns the input.
+
+For the reconstruction assertions, retain the inequalities supplied by the
+two UP extractions: $(a,b,c)$ is normalized, $x+1$ and $y+1$ have their
+unique predecessor anchors in the successive prefixes, and their deletion
+splices are valid.  In each East5 case the terminal test is exactly the
+anchor inequality for the first raised insertion; the case inequality and
+the possible $\bk_\tau$ switch give the second anchor; and the two original
+splice inequalities give the final adjacency.  Hence the three displayed
+injections are admissible and normalized.  Reading the same inequalities in
+reverse proves that the inserted entries are the first three successive
+extractions.  The successful West5 statement is the reversed check.
+\end{proof}
+
+\subsection{The UP map}
+
+Let $D$ be normalized, have defect at most $B$, and satisfy
+$\area(D)<L_{\defc_\tau(D)}$.
+\begin{enumerate}
+\item If $D=C:a$ is full, define
+\begin{equation}
+ \UP(D)=\inj_{a+1}(C).
+ \label{eq:up-full}
+\end{equation}
+\item Otherwise extract the leftmost value $e_1=p+1$, leaving $C_1$, and
+form
+\[
+ \Sigma_1=C_1:p.
+\]
+Write $C_1=A:c$.  If East3 succeeds, define
+\begin{equation}
+ \UP(D)=\inj_{c+1}\bigl(\inj_{p+1}(A)\bigr).
+ \label{eq:up-east3}
+\end{equation}
+\item Suppose East3 fails.  Let $e_2=q+1$ be the leftmost extraction of
+$C_1$.
+  \begin{enumerate}
+  \item If $e_2$ is at index $1$, delete it to obtain $C_2$ and form
+  \[
+    \Sigma_2=C_2:p:q.
+  \]
+  Write
+  \[
+    \East_5(\Sigma_2)=(u_0,u_1,u_2,u_3,u_4).
+  \]
+  Define the ordinary East5 branch by
+  \begin{equation}
+   \UP(D)=
+   \inj_{u_2+1}\Bigl(
+     \inj_{u_3+1}\bigl(
+       \inj_{u_4+1}(u_0,u_1)
+     \bigr)
+   \Bigr).
+   \label{eq:up-east5}
+  \end{equation}
+  \item Otherwise Lemma~\ref{lem:up-boundary-classification} gives
+  \[
+    C_1=(0,z+1,P,Q),
+    \qquad p=b,
+  \]
+  with boundary datum $(b,z,P,Q)$.  Extract $P$ and then $Q$, form
+  \[
+    F=\Repack(0,b+1,z+1,P,Q)=(0,P,Q,b,z),
+  \]
+  and write
+  \[
+    \East_5(F)=(0,b,x,y,z).
+  \]
+  Define the boundary branch by
+  \begin{equation}
+    \UP(D)=
+    \inj_{x+1}\Bigl(
+      \inj_{y+1}\bigl(
+        \inj_{z+1}(0,b)
+      \bigr)
+    \Bigr).
+    \label{eq:up-boundary}
+  \end{equation}
+  \end{enumerate}
+\end{enumerate}
+
+\subsection{The DOWN map}
+
+Let $D$ be normalized, have defect at most $B$, lie in the weak lower half,
+and not be full.
+\begin{enumerate}
+\item Extract the leftmost value $e_1=p+1$, leaving $C_1$.  If $C_1$ is
+full, define
+\begin{equation}
+ \DOWN(D)=C_1:p.
+ \label{eq:down-full}
+\end{equation}
+\item Otherwise extract the leftmost value $e_2=q+1$ of $C_1$, leaving
+$C_2$, and form
+\[
+ T_1=C_2:p:q.
+\]
+If West3 succeeds, write
+\[
+ \West_3(T_1)=(v_0,v_1,v_2,v_3,v_4)
+\]
+and define
+\begin{equation}
+ \DOWN(D)=\inj_{v_4+1}(v_0,v_1,v_2,v_3).
+ \label{eq:down-west3}
+\end{equation}
+\item Suppose West3 fails.  Extract the guaranteed nonfinal value
+$e_3=z+1$ from $C_2$, leaving $C_3$, and form
+\[
+ T=C_3:p:q:z.
+\]
+Since $s=5$, write $C_3=(0,b)$, rename $p=x$ and $q=y$, and write
+\[
+ T=(0,b,x,y,z).
+\]
+  \begin{enumerate}
+  \item If ordinary West5 succeeds, write
+  \[
+    \West_5(T)=(v_0,v_1,v_2,v_3,v_4)
+  \]
+  and define
+  \begin{equation}
+    \DOWN(D)=
+    \inj_{v_3+1}\bigl(
+      \inj_{v_4+1}(v_0,v_1,v_2)
+    \bigr).
+    \label{eq:down-west5}
+  \end{equation}
+  \item If ordinary West5 fails, form
+  \[
+    F=\widetilde{\West}_5(T)
+  \]
+  and define the boundary branch by
+  \begin{equation}
+    \DOWN(D)=\Save(F).
+    \label{eq:down-boundary}
+  \end{equation}
+  \end{enumerate}
+\end{enumerate}
+
+\begin{proposition}[Totality and normalization]
+\label{prop:totality}
+The map $\UP$ is defined and normalized on every word of defect at most $B$
+strictly below the middle.  The map $\DOWN$ is defined and normalized on
+every weakly lower-half nonfull word of defect at most $B$.
+\end{proposition}
+
+\begin{proof}
+For UP, Lemmas~\ref{lem:up-skeleton} and~\ref{lem:up-first-position} give the
+full branch or a nonfinal first extraction.  Lemma~\ref{lem:level3-reconstruction}
+handles East3 success.  After East3 failure,
+Lemma~\ref{lem:up-boundary-classification} gives exactly the ordinary
+index-$1$ East5 branch or the penultimate boundary branch.  In the ordinary
+case Lemma~\ref{lem:east5-total} proves East5 nonfailure and
+Lemma~\ref{lem:ordinary-five-recognition} supplies all injections.  In the
+boundary case Lemma~\ref{lem:boundary-recognition} proves that $F$ is in the
+East5 domain and that the three injections in~\eqref{eq:up-boundary} are
+admissible; explicitly they produce
+\[
+  (0,z+1,x+1,y+1,b).
+\]
+
+For DOWN, Lemmas~\ref{lem:down-skeleton} and~\ref{lem:down-second} give the
+first two branches.  Lemma~\ref{lem:level3-reconstruction} handles West3
+success.  After West3 failure,
+Lemma~\ref{lem:down-third-position} gives a nonfinal third extraction.
+Ordinary West5 either succeeds, in which case
+Lemma~\ref{lem:ordinary-five-recognition} supplies the two injections, or it
+fails.  In the latter case Lemma~\ref{lem:down-boundary-classification}
+gives the boundary bounds, Lemma~\ref{lem:formal-west} gives $F$, and
+Definition~\ref{def:boundary-datum} and
+Lemma~\ref{lem:boundary-recognition} show that $\Save(F)$ is normalized.
+Thus no local failure case remains.
+\end{proof}
+
+\section{Statistics and invertibility}
+
+\begin{lemma}[Local preservation]
+\label{lem:local-preservation}
+East3 preserves area and dinv.  On its relevant domain, East5 also preserves
+area and dinv.
+\end{lemma}
+
+\begin{proof}
+East3 is the identity.  East5 only rearranges five entries, so it preserves
+area.  Every interaction with an earlier prefix occurrence is unchanged
+because the multiset of the five entries is unchanged.  It remains to compare
+the six internal pairs among the four moved entries.  Substitution of the
+two formulas defining $d_\tau$ in the two East5 cases gives
+\[
+  \sum_{i<j}d_\tau(w_i,w_j)
+  =\sum_{i<j}d_\tau(w'_i,w'_j),
+\]
+where $w,w'$ are the input and output windows.  In the second case,
+$\bk_\tau$ fixes or switches the middle pair according to precisely the gap
+at which the two formulas exchange.  This proves local dinv preservation.
+\end{proof}
+
+
+\begin{proposition}[Statistic change]
+\label{prop:statistics}
+Whenever $\UP$ is defined,
+\[
+ \area(\UP(D))=\area(D)+1,
+ \qquad
+ \dinv_\tau(\UP(D))=\dinv_\tau(D)-1.
+\]
+Whenever $\DOWN$ is defined,
+\[
+ \area(\DOWN(D))=\area(D)-1,
+ \qquad
+ \dinv_\tau(\DOWN(D))=\dinv_\tau(D)+1.
+\]
+Both maps preserve defect.
+\end{proposition}
+
+\begin{proof}
+For every ordinary branch, if $k$ extractions precede the local East or West
+move, repeated use of Lemma~\ref{lem:transport} changes stage statistics by
+$(-k,+k)$.  The local move preserves statistics by
+Lemma~\ref{lem:local-preservation}.  Each raised injection reverses one
+transport and contributes $(+1,-1)$.  The ordinary UP branches make $k+1$
+reverse injections and therefore have net change $(+1,-1)$.  The ordinary
+DOWN branches make $k-1$ reverse injections and therefore have net change
+$(-1,+1)$.  The full branches are the cases $k=0$ for UP and $k=1$ for
+DOWN.  The boundary changes are exactly those of
+Lemma~\ref{lem:boundary-stat}.  Defect preservation follows from
+$M-\area-\dinv_\tau$.
+\end{proof}
+
+We use the elementary successive-extraction inequality
+\begin{equation}
+ e_1\le e_2+\tau.
+ \label{eq:successive-extraction-s5}
+\end{equation}
+Indeed, if the reverse inequality held, deleting $e_1$ would not improve
+either the predecessor count or splice of $e_2$, unless the two were
+adjacent; adjacency gives the original Dyck inequality and again contradicts
+the reverse inequality.
+
+\begin{proposition}[Branchwise invertibility]
+\label{prop:inverse}
+On the domains in Proposition~\ref{prop:totality},
+\[
+ \DOWN\circ\UP=\mathrm{id},
+ \qquad
+ \UP\circ\DOWN=\mathrm{id}.
+\]
+\end{proposition}
+
+\begin{proof}
+We pair the four UP branches with the four DOWN branches.
+
+\smallskip
+\noindent\emph{Full skeleton.}
+Write a full skeleton as $S=C:a$.  The prefix $C$ is full: an extraction in
+$C$ would persist in $S$, or its obstruction would propagate to an
+extraction of $a$.  UP injects $a+1$ into $C$.  The inserted occurrence is
+the first extractable one.  DOWN extracts it, recognizes the full prefix,
+and appends $a$.  Conversely, if DOWN takes its full-prefix branch, it
+returns a full word $C:a$ by Lemma~\ref{lem:down-skeleton}, and UP reinserts
+$a+1$.
+
+\smallskip
+\noindent\emph{East3 and West3.}
+Write the East3 stage as $P':b:x$.  The UP output is
+\[
+ \inj_{b+1}\bigl(\inj_{x+1}(P')\bigr).
+\]
+DOWN extracts $b+1$ and then $x+1$; its full-prefix branch does not apply,
+and the normalized word $P':b$ makes West3 succeed.  West3 is the identity,
+and the remaining injection recovers the UP source.
+
+Conversely, suppose DOWN reaches a successful West3 stage $P':b:x:y$.  It
+injects $y+1$ before the retained $x$.  UP extracts $y+1$, and its full
+branch does not apply.  Inequality~\eqref{eq:successive-extraction-s5} gives
+$x\le y+\tau$, exactly the East3 condition.  Lemma~\ref{lem:level3-reconstruction}
+then recovers the DOWN source.
+
+\smallskip
+\noindent\emph{Ordinary East5 and West5.}
+After two UP extractions, write the East5 stage as
+\[
+ (a,b,c,x,y)
+\]
+and its output as $(a,r,j,k,y)$.  The raised entries $y+1,k+1,j+1$ are
+successively extracted from the UP output.  After the second extraction the
+West3 window fails because $j>r+\tau$; after the third,
+Lemma~\ref{lem:ordinary-five-recognition} makes ordinary West5 return the
+East5 stage, and the two remaining reverse injections recover the original
+UP source.
+
+Conversely, after three DOWN extractions let ordinary West5 send
+$(a,b,x,y,z)$ to $(a,j,k,r,z)$.  DOWN injects $z+1,r+1$ before the retained
+$j,k$.  UP extracts $r+1$; its East3 test fails by the converse recognition
+inequality.  It then extracts $z+1$, ordinary East5 returns
+$(a,b,x,y,z)$, and the three reverse injections recover the DOWN source.
+
+\smallskip
+\noindent\emph{Boundary branch.}
+Start with a failed-West5 DOWN source.  By
+Lemma~\ref{lem:down-boundary-classification}, DOWN extracts
+$x+1,y+1,z+1$ and reaches $T=(0,b,x,y,z)$.  Formal West gives
+$F=(0,P,Q,b,z)$ and saving gives
+\[
+ U=(0,b+1,z+1,P,Q).
+\]
+By Lemma~\ref{lem:boundary-recognition}, UP extracts $b+1$, East3 fails,
+$z+1$ is not extractable, and the next two extractions are $P,Q$.
+Repacking returns $F$, East5 returns $T$, and the three injections in
+\eqref{eq:up-boundary} recover the original DOWN source.
+
+Conversely, start with a boundary UP word $U$.  Repacking and East5 produce
+$T=(0,b,x,y,z)$, and the UP output is
+\[
+ D'=(0,z+1,x+1,y+1,b).
+\]
+Lemma~\ref{lem:down-boundary-classification} and its final extraction check
+show that DOWN extracts $x+1,y+1,z+1$ in that order.  West3 fails because
+$x>b+\tau$.  Ordinary West5 fails, and
+Lemma~\ref{lem:boundary-recognition} identifies the same failed mode: formal
+West returns $F$, while saving returns $U$.  The boundary branch therefore
+cannot be captured by either ordinary five-window branch, and the two
+boundary operations are inverse.
+\end{proof}
+
+\section{Proof of the lower-half decomposition}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Fix $0\le d\le B$.  Proposition~\ref{prop:totality} defines UP on every
+word in $\mathcal L_d$ of area below $L_d$, and DOWN on every nonfull word
+in $\mathcal L_d$.  Proposition~\ref{prop:statistics} shows that the maps
+preserve defect and move area by one in opposite directions, and
+Proposition~\ref{prop:inverse} shows that they are inverse.
+
+Starting from any $D\in\mathcal L_d$, iterate DOWN while it is defined.
+Area decreases at each step, so the process terminates.  It can terminate
+only at a full skeleton.  Invertibility makes the terminal skeleton and the
+entire descent unique.  Conversely, Assumption~\ref{ass:full-lower} places
+every $S\in\mathcal F_d$ in $\mathcal L_d$.  Starting from $S$ and iterating
+UP gives exactly one word at each area
+\[
+ \area(S),\area(S)+1,\ldots,L_d.
+\]
+No two such strings meet, again by invertibility.  This proves the disjoint
+union~\eqref{eq:lower-union}.
+
+For a word of defect $d$ and area $j$, the dinv statistic is $M-d-j$.
+Summing over the disjoint strings gives~\eqref{eq:lower-gf}; summing over $0\le d\le B$ gives~\eqref{eq:aggregate-lower-gf}.
+\end{proof}
+
+\end{document}

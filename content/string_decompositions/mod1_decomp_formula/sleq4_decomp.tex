@@ -1,0 +1,562 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\area}{\operatorname{area}}
+\newcommand{\dinv}{\operatorname{dinv}}
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\UP}{\operatorname{UP}}
+\newcommand{\DOWN}{\operatorname{DOWN}}
+\newcommand{\East}{\operatorname{East}}
+\newcommand{\West}{\operatorname{West}}
+\newcommand{\inj}{\operatorname{inj}}
+
+\title{The Length-Three and Length-Four Modulo-One Lower-Half Decomposition}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Statement and conventions}
+
+Fix integers
+\[
+ \tau\ge2,\qquad 3\le s\le4,\qquad
+ M_s=\tau\binom{s}{2},\qquad B_s=\tau(s-2)-1.
+\]
+A \emph{normalized step-$\tau$ Dyck word} is a word
+\[
+ D=(x_0,\ldots,x_{s-1})
+\]
+of nonnegative integers satisfying
+\[
+ x_0=0,\qquad x_{i+1}\le x_i+\tau.
+\]
+Its statistics are
+\[
+ \area(D)=\sum_i x_i,\qquad
+ \dinv_\tau(D)=\sum_{i<j}d_\tau(x_i,x_j),\qquad
+ \defc_\tau(D)=M_s-\area(D)-\dinv_\tau(D),
+\]
+where
+\[
+ d_\tau(u,v)=
+ \begin{cases}
+  (u+\tau-v)_+,&u\le v,\\
+  (v+\tau+1-u)_+,&u>v.
+ \end{cases}
+\]
+For a fixed defect $d$, put
+\[
+ L_d=\left\lfloor\frac{M_s-d}{2}\right\rfloor.
+\]
+Thus the weak lower half of the defect-$d$ layer is given by
+$\area(D)\le L_d$.
+
+An occurrence $x_j=e>0$ is \emph{extractable} if exactly one earlier
+occurrence lies in
+\[
+ [\max(0,e-\tau),e)
+\]
+and deleting $x_j$ leaves a normalized word.  The leftmost extractable
+occurrence is always chosen.  A normalized word with no extractable
+occurrence is a \emph{full skeleton}.
+
+Conversely, $\inj_e$ inserts $e$ immediately after the first occurrence in
+$[\max(0,e-\tau),e)$ when the resulting word is normalized.  On the
+configurations used below this reverses extraction.
+
+On a three-window $(a,c,p)$, the map $\East_3$ is defined when
+\[
+ c\le p+\tau
+\]
+and is then the identity.  The map $\West_3$ is obtained by reversing the
+window, applying $\East_3$, and reversing again; hence it is defined on
+$(c,p,q)$ when
+\[
+ p\le c+\tau
+\]
+and is also the identity.  The one extraction preceding an East3 test may
+occur in any nonfinal position.
+
+\begin{assumption}[Root position]
+\label{ass:root-position}
+Every full skeleton $S$ of length $s$ with
+$\defc_\tau(S)\le B_s$ satisfies
+\[
+ \area(S)\le L_{\defc_\tau(S)}.
+\]
+\end{assumption}
+
+For $0\le d\le B_s$, let
+\[
+ \mathcal L_d
+ =\{D:D\text{ is normalized},\ \defc_\tau(D)=d,\
+                         \area(D)\le L_d\}
+\]
+and let $\mathcal F_d$ be the set of full skeletons of defect $d$.
+
+\begin{theorem}[The $s=3,4$ lower-half decomposition]
+\label{thm:main}
+Under Assumption~\ref{ass:root-position}, there are mutually inverse maps
+\[
+ \UP:\{D\in\mathcal L_d:\area(D)<L_d\}\longrightarrow\mathcal L_d,
+ \qquad
+ \DOWN:\mathcal L_d\setminus\mathcal F_d\longrightarrow\mathcal L_d
+\]
+such that
+\[
+ \area(\UP(D))=\area(D)+1,\qquad
+ \dinv_\tau(\UP(D))=\dinv_\tau(D)-1
+\]
+and
+\[
+ \area(\DOWN(D))=\area(D)-1,\qquad
+ \dinv_\tau(\DOWN(D))=\dinv_\tau(D)+1.
+\]
+Consequently
+\begin{equation}
+ \mathcal L_d
+ =\bigsqcup_{S\in\mathcal F_d}
+   \{\UP^j(S):0\le j\le L_d-\area(S)\}.
+ \label{eq:lower-union}
+\end{equation}
+In particular,
+\begin{equation}
+ \sum_{D\in\mathcal L_d}q^{\dinv_\tau(D)}t^{\area(D)}
+ =
+ \sum_{S\in\mathcal F_d}
+ \sum_{j=\area(S)}^{L_d}q^{M_s-d-j}t^j.
+ \label{eq:lower-gf}
+\end{equation}
+\end{theorem}
+
+\section{Elementary extraction facts}
+
+\begin{lemma}[Extraction transport]
+\label{lem:transport}
+Let $e$ be the leftmost extractable occurrence of $D$, let $C$ be obtained
+by deleting it, and put $p=e-1$.  Then
+\[
+ \area(C:p)=\area(D)-1,\qquad
+ \dinv_\tau(C:p)=\dinv_\tau(D)+1,\qquad
+ \defc_\tau(C:p)=\defc_\tau(D).
+\]
+The identities hold even if the final adjacency of $C:p$ is invalid.
+\end{lemma}
+
+\begin{proof}
+Write $D=A:e:E$.  For every $v\in E$,
+\[
+ d_\tau(e,v)=d_\tau(v,e-1).
+\]
+For $u\in A$, the difference
+\[
+ d_\tau(u,e-1)-d_\tau(u,e)
+\]
+is $1$ precisely when $u$ is in the predecessor interval of $e$, is $-1$
+when $e<u\le e+\tau$, and is zero otherwise.  A leftmost extractable
+occurrence is a record by the failed-splice propagation lemma in
+\texttt{sgeq6\_decomp.tex}; that local proof is independent of the word
+length.  Thus the negative case does not occur.  Extractability supplies
+exactly one predecessor, so dinv increases by one.  Area decreases by one,
+and defect is unchanged.
+\end{proof}
+
+\begin{lemma}[The small full skeletons]
+\label{lem:full-classification}
+The full skeletons have the following forms:
+\[
+ \begin{array}{c|c}
+ s=3&(0,0,a),\quad 0\le a\le\tau,\\[1mm]
+ s=4&(0,0,a,b),\quad 0\le a,b\le\tau.
+ \end{array}
+\]
+For a full skeleton of defect at most $B_s$, the full-skeleton UP operation
+\begin{equation}
+ S=C:a\longmapsto\inj_{a+1}(C)
+ \label{eq:full-up}
+\end{equation}
+is defined and normalized.
+\end{lemma}
+
+\begin{proof}
+If a normalized word begins $(0,u)$ with $u>0$, then $u$ has the initial
+zero as its unique predecessor.  If its deletion splice fails, the next
+entry is a new record with $u$ as unique predecessor.  Repeating reaches an
+extractable final occurrence.  Thus every full word begins $(0,0)$.
+
+At length three, the last entry is at most $\tau$ and hence has both zeros
+as predecessors.  This proves the first line.  At length four, write the
+word as $(0,0,a,b)$.  We have $a\le\tau$.  If $b>\tau$, normalization makes
+$a$ its unique predecessor, so $b$ is extractable at the right boundary.
+Thus $b\le\tau$.  The converses follow because every positive entry then
+has both initial zeros as predecessors.
+
+For $s=3$, the only full word for which $a+1$ has no anchor in $C=(0,0)$
+is $(0,0,\tau)$.  Its defect is $\tau=B_3+1$.  For $s=4$, an anchor can
+fail only for $(0,0,0,\tau)$; if the penultimate entry is positive, it
+anchors $\tau+1$.  The exceptional word has defect $2\tau=B_4+1$.
+Every other case in the stated defect range therefore has the required
+anchor, and the adjacent inequalities give normalization.
+\end{proof}
+
+\begin{lemma}[The small full-prefix DOWN branch]
+\label{lem:full-prefix}
+Suppose the leftmost extraction of a word $D$ of defect at most $B_s$ has
+value $e=p+1$ and leaves a full word $C$.  Then $C:p$ is normalized and
+full.
+\end{lemma}
+
+\begin{proof}
+For $s=3$, necessarily $C=(0,0)$.  The extracted value must have occurred
+between the zeros, so $p\le\tau-1$, and $(0,0,p)$ is full.
+
+For $s=4$, write $C=(0,0,c)$ with $c\le\tau$.  If the extraction was
+nonfinal, its position and normalization give $p\le\tau-1$.  If it was
+final, then $e\le c+\tau$, so $C:p$ is normalized.  Were $p>\tau$, the
+word $(0,0,c,p)$ would have
+\[
+ \dinv_\tau(0,0,c,p)=4\tau-c-p,\qquad
+ \defc_\tau(0,0,c,p)=2\tau.
+\]
+This contradicts transport and $\defc_\tau(D)\le B_4=2\tau-1$.  Hence
+$p\le\tau$, and the two initial zeros show that $C:p$ is full.
+\end{proof}
+
+\begin{lemma}[A nonfinal first UP extraction]
+\label{lem:up-nonfinal}
+If $D$ has defect at most $B_s$, is strictly below the middle of its defect
+layer, and is not full, then its leftmost extraction is nonfinal.
+\end{lemma}
+
+\begin{proof}
+Strictly below the middle implies
+\begin{equation}
+ \dinv_\tau(D)-\area(D)\ge2.
+ \label{eq:strict-gap}
+\end{equation}
+Suppose the only extractable occurrence is final.
+
+For $s=3$, a word beginning $(0,0)$ cannot have an extractable final
+occurrence.  Otherwise write $D=(0,a,c)$ with $a>0$.  The failure of the
+deletion splice for $a$ gives
+\[
+ 1\le a\le\tau,\qquad \tau<c\le a+\tau.
+\]
+Only adjacent pairs contribute, and
+\[
+ \dinv_\tau(D)-\area(D)=2\tau-a-2c<0,
+\]
+contrary to~\eqref{eq:strict-gap}.
+
+For $s=4$, first suppose $D=(0,0,a,c)$.  A final extraction forces
+$0<a\le\tau<c\le a+\tau$, and direct substitution gives
+\[
+ \defc_\tau(D)=2\tau>B_4.
+\]
+If instead $D=(0,a,b,c)$ with $a>0$, the first two nonfinal occurrences
+are not extractable only if
+\[
+ b>\tau,\qquad c>a+\tau.
+\]
+The word is then a rapid record chain, only adjacent pairs contribute, and
+\[
+ \dinv_\tau(D)=3\tau-c<\area(D).
+\]
+This again contradicts~\eqref{eq:strict-gap}.
+\end{proof}
+
+\begin{lemma}[Ordinary level-three reconstruction]
+\label{lem:level-three}
+Suppose the first UP extraction is nonfinal and leaves $C=A:c$.  Put
+$p=e-1$.  If $c\le p+\tau$, then
+\begin{equation}
+ \inj_{c+1}\bigl(\inj_{p+1}(A)\bigr)
+ \label{eq:east3-up}
+\end{equation}
+is defined and normalized.  Conversely, after two successive DOWN
+extractions, a successful West3 stage is reconstructed by
+\begin{equation}
+ C:p:q\longmapsto\inj_{q+1}(C:p),
+ \label{eq:west3-down}
+\end{equation}
+and the two operations are inverse.
+\end{lemma}
+
+\begin{proof}
+Because the first extraction was nonfinal, injecting $p+1$ into $A$
+recovers the original word without its last occurrence $c$.  If every
+entry of this prefix is at most $c$, the inequality $c\le p+\tau$ makes
+$p+1$ an anchor for $c+1$.  If some entry exceeds $c$, the predecessor of
+the first such entry lies in $[c+1-\tau,c]$ and is an anchor.  In either
+case insertion after the first anchor is normalized.
+
+For the reverse direction, write the two extracted values as $p+1,q+1$.
+The West3 condition $p\le C[-1]+\tau$, together with the splice and anchor
+inequalities belonging to the two extractions, makes~\eqref{eq:west3-down}
+normalized.  The inserted occurrence is extracted first, after which the
+East3 condition is exactly the displayed West3 inequality.  This reverses
+\eqref{eq:east3-up}.  This is the same level-three check used in
+\texttt{sgeq6\_decomp.tex} and \texttt{s5\_decomp.tex}; importantly, it
+requires only that the UP extraction be nonfinal.
+\end{proof}
+
+\section{The length-three tests}
+
+\begin{lemma}[East3 and West3 do not fail for $s=3$]
+\label{lem:s3-total}
+At length three, every East3 or West3 test arising in the lower-half
+algorithm is successful.
+\end{lemma}
+
+\begin{proof}
+For UP, Lemma~\ref{lem:up-nonfinal} makes the first extraction the middle
+entry.  Its deletion leaves $(0,c)$ normalized, so $c\le\tau\).  The East3
+stage is $(0,c,p)$, and
+\[
+ c\le\tau\le p+\tau.
+\]
+
+For DOWN, suppose the first extraction leaves a nonfull word, so a second
+extraction is required.  If the first extraction had been final, it would
+have been the only extraction of the original word.  The calculation in
+the $s=3$ part of Lemma~\ref{lem:up-nonfinal} gives
+$\dinv_\tau(D)<\area(D)$, contradicting even the weak lower-half condition.
+Thus the first extraction is the middle entry and its lowered value
+$p$ satisfies $p\le\tau-1$.  After the second extraction the West3 stage
+is $(0,p,q)$, so its condition $p\le\tau$ holds.
+\end{proof}
+
+\section{The length-four boundary pair}
+
+\begin{definition}[The boundary pair]
+\label{def:boundary}
+For integers satisfying
+\begin{equation}
+ 0\le p<a\le\tau-1,\qquad p+\tau<c\le a+\tau,
+ \label{eq:boundary-bounds}
+\end{equation}
+define
+\begin{equation}
+ \mathcal B_\uparrow(0,p+1,a,c)=(0,a+1,c+1,p),
+ \qquad
+ \mathcal B_\downarrow(0,a+1,c+1,p)=(0,p+1,a,c).
+ \label{eq:boundary-pair}
+\end{equation}
+\end{definition}
+
+\begin{lemma}[Classification of failed East3]
+\label{lem:east-failure}
+Let $s=4$, and suppose $D$ satisfies the UP hypotheses.  If its East3 test
+fails, then
+\[
+ D=(0,p+1,a,c)
+\]
+with the bounds~\eqref{eq:boundary-bounds}.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:up-nonfinal}, the extracted value $p+1$ is nonfinal.
+Write the remainder as $(0,a,c)$.  The extracted occurrence cannot have
+been in position two.  Indeed, East3 failure and the original final
+adjacency would then give $c=(p+1)+\tau$, while the deletion splice would
+give $p+1\le a$.  The earlier occurrence $a$ would consequently be
+extractable before $p+1$, a contradiction.  Hence
+\[
+ D=(0,p+1,a,c).
+\]
+The deletion splice gives $a\le\tau$, normalization gives
+$c\le a+\tau$, and East3 failure gives $c>p+\tau$.  Therefore $p<a$ and
+$p\le\tau-1$.
+
+It remains to exclude $a=\tau$.  In that case direct substitution gives
+\[
+ \dinv_\tau(D)-\area(D)=2\tau-p-1-2c<0,
+\]
+because $c>p+\tau$.  This contradicts strict lower-half position.  Thus
+$a\le\tau-1$, proving all the bounds.
+\end{proof}
+
+\begin{lemma}[Classification of failed West3]
+\label{lem:west-failure}
+Let $s=4$, and suppose $D$ is weakly below the middle and its DOWN
+algorithm reaches a failed West3 stage.  Then
+\[
+ D=(0,a+1,c+1,p)
+\]
+with the bounds~\eqref{eq:boundary-bounds}.
+\end{lemma}
+
+\begin{proof}
+Let the two successive extracted values be $c+1$ and $a+1$, and write the
+twice-deleted word as $(0,p)$.  Thus the West3 stage is
+\[
+ (0,p,c,a),
+\]
+and failure says $c>p+\tau$.
+
+Neither $0$ nor $p$ can be the unique predecessor of $c+1$.  Hence the
+second extracted value $a+1$ occurs before $c+1$, is its unique predecessor,
+and immediately precedes it.  In particular
+\[
+ c\le a+\tau.
+\]
+There are two possible orders for the remaining occurrence $p$:
+\[
+ (0,p,a+1,c+1)
+ \quad\hbox{or}\quad
+ (0,a+1,c+1,p).
+\]
+In the first order the only extraction in the original word is the final
+entry $c+1$: deletion of $a+1$ is blocked by
+$c+1>p+\tau$, and all earlier entries precede the chosen leftmost
+extraction.  The rapid-chain calculation from
+Lemma~\ref{lem:up-nonfinal} gives
+$\dinv_\tau(D)<\area(D)$, contradicting weak lower-half position.
+Thus the second order holds.
+
+Now $a+1$ occurs in position one of its once-deleted word, so
+$a\le\tau-1$.  Finally, $c\le a+\tau$ and $c>p+\tau$ imply $p<a$.
+These are exactly~\eqref{eq:boundary-bounds}.
+\end{proof}
+
+\begin{lemma}[Boundary normalization, statistics, and recognition]
+\label{lem:boundary-check}
+The two words in~\eqref{eq:boundary-pair} are normalized.  The boundary
+maps are inverse, and
+\[
+ (\area,\dinv_\tau)\bigl(\mathcal B_\uparrow(D)\bigr)
+ =(\area(D)+1,\dinv_\tau(D)-1).
+\]
+Moreover, DOWN recognizes the image of $\mathcal B_\uparrow$ by extracting
+$c+1$ and then $a+1$, after which West3 fails; UP recognizes the image of
+$\mathcal B_\downarrow$ by extracting $p+1$, after which East3 fails.
+\end{lemma}
+
+\begin{proof}
+For the UP image, normalization follows from
+\[
+ a+1\le\tau,\qquad c+1\le a+1+\tau.
+\]
+The inverse image is normalized because $p+1\le\tau$,
+$a\le p+1+\tau$, and $c\le a+\tau$.
+
+The zero-pair contributions agree on the two sides:
+\begin{align*}
+ &d_\tau(0,p+1)+d_\tau(0,a)+d_\tau(0,c)\\
+ &\qquad =
+ d_\tau(0,a+1)+d_\tau(0,c+1)+d_\tau(0,p).
+\end{align*}
+Also
+\[
+ d_\tau(a,c)=d_\tau(a+1,c+1),\qquad
+ d_\tau(p+1,c)=d_\tau(c+1,p)=0.
+\]
+The remaining pair loses exactly one:
+\[
+ d_\tau(p+1,a)=d_\tau(a+1,p)+1.
+\]
+The area visibly increases by one, proving the statistic assertion.
+
+In $(0,a+1,c+1,p)$, the entry $a+1$ is not extractable initially because
+deleting it exposes $c+1>\tau$.  The entry $c+1$ has $a+1$ as its unique
+predecessor and has a valid deletion splice, so it is extracted first.
+Then $a+1$ is extracted, leaving $(0,p)$ and producing the failed West3
+stage $(0,p,c,a)$.  Conversely, in $(0,p+1,a,c)$ the occurrence $p+1$ is
+extractable, and deletion gives $(0,a,c)$ and the failed East3 stage
+$(0,a,c,p)$.  This proves branch recognition and invertibility.
+\end{proof}
+
+\section{Definition and verification of the maps}
+
+Let $D$ have defect at most $B_s$ and be strictly below the middle.  Define
+$\UP$ as follows.
+\begin{enumerate}
+\item If $D=C:a$ is full, use the operation~\eqref{eq:full-up}.
+\item Otherwise extract $e=p+1$, leaving $C=A:c$.  If East3 succeeds, use
+the ordinary operation~\eqref{eq:east3-up}.
+\item If East3 fails, then $s=4$ by Lemma~\ref{lem:s3-total}; use
+$\mathcal B_\uparrow$ from Definition~\ref{def:boundary}.
+\end{enumerate}
+
+Let $D$ have defect at most $B_s$, lie weakly below the middle, and not be
+full.  Define $\DOWN$ as follows.
+\begin{enumerate}
+\item Extract $e_1=p+1$, leaving $C_1$.  If $C_1$ is full, return $C_1:p$.
+\item Otherwise extract $e_2=q+1$, leaving $C_2$, and form $C_2:p:q$.
+If West3 succeeds, use the ordinary operation~\eqref{eq:west3-down}.
+\item If West3 fails, then $s=4$ by Lemma~\ref{lem:s3-total}; use
+$\mathcal B_\downarrow$ from Definition~\ref{def:boundary}.
+\end{enumerate}
+
+\begin{proposition}[Totality, statistics, and invertibility]
+\label{prop:maps}
+The maps are normalized and total on the stated domains.  They preserve
+defect, change $(\area,\dinv_\tau)$ by $(+1,-1)$ for UP and by $(-1,+1)$
+for DOWN, and are inverse wherever both sides are defined.
+\end{proposition}
+
+\begin{proof}
+Lemmas~\ref{lem:full-classification} and~\ref{lem:up-nonfinal} give the
+first UP extraction and the full branch.  Lemma~\ref{lem:s3-total} handles
+all remaining length-three tests.  At length four, an East3 failure is
+exactly the boundary case by Lemma~\ref{lem:east-failure}.
+
+For DOWN, Lemma~\ref{lem:full-prefix} gives the full-prefix branch.  If the
+remainder is not full, a second extraction exists by definition.
+Lemma~\ref{lem:s3-total} handles length three, while
+Lemma~\ref{lem:west-failure} classifies every failed length-four West3
+stage.  Ordinary branch normalization is Lemma~\ref{lem:level-three}, and
+boundary normalization is Lemma~\ref{lem:boundary-check}.  Thus the maps
+are total.
+
+In an ordinary UP branch, transport changes statistics by $(-1,+1)$ and
+the two raised inverse injections change them by $(+2,-2)$, for a net
+change $(+1,-1)$.  The ordinary DOWN branch has two transports and one
+inverse injection, for a net change $(-1,+1)$.  The full branches are the
+same counts with zero and one extraction, respectively.  The boundary
+statistics were computed in Lemma~\ref{lem:boundary-check}.
+
+The full branches reverse one another because the inserted occurrence is
+the first extraction and leaves the same full prefix.  The ordinary
+East3 and West3 branches reverse one another by
+Lemma~\ref{lem:level-three}.  The two boundary branches reverse and
+recognize one another by Lemma~\ref{lem:boundary-check}.  Hence the maps
+are inverse.  Defect preservation follows from
+$M_s-\area-\dinv_\tau$.
+\end{proof}
+
+\section{Proof of the lower-half decomposition}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Fix $0\le d\le B_s$.  Proposition~\ref{prop:maps} defines UP at every area
+below $L_d$ and DOWN at every weakly lower-half nonfull word.  Starting at
+any word of $\mathcal L_d$ and iterating DOWN must terminate because area
+decreases at every step.  It can terminate only at a full skeleton.
+Invertibility makes the root and the entire descent unique.
+
+Conversely, Assumption~\ref{ass:root-position} places each
+$S\in\mathcal F_d$ in $\mathcal L_d$.  Iterating UP gives exactly one word
+at each area
+\[
+ \area(S),\area(S)+1,\ldots,L_d.
+\]
+No two strings meet, again by invertibility.  This proves
+\eqref{eq:lower-union}.  A word of defect $d$ and area $j$ has dinv
+$M_s-d-j$, so summing the strings proves~\eqref{eq:lower-gf}.
+\end{proof}
+
+\end{document}

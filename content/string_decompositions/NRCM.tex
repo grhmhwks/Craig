@@ -1,0 +1,630 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\allowdisplaybreaks
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}[section]
+
+\newcommand{\defc}{\operatorname{defc}}
+\newcommand{\NRCM}{\operatorname{NRCM}}
+\newcommand{\clamp}{\operatorname{clamp}}
+\newcommand{\ind}{\mathbf 1}
+
+\title{Deficit Preservation for the Naive Rational Cyclic Map}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Definitions and statement}
+
+Fix coprime positive integers \(r,s\), put \(\rho=r/s\), and index the
+columns by \(0,1,\ldots,s-1\).  Write
+\[
+  H_i=\left\lfloor\frac{ri}{s}\right\rfloor,
+  \qquad
+  L_i\equiv ri\pmod s,
+  \qquad 0\le L_i<s,
+  \qquad
+  \ell_i=\frac{L_i}{s}.
+\]
+The labels \(L_0,\ldots,L_{s-1}\) are distinct, and \(\ind_A\) denotes the
+indicator of a condition \(A\).
+
+A \emph{rational position-coordinate path} is an integer sequence
+\(Q=(Q_0,\ldots,Q_{s-1})\) such that
+\[
+  Q_0=0,
+  \qquad
+  0\le Q_i\le H_i.
+\]
+Set
+\[
+  P_i=H_i-Q_i,
+  \qquad
+  q_i=Q_i+\ell_i.
+\]
+The path is \emph{valid} if
+\[
+  P_0\le P_1\le\cdots\le P_{s-1}.
+\]
+Since \(H_i+\ell_i=\rho i\), we shall repeatedly use
+\begin{equation}
+  q_i=\rho i-P_i.
+  \label{eq:q-rho-P}
+\end{equation}
+
+For \(1\le i\le s-2\), define
+\[
+  C_i(Q)=[P_{i-1}-P_i,\,P_{i+1}-P_i].
+\]
+If \(I=[a,b]\), let \(\clamp_I(x)=a\) for \(x<a\),
+\(\clamp_I(x)=x\) for \(a\le x\le b\), and
+\(\clamp_I(x)=b\) for \(x>b\).  For \(1\le i<j<s\), put
+\[
+  \delta_{ij}(Q)
+  =\left\lfloor
+      \left|\clamp_{C_i(Q)}(q_i-q_j)\right|
+    \right\rfloor,
+\]
+and define
+\[
+  \defc(Q)=
+  \sum_{i=1}^{s-2}\sum_{j=i+1}^{s-1}\delta_{ij}(Q).
+\]
+Thus \(\defc(Q)=0\) when \(s\le2\).
+
+For \(1\le k<s\), let \(I_k=\{k,k+1,\ldots,s-1\}\).  List the columns of
+\(I_k\) in increasing label order as \((i_1,\ldots,i_{s-k})\), and define
+\(T_k(Q)\) by fixing every coordinate outside \(I_k\) and setting
+\[
+  T_k(Q)_{i_{a+1}}=Q_{i_a}\quad(1\le a<s-k),
+  \qquad
+  T_k(Q)_{i_1}=Q_{i_{s-k}}+1.
+\]
+Thus the suffix values move once around the cyclic label order, with \(1\)
+added on the wrap.
+
+If some \(T_k(Q)\) satisfies all capacity inequalities
+\(0\le T_k(Q)_i\le H_i\), choose the least such \(k\).  If this first
+capacity-valid candidate is also a valid path, set
+\[
+  \NRCM(Q)=T_k(Q).
+\]
+Otherwise \(\NRCM(Q)\) is undefined.
+
+\begin{theorem}[NRCM deficit preservation]
+\label{thm:nrcm}
+If \(Q\) is valid and \(\NRCM(Q)\) is defined, then
+\[
+  \defc(\NRCM(Q))=\defc(Q).
+\]
+\end{theorem}
+
+\section{Proof}
+
+If \(s=1\), there is no candidate suffix, so the theorem is vacuous.  Assume
+\(s>1\), write
+\[
+  r=ms+d,
+  \qquad
+  m=\lfloor\rho\rfloor,
+  \qquad
+  1\le d<s,
+\]
+and let
+\[
+  Q'=\NRCM(Q)=T_k(Q),
+  \qquad
+  K=I_k.
+\]
+Both \(Q\) and \(Q'\) are valid.
+
+We first replace the deficit by a pair energy.  The suffix move raises the
+coordinate sum by \(1\), so it will be enough to show that the pair energy
+also rises by \(1\).  We do this by splitting the pairs into fixed-prefix,
+suffix-suffix, and mixed pairs.
+
+\subsection{The pair energy}
+
+For \(x\in\mathbb R\), define
+\[
+  G(x)=\max\{0,\lfloor x\rfloor\},
+  \qquad
+  \psi(x)=G(x)-G(x-\rho).
+\]
+For \(x\ge0\),
+\begin{equation}
+  \psi(x)
+  =\#\{v\in\mathbb Z_{>0}:x-\rho<v\le x\}
+  =\sum_{v\ge1}\ind_{[v,v+\rho)}(x).
+  \label{eq:psi-intervals}
+\end{equation}
+Set
+\[
+  E(Q)=\sum_{0\le i<j<s}\psi(|q_i-q_j|),
+  \qquad
+  S(Q)=\sum_{i=1}^{s-1}Q_i.
+\]
+
+\begin{lemma}[Energy identity]
+\label{lem:energy}
+For every valid path \(Q\),
+\begin{equation}
+  \defc(Q)=E(Q)-S(Q).
+  \label{eq:energy-identity}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Put \(w_i=P_{i+1}-P_i\).  Since
+\(C_i(Q)=[-w_{i-1},w_i]\), the definition of the clamp gives
+\[
+\begin{aligned}
+\delta_{ij}(Q)
+={}&G(q_i-q_j)-G(q_i-q_j-w_i)\\
+ &+G(q_j-q_i)-G(q_j-q_i-w_{i-1}).
+\end{aligned}
+\]
+By \eqref{eq:q-rho-P},
+\[
+  q_i-w_i=q_{i+1}-\rho,
+  \qquad
+  q_i+w_{i-1}=q_{i-1}+\rho,
+\]
+so
+\begin{equation}
+\begin{aligned}
+\delta_{ij}(Q)
+={}&G(q_i-q_j)-G(q_{i+1}-q_j-\rho)\\
+ &+G(q_j-q_i)-G(q_j-q_{i-1}-\rho).
+\end{aligned}
+\label{eq:delta-G}
+\end{equation}
+Because the labels are distinct, \(q_i\ne q_j\) for \(i\ne j\), and hence
+\begin{equation}
+\begin{aligned}
+\psi(|q_i-q_j|)
+={}&G(q_i-q_j)+G(q_j-q_i)\\
+ &-G(q_i-q_j-\rho)-G(q_j-q_i-\rho).
+\end{aligned}
+\label{eq:pair-G}
+\end{equation}
+
+Sum \eqref{eq:delta-G} over \(1\le i<j<s\) and compare with the sum of
+\eqref{eq:pair-G} over \(0\le i<j<s\).  After reindexing the two negative
+terms in \eqref{eq:delta-G}, the only terms left in \(E(Q)-\defc(Q)\) are
+\[
+\begin{array}{c|c}
+\text{surviving term}&\text{range}\\ \hline
+G(-q_j)+G(q_j)-G(-q_j-\rho)&1\le j<s\\
+-G(q_1-q_j-\rho)&2\le j<s\\
+-G(q_{i+1}-q_i-\rho)&0\le i<s-1.
+\end{array}
+\]
+(The diagonal terms introduced by the reindexing are \(G(-\rho)=0\).)
+For \(j>0\), coprimality gives \(0<\ell_j<1\), so
+\[
+  G(q_j)=Q_j,
+  \qquad
+  G(-q_j)=G(-q_j-\rho)=0.
+\]
+Moreover,
+\[
+  q_1-q_j-\rho=P_j-P_1-\rho j<0\quad(j\ge2),
+\]
+because \(P_j\le H_j<\rho j\), and
+\[
+  q_{i+1}-q_i-\rho=-(P_{i+1}-P_i)\le0
+\]
+by validity.  Thus only \(\sum_{j=1}^{s-1}Q_j=S(Q)\) remains, proving
+\eqref{eq:energy-identity}.
+\end{proof}
+
+The suffix move permutes its \(Q\)-values and adds \(1\) once; hence
+\begin{equation}
+  S(Q')=S(Q)+1.
+  \label{eq:S-increase}
+\end{equation}
+By Lemma~\ref{lem:energy}, it remains to prove
+\[
+  E(Q')=E(Q)+1.
+\]
+
+\subsection{Pairs inside the moving suffix}
+
+List the columns of \(K\) in increasing label order as
+\[
+  a_1,\ldots,a_n,
+  \qquad
+  \ell_{a_1}<\cdots<\ell_{a_n},
+  \qquad n=s-k,
+\]
+and put
+\[
+  u_j=\ell_{a_j}\quad(1\le j\le n),
+  \qquad
+  a_{n+1}=a_1,
+  \qquad
+  u_{n+1}=u_1+1.
+\]
+The value whose source is \(a_j\) moves from
+\begin{equation}
+  x_j=Q_{a_j}+u_j
+  \quad\text{to}\quad
+  y_j=Q_{a_j}+u_{j+1}.
+  \label{eq:lifted-motion}
+\end{equation}
+Thus \(y_j>x_j\), and \(\{y_j:1\le j\le n\}\) is the multiset
+\(\{q'_t:t\in K\}\).  This convention also covers \(n=1\): the sole point
+moves from \(q_{a_1}\) to \(q_{a_1}+1\).
+
+\begin{lemma}[Suffix-pair invariance]
+\label{lem:suffix-pairs}
+The contribution to \(E\) from pairs contained in \(K\) is unchanged by the
+suffix move.
+\end{lemma}
+
+\begin{proof}
+There is nothing to prove when \(n=1\).  Fix sources
+\(a=a_j\) and \(c=a_\ell\) with \(j<\ell\), and let
+\(a^+=a_{j+1}\), \(c^+=a_{\ell+1}\), with the lifted convention above.
+Put
+\[
+  D=Q_c-Q_a,
+  \qquad
+  p=s(u_\ell-u_j),
+  \qquad
+  p'=s(u_{\ell+1}-u_{j+1}).
+\]
+The old and new contributions of this source pair are
+\[
+  \psi\!\left(\left|D+\frac ps\right|\right),
+  \qquad
+  \psi\!\left(\left|D+\frac{p'}s\right|\right).
+\]
+A direct evaluation of \(G\) gives, for every integer \(D\) and
+\(1\le p<s\),
+\begin{equation}
+\psi\!\left(\left|D+\frac ps\right|\right)
+=
+\begin{cases}
+D, &0\le D\le m,\\[1mm]
+m+\ind_{\{p<d\}}, &D\ge m+1,\\[1mm]
+-D-1, &-m-1\le D\le-1,\\[1mm]
+m+\ind_{\{p>s-d\}}, &D\le-m-2.
+\end{cases}
+\label{eq:psi-pair}
+\end{equation}
+Thus a change is possible only when one of the thresholds \(d\) or
+\(s-d\) is crossed.
+
+We record the elementary geometry of such a crossing.  Let
+\[
+  x=su_j,
+  \quad x^+=su_{j+1},
+  \quad z=su_\ell,
+  \quad z^+=su_{\ell+1};
+\]
+then \(x<x^+\le z<z^+\), \(p=z-x\), and \(p'=z^+-x^+\).  A physical step
+one column to the right adds \(d\) to a lifted label.
+
+If \(p<d\le p'\), then
+\[
+  z<x+d<x^++d\le z^+.
+\]
+Were \(a+1\in K\), its lifted label \(x+d\) would lie strictly between
+\(c\) and its label successor \(c^+\).  Hence \(a=s-1\).  Now
+\(a^++1\in K\), and its lifted label \(x^++d\) lies in \((z,z^+]\); it
+must therefore equal \(z^+\).  Thus \(p'=d\) and \(c^+=a^++1\).
+If instead \(p'<d\le p\), then
+\[
+  x<z^+-d<x^+.
+\]
+Were \(c^+-1\in K\), its lifted label would lie strictly between \(a\) and
+\(a^+\); hence \(c^+=k\).  Moreover,
+\[
+  x\le z-d<z^+-d<x^+.
+\]
+Since \(c-1\in K\), its lifted label cannot lie strictly between \(a\) and
+\(a^+\), so \(z-d=x\).  Thus \(p=d\) and \(c=a+1\).  Applying these
+two conclusions to the reversed pair, whose old and new gaps are
+\(s-p\) and \(s-p'\), shows that a change in the truth of \(p>s-d\) forces
+\begin{equation}
+  p=s-d,\ a=c+1,
+  \qquad\text{or}\qquad
+  p'=s-d,\ a^+=c^++1.
+  \label{eq:reverse-threshold}
+\end{equation}
+All \(+1\) relations here are physical adjacency, not cyclic indexing.
+
+Suppose first that \(D\ge m+1\).  By \eqref{eq:psi-pair}, a change would
+force either \(p=d\) and \(c=a+1\), or \(p'=d\) and
+\(c^+=a^++1\).  Validity of \(Q\) in the first case, and of \(Q'\) in the
+second, gives respectively
+\[
+  D+\frac ds=q_c-q_a\le\rho,
+  \qquad\text{or}\qquad
+  D+\frac ds=q'_{c^+}-q'_{a^+}\le\rho.
+\]
+Either inequality implies \(D\le m\), a contradiction.
+
+If \(D\le-m-2\), a change would force one of the alternatives in
+\eqref{eq:reverse-threshold}.  Validity of the corresponding path gives
+\[
+  -D-1+\frac ds\le\rho,
+\]
+which implies \(D\ge-m-1\), again a contradiction.  Hence every source
+pair has the same energy before and after the move, and summing over the
+source pairs proves the lemma.
+\end{proof}
+
+\subsection{Why every omitted column overflows}
+
+For \(0\le t<k\), insert the label \(L_t\) into the cyclic label order on
+\(K\), and let \(\alpha_t\) and \(\beta_t\) be its predecessor and successor
+(they coincide when \(|K|=1\)).  The source \(\alpha_t\) crosses the lifted
+label of \(t\) at
+\[
+  c_t=Q_{\alpha_t}+\ell_t+
+      \ind_{\{L_t<L_{\alpha_t}\}}.
+\]
+Its capacity margin at column \(t\) is
+\begin{equation}
+  \mu_t=\rho t-c_t
+  =H_t-Q_{\alpha_t}-\ind_{\{L_t<L_{\alpha_t}\}}.
+  \label{eq:mu-def}
+\end{equation}
+Thus \(\mu_t<0\) says exactly that the incoming value would exceed \(H_t\).
+In particular,
+\begin{equation}
+  \mu_0=-Q_{\alpha_0}-1<0.
+  \label{eq:mu-zero}
+\end{equation}
+
+\begin{lemma}[Omitted-column overflow]
+\label{lem:overflow}
+For every \(0\le t<k\), one has \(\mu_t<0\).
+\end{lemma}
+
+\begin{proof}
+We first derive two useful projections of the same margin.  The motion of
+source \(\alpha_t\) ends at \(q'_{\beta_t}\), and its lifted distance from
+label \(t\) to label \(\beta_t\) is the fractional part of
+\(\rho(\beta_t-t)\).  Therefore
+\begin{equation}
+  \mu_t
+  =P'_{\beta_t}-\left\lfloor\rho(\beta_t-t)\right\rfloor.
+  \label{eq:projection-right}
+\end{equation}
+Also,
+\[
+  H_{\alpha_t}-H_t
+  =\left\lfloor\rho(\alpha_t-t)\right\rfloor
+   +\ind_{\{L_{\alpha_t}<L_t\}}.
+\]
+Substituting \(Q_{\alpha_t}=H_{\alpha_t}-P_{\alpha_t}\) into
+\eqref{eq:mu-def}, and observing that the two strict label indicators sum
+to \(1\), gives
+\begin{equation}
+  \mu_t
+  =P_{\alpha_t}-\left\lceil\rho(\alpha_t-t)\right\rceil.
+  \label{eq:projection-left}
+\end{equation}
+Here \(0<\alpha_t-t<s\), so \(\rho(\alpha_t-t)\notin\mathbb Z\).
+
+Equation \eqref{eq:mu-zero} settles the case \(k=1\).  Suppose \(k>1\), and
+put
+\[
+  b=k-1,
+  \qquad
+  n=s-k.
+\]
+We compare every omitted column with \(b\).  For an integer \(g\), let
+\(R(g)\) be the least nonnegative residue of \(dg\) modulo \(s\).  The
+residues used below are nonzero and distinct.  Let
+\(f,p\in\{1,\ldots,n\}\) minimize and maximize \(R(t)\), respectively.
+For \(i=b-D\), where \(0\le D\le b-1\), let \(f_D,p_D\) minimize and
+maximize \(R(D+t)\) on \(1\le t\le n\).  Relative to column \(i\), the
+suffix column \(b+t\) has label residue \(R(D+t)\); hence
+\begin{equation}
+  \beta_i=b+f_D,
+  \qquad
+  \alpha_i=b+p_D,
+  \qquad
+  \beta_b=b+f,
+  \qquad
+  \alpha_b=b+p.
+  \label{eq:alpha-beta-window}
+\end{equation}
+
+We need only the following window facts:
+\begin{equation}
+\begin{aligned}
+  D+f_D&\ge f, & D+p_D&\ge p,\\
+  f_D>f&\Longrightarrow p_D<p.
+\end{aligned}
+\label{eq:window-facts}
+\end{equation}
+For the first line, if the new minimum occurred at an absolute position
+\(D+f_D<f\), then both it and \(f\) would lie in the shifted window, contrary
+to the minimality of \(f_D\); the argument for the maximum is identical.
+
+For the implication in the second line, order \(1,\ldots,n\) cyclically by
+increasing \(R\)-value.  Its wrap edge is \(p\to f\).  Addition of \(R(D)\)
+rotates this cyclic order, so \(p_D\to f_D\) is one of its edges.  We claim
+that every ordinary edge \(a\to c\) with \(a>p\) has \(c<f\).  First,
+\(f+p>n\): otherwise \(R(f+p)\), obtained from \(R(f)+R(p)\) modulo \(s\),
+would be larger than the maximum, smaller than the minimum, or zero.  Now
+suppose \(a>p\) and \(c\ge f\).  Since the edge is ordinary, \(c>f\).  Put
+\(\Delta=R(c)-R(a)>0\).  If \(c>a\), then
+\(1\le c-a<n-p<f\), so minimality of \(R(f)\) gives
+\(\Delta=R(c-a)>R(f)\).  If \(c<a\), the position \(f+a-c\) lies in
+\([1,n]\), and its residue is congruent to \(R(f)-\Delta\); minimality again
+forces \(\Delta>R(f)\).  Consequently
+\[
+  R(a)<R(c)-R(f)=R(c-f)<R(c),
+\]
+contradicting the consecutiveness of \(a\to c\).  The claim follows.  If
+\(f_D>f\), the edge \(p_D\to f_D\) is therefore sourced at or left of \(p\);
+it cannot be sourced at \(p\), whose successor is \(f\).  Hence \(p_D<p\),
+proving \eqref{eq:window-facts}.
+
+By \eqref{eq:alpha-beta-window} and \eqref{eq:window-facts},
+\begin{equation}
+  \beta_i-i\ge\beta_b-b,
+  \qquad
+  \alpha_i-i\ge\alpha_b-b,
+  \qquad
+  \beta_i>\beta_b\Longrightarrow\alpha_i<\alpha_b.
+  \label{eq:suffix-window}
+\end{equation}
+If \(\beta_i\le\beta_b\), validity of \(Q'\),
+\eqref{eq:projection-right}, and \eqref{eq:suffix-window} give
+\[
+  \mu_i
+  \le P'_{\beta_b}-\left\lfloor\rho(\beta_b-b)\right\rfloor
+  =\mu_b.
+\]
+If \(\beta_i>\beta_b\), then \(\alpha_i<\alpha_b\), so validity of \(Q\),
+\eqref{eq:projection-left}, and \eqref{eq:suffix-window} give
+\[
+  \mu_i
+  \le P_{\alpha_b}-\left\lceil\rho(\alpha_b-b)\right\rceil
+  =\mu_b.
+\]
+Thus
+\begin{equation}
+  \mu_i\le\mu_b\qquad(1\le i\le b).
+  \label{eq:margin-dominance}
+\end{equation}
+
+It remains to show \(\mu_b<0\).  If \(\mu_b\ge0\), insert column \(b\) into
+the selected suffix cycle.  The incoming value from \(\alpha_b\) fits at
+\(b\) by \eqref{eq:mu-def}.  The only other changed target is \(\beta_b\),
+which receives
+\[
+  Q_b+\ind_{\{L_{\beta_b}<L_b\}}.
+\]
+This value also fits, because
+\[
+  H_{\beta_b}-H_b
+  =\left\lfloor\rho(\beta_b-b)\right\rfloor
+   +\ind_{\{L_{\beta_b}<L_b\}}
+  \ge \ind_{\{L_{\beta_b}<L_b\}},
+\]
+and \(Q_b\le H_b\).  Every other target receives exactly what it received
+under the capacity-valid \(K\)-move.  Hence \(T_b(Q)\) would be
+capacity-valid, contradicting the minimality of \(k\).  Therefore
+\(\mu_b<0\), and \eqref{eq:margin-dominance}, together with
+\eqref{eq:mu-zero}, proves the lemma.
+\end{proof}
+
+\subsection{The mixed pairs}
+
+Extend the preceding notation by setting
+\[
+  \mu_k=P'_k,
+  \qquad
+  c_k=q'_k=\rho k-\mu_k.
+\]
+Thus \(c_t=\rho t-\mu_t\) for every \(0\le t\le k\).
+
+\begin{lemma}[One-turn mixed-energy count]
+\label{lem:mixed}
+The contribution to \(E\) from pairs with one endpoint in
+\(\{0,\ldots,k-1\}\) and the other in \(K\) increases by exactly \(1\).
+\end{lemma}
+
+\begin{proof}
+For \(0\le h<k\), write
+\[
+  F_h(Q)=\sum_{j\in K}\psi(|q_j-q_h|).
+\]
+By \eqref{eq:psi-intervals}, for fixed \(q_h\),
+\begin{equation}
+\begin{aligned}
+\psi(|x-q_h|)=\sum_{v\ge1}\bigl(
+ &\ind_{[q_h+v,\,q_h+v+\rho)}(x)\\
+ &+\ind_{(q_h-v-\rho,\,q_h-v]}(x)
+\bigr).
+\end{aligned}
+\label{eq:interval-decomposition}
+\end{equation}
+Move each suffix point from \(x_j\) to \(y_j\) as in
+\eqref{eq:lifted-motion}.  For \([A,B)\), entrance and exit crossings satisfy
+\(x_j<A\le y_j\) and \(x_j<B\le y_j\); for \((A,B]\), they satisfy
+\(x_j\le A<y_j\) and \(x_j\le B<y_j\).  Entrances contribute \(+1\) and
+exits \(-1\).  The label arcs from \(u_j\) to \(u_{j+1}\) partition one
+full turn.  Thus an omitted label \(t<k\) is crossed exactly once, at
+\(c_t\); at the terminal suffix label \(k\), the right-interval convention
+selects the endpoint \(c_k=q'_k\).  This remains true for a singleton suffix.
+
+Assume first that \(h\ge1\).  The four endpoint families in
+\eqref{eq:interval-decomposition}, their signs, and the corresponding
+positive-integer crossing conditions are
+\[
+\begin{array}{c|c|c|c}
+\text{endpoint}&\text{sign}&\text{label}&\text{required }v\\ \hline
+q_h-v-\rho&+&h-1&\mu_{h-1}-P_h\\
+q_h+v&+&h&P_h-\mu_h\\
+q_h-v&-&h&\mu_h-P_h\\
+q_h+v+\rho&-&h+1&P_h-\mu_{h+1}.
+\end{array}
+\]
+Indeed, each entry in the last column follows at once from
+\(q_h=\rho h-P_h\) and \(c_t=\rho t-\mu_t\), and it contributes precisely
+when that entry is a positive integer.
+
+For \(h=0\), all left intervals lie on the negative half-line, while every
+suffix point stays positive.  Exactly one right entrance is crossed, at the
+positive integer
+\[
+  c_0=-\mu_0=Q_{\alpha_0}+1,
+\]
+so it contributes \(+1\).  A right exit is crossed exactly when
+\(c_1=\rho+v\), equivalently \(v=-\mu_1>0\).
+
+If \(k=1\), validity of \(Q'\) gives
+\(\mu_1=P'_1\ge P'_0=0\).  Hence no right exit is crossed at \(h=0\), and
+the mixed energy rises by \(1\).
+
+Now suppose \(k>1\).  Lemma~\ref{lem:overflow} gives
+\[
+  \mu_0,\ldots,\mu_{k-1}<0,
+\]
+whereas \(P_h\ge0\).  At \(h=0\), both the right entrance and the right exit
+are crossed, so the net change is \(0\).  For
+\(1\le h\le k-2\), the table shows that exactly the second and fourth
+crossings occur, again giving net change \(0\).  At \(h=k-1\), the second
+crossing still occurs, but the fourth does not, because validity of \(Q'\)
+gives
+\[
+  \mu_k=P'_k\ge P'_{k-1}=P_{k-1}.
+\]
+Thus \(F_{k-1}(Q')-F_{k-1}(Q)=1\).  Summing over the fixed prefix proves the
+lemma.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:nrcm}]
+Pairs entirely in the fixed prefix do not move.  By
+Lemma~\ref{lem:suffix-pairs}, the suffix-suffix energy is unchanged, while
+Lemma~\ref{lem:mixed} shows that the mixed energy rises by \(1\).  Hence
+\[
+  E(Q')-E(Q)=1.
+\]
+Using Lemma~\ref{lem:energy} and \eqref{eq:S-increase}, we conclude that
+\[
+\begin{aligned}
+\defc(Q')-\defc(Q)
+&=\bigl(E(Q')-E(Q)\bigr)-\bigl(S(Q')-S(Q)\bigr)\\
+&=1-1=0.
+\end{aligned}
+\]
+Therefore \(\defc(\NRCM(Q))=\defc(Q)\).
+\end{proof}
+
+\end{document}
