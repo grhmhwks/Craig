@@ -1,0 +1,21 @@
+# Codex must never request permission to escape this sandbox.
+approval_policy = "never"
+
+# Use the custom permission profile defined below.
+default_permissions = "craig-development"
+
+[permissions.craig-development]
+description = "Develop CRAIG while treating content as a read-only source corpus."
+extends = ":workspace"
+
+# The workspace is writable except for this more-specific rule.
+[permissions.craig-development.filesystem.":workspace_roots"]
+"content" = "read"
+
+# Leave command-line network access disabled initially.
+[permissions.craig-development.network]
+enabled = false
+
+# Recommended when running Codex natively on Windows.
+[windows]
+sandbox = "elevated"

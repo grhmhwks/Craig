@@ -1,2 +1,6 @@
 /copied/
 /__pycache__/
+/.craig/
+/.pytest_cache/
+*.py[cod]
+*.egg-info/

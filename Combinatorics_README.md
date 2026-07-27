@@ -1,8 +1,57 @@
 # Combinatorics
 
-This repository currently consists of the [`content`](content/) directory: a collection of largely self-contained notes on combinatorics, together with conjectures, proofs and proof outlines, computational evidence, computer-assisted proof material, reference implementations, optimized programs, examples, and related research summaries. Each topic has its own documentation; begin with [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
+This repository contains the [`content`](content/) directory—a collection of
+largely self-contained notes on combinatorics—and the initial local CRAIG
+tooling. The corpus includes conjectures, proofs and proof outlines,
+computational evidence, computer-assisted proof material, reference
+implementations, optimized programs, examples, and related research summaries.
+Each topic has its own documentation; begin with
+[`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
-At present, **the mathematical content is all that has been implemented**. The repository is a work in progress. Its intended final form is **CRAIG — the Combinatorial Research Assistance Interactive Guide**: an open-source, AI-powered application for searching, understanding, visualizing, and computationally exploring the mathematics contained here.
+Milestone 1—the local index and search command below—is implemented. The rest
+of the application is a work in progress. Its intended final form is
+**CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
+open-source, AI-powered application for searching, understanding, visualizing,
+and computationally exploring the mathematics contained here.
+
+## Local index and search (Milestone 1)
+
+CRAIG currently provides a dependency-light, read-only command-line index over
+the supported source files in `content/`. It requires Python 3.10 or newer with
+SQLite FTS5 enabled; no application dependencies are needed. From the repository
+root, run:
+
+```text
+python -m craig index
+python -m craig search "natural language or mathematical query"
+```
+
+The generated database is `.craig/index.sqlite3` and is ignored by Git. Normal
+indexing hashes every supported source file and skips unchanged files. To
+recreate the database, or to restrict and size a search, use:
+
+```text
+python -m craig index --rebuild
+python -m craig search "strict dominance" --topic string_decompositions
+python -m craig search "tableau insertion" --limit 10
+```
+
+`explanation.tex` passages receive a default ranking multiplier of `1.5`. Set
+`CRAIG_EXPLANATION_BOOST` or pass `--explanation-boost` to change it. Search is
+lexical SQLite FTS5 search in this milestone: there are no embeddings, model
+calls, code execution, web interface, or diagram renderer.
+
+For development, install the test extra and run the suite:
+
+```text
+python -m pip install -e ".[dev]"
+python -m pytest -q
+```
+
+Markdown, TeX, and Python are chunked using their headings, mathematical
+environments, and AST symbols. C/C++ uses a lightweight signature-and-balanced-
+brace heuristic (not a full parser), with bounded overlapping line chunks to
+keep any unrecognized source searchable.
 
 ## Project vision
 
@@ -494,11 +543,16 @@ The following choices remain intentionally unresolved:
 
 ## Current status
 
-**Current:** the repository contains the mathematical material under [`content`](content/).
+**Current:** the repository contains the mathematical material under
+[`content`](content/) and the Milestone 1 local, read-only FTS5 index and search
+commands described above.
 
-**Not yet implemented:** the CRAIG application, conversational interface, repository index, model integration, source-aware retrieval, trusted visualizations, and controlled computation layer.
+**Not yet implemented:** the CRAIG web application, conversational interface,
+model integration, semantic retrieval, trusted visualizations, and controlled
+computation layer.
 
-The immediate next step is to curate the existing repository structure and build the first read-only index over the source material.
+The current implementation intentionally stops at local lexical indexing and
+search; the later phases in the roadmap remain planned work.
 
 ## Open-source status
 
