@@ -24,6 +24,25 @@ def connect_database(database_path: Path) -> sqlite3.Connection:
     return connection
 
 
+def connect_database_readonly(database_path: Path) -> sqlite3.Connection:
+    """Open an existing index in SQLite's enforced read-only mode."""
+
+    resolved_path = database_path.resolve()
+    try:
+        connection = sqlite3.connect(
+            f"{resolved_path.as_uri()}?mode=ro",
+            uri=True,
+        )
+    except sqlite3.OperationalError as error:
+        raise IndexNotFoundError(
+            f"CRAIG index not found at {resolved_path}. "
+            "Run `python -m craig index` first."
+        ) from error
+    connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute("PRAGMA query_only = ON")
+    return connection
+
+
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create the metadata tables and FTS5 index."""
 
@@ -130,17 +149,26 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
 
 
 def require_index(database_path: Path) -> sqlite3.Connection:
-    """Open an existing index, producing a clear pre-indexing error."""
+    """Open and validate an existing index without granting write access."""
 
     if not database_path.is_file():
         raise IndexNotFoundError(
             f"CRAIG index not found at {database_path}. "
             "Run `python -m craig index` first."
         )
-    connection = connect_database(database_path)
+    connection = connect_database_readonly(database_path)
     try:
         connection.execute("SELECT rowid FROM chunks_fts LIMIT 0")
         connection.execute("SELECT id FROM chunks LIMIT 0")
+        stored_version = connection.execute(
+            "SELECT value FROM index_metadata WHERE key = 'schema_version'"
+        ).fetchone()
+        if stored_version is None or int(stored_version[0]) != SCHEMA_VERSION:
+            connection.close()
+            raise IndexNotFoundError(
+                f"{database_path} uses an incompatible CRAIG index schema. "
+                "Run `python -m craig index --rebuild`."
+            )
     except sqlite3.OperationalError as error:
         connection.close()
         if "fts5" in str(error).lower() or "no such module" in str(error).lower():
@@ -152,4 +180,10 @@ def require_index(database_path: Path) -> sqlite3.Connection:
             f"{database_path} is not a valid CRAIG index. "
             "Run `python -m craig index --rebuild`."
         ) from error
+    except (TypeError, ValueError):
+        connection.close()
+        raise IndexNotFoundError(
+            f"{database_path} has invalid CRAIG index metadata. "
+            "Run `python -m craig index --rebuild`."
+        ) from None
     return connection

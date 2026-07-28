@@ -8,8 +8,9 @@ implementations, optimized programs, examples, and related research summaries.
 Each topic has its own documentation; begin with
 [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
-Milestone 1—the local index and search command below—is implemented. The rest
-of the application is a work in progress. Its intended final form is
+The local index/search milestone and the Phase 2 read-only retrieval API are
+implemented. The conversational application remains a work in progress. Its
+intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
 and computationally exploring the mathematics contained here.
@@ -39,7 +40,7 @@ python -m craig search "tableau insertion" --limit 10
 `explanation.tex` passages receive a default ranking multiplier of `1.5`. Set
 `CRAIG_EXPLANATION_BOOST` or pass `--explanation-boost` to change it. Search is
 lexical SQLite FTS5 search in this milestone: there are no embeddings, model
-calls, code execution, web interface, or diagram renderer.
+calls, code execution, browser chat interface, or diagram renderer.
 
 For development, install the test extra and run the suite:
 
@@ -52,6 +53,47 @@ Markdown, TeX, and Python are chunked using their headings, mathematical
 environments, and AST symbols. C/C++ uses a lightweight signature-and-balanced-
 brace heuristic (not a full parser), with bounded overlapping line chunks to
 keep any unrecognized source searchable.
+
+## Read-only retrieval API (Phase 2)
+
+Phase 2 exposes the index through a framework-independent Python service and a
+versioned local HTTP API. Install the project, build the index, and start the
+API from the repository root:
+
+```text
+python -m pip install -e ".[dev]"
+python -m craig index
+python -m craig serve
+```
+
+The server binds to `127.0.0.1:8000` by default. Interactive OpenAPI
+documentation is available at `http://127.0.0.1:8000/docs`. Use `--host` and
+`--port` to change the listener. `CRAIG_CONTENT_ROOT` and `CRAIG_INDEX_PATH`
+may override the default locations when an alternate approved local layout is
+needed.
+
+All public operations are read-only:
+
+| Operation | HTTP endpoint | Purpose |
+| --- | --- | --- |
+| `list_topics` | `GET /api/v1/topics` | List indexed topics with file and chunk counts. |
+| `search_content` | `POST /api/v1/search` | Run ranked global or topic-scoped lexical search. |
+| `find_exact` | `POST /api/v1/find-exact` | Locate literal text or notation at exact source lines. |
+| `read_source` | `POST /api/v1/read-source` | Read a bounded line range from an indexed source. |
+
+Every source result includes its topic, corpus-relative path, file type,
+structural heading/environment when available, exact line bounds, and indexed
+SHA-256. Search and exact-match responses support `limit`, `offset`, and
+`next_offset` for iterative calls. Query length, result count, source lines,
+per-excerpt size, and total returned text have server-side caps; `truncated`
+and continuation fields report when a response was bounded.
+
+`read_source` accepts only normalized POSIX paths already present in the index.
+Absolute paths, traversal components, Windows separators, unindexed files, and
+symlink escapes are rejected. Source reads verify the indexed hash and report a
+stale index instead of mixing index metadata with changed source text. Retrieval
+connections open SQLite in enforced read-only mode and never write beneath
+`content/`.
 
 ## Project vision
 
@@ -453,12 +495,12 @@ The ordering below is a working to-do list, not a promise that every detail will
 
 ### Phase 2 — Implement the retrieval API
 
-- [ ] Define read-only tools such as `list_topics`, `search_content`, `find_exact`, and `read_source`.
-- [ ] Return source metadata with every result.
-- [ ] Support global and topic-scoped search.
-- [ ] Support iterative search calls.
-- [ ] Prevent path traversal and access outside approved repository directories.
-- [ ] Add result-size and context-budget controls.
+- [x] Define read-only tools such as `list_topics`, `search_content`, `find_exact`, and `read_source`.
+- [x] Return source metadata with every result.
+- [x] Support global and topic-scoped search.
+- [x] Support iterative search calls.
+- [x] Prevent path traversal and access outside approved repository directories.
+- [x] Add result-size and context-budget controls.
 
 ### Phase 3 — Implement the first conversational interface
 
@@ -544,15 +586,16 @@ The following choices remain intentionally unresolved:
 ## Current status
 
 **Current:** the repository contains the mathematical material under
-[`content`](content/) and the Milestone 1 local, read-only FTS5 index and search
-commands described above.
+[`content`](content/), the Milestone 1 local FTS5 index/search commands, and the
+Phase 2 read-only retrieval service and HTTP API described above.
 
-**Not yet implemented:** the CRAIG web application, conversational interface,
-model integration, semantic retrieval, trusted visualizations, and controlled
-computation layer.
+**Not yet implemented:** the CRAIG browser application, conversational
+interface, model integration, semantic retrieval, trusted visualizations, and
+controlled computation layer.
 
-The current implementation intentionally stops at local lexical indexing and
-search; the later phases in the roadmap remain planned work.
+The current implementation intentionally stops at bounded local lexical
+retrieval; the conversational and later phases in the roadmap remain planned
+work.
 
 ## Open-source status
 

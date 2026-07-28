@@ -37,12 +37,15 @@ def search_index(
     *,
     topic: str | None = None,
     limit: int = DEFAULT_LIMIT,
+    offset: int = 0,
     explanation_boost: float = DEFAULT_EXPLANATION_BOOST,
 ) -> list[SearchResult]:
     """Return passages ordered by boosted FTS5 BM25 relevance."""
 
     if limit < 1:
         raise ValueError("Search limit must be at least 1.")
+    if offset < 0:
+        raise ValueError("Search offset cannot be negative.")
     if explanation_boost <= 0:
         raise ValueError("explanation_boost must be greater than zero.")
 
@@ -54,10 +57,13 @@ def search_index(
             SELECT
                 c.topic,
                 c.path,
+                c.file_type,
                 c.heading,
+                c.environment,
                 c.start_line,
                 c.end_line,
                 snippet(chunks_fts, 0, '[', ']', ' … ', 28) AS snippet,
+                c.file_hash,
                 (
                     -bm25(chunks_fts, 1.0, 4.0, 0.5, 0.25)
                     * CASE
@@ -72,23 +78,26 @@ def search_index(
             WHERE chunks_fts MATCH ?
               AND (? IS NULL OR c.topic = ?)
             ORDER BY score DESC, c.path ASC, c.start_line ASC
-            LIMIT ?
+            LIMIT ? OFFSET ?
             """,
-            (explanation_boost, match_query, topic, topic, limit),
+            (explanation_boost, match_query, topic, topic, limit, offset),
         ).fetchall()
     finally:
         connection.close()
 
     return [
         SearchResult(
-            rank=rank,
-            score=float(row[6]),
+            rank=rank + offset,
+            score=float(row[9]),
             topic=str(row[0]),
             path=str(row[1]),
-            heading=str(row[2]) if row[2] is not None else None,
-            start_line=int(row[3]),
-            end_line=int(row[4]),
-            snippet=re.sub(r"\s+", " ", str(row[5])).strip(),
+            heading=str(row[3]) if row[3] is not None else None,
+            start_line=int(row[5]),
+            end_line=int(row[6]),
+            snippet=re.sub(r"\s+", " ", str(row[7])).strip(),
+            file_type=str(row[2]),
+            environment=str(row[4]) if row[4] is not None else None,
+            file_hash=str(row[8]),
         )
         for rank, row in enumerate(rows, start=1)
     ]

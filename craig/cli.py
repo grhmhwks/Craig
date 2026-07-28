@@ -1,4 +1,4 @@
-"""Command-line interface for the CRAIG Milestone 1 index."""
+"""Command-line interface for CRAIG indexing, search, and retrieval API."""
 
 from __future__ import annotations
 
@@ -28,10 +28,19 @@ def _positive_float(value: str) -> float:
     return parsed
 
 
+def _port(value: str) -> int:
+    parsed = int(value)
+    if not 1 <= parsed <= 65_535:
+        raise argparse.ArgumentTypeError("must be between 1 and 65535")
+    return parsed
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m craig",
-        description="Index and search CRAIG's local mathematical source corpus.",
+        description=(
+            "Index, search, and serve CRAIG's local mathematical source corpus."
+        ),
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -65,6 +74,22 @@ def build_parser() -> argparse.ArgumentParser:
             "BM25 multiplier for explanation.tex "
             "(default: CRAIG_EXPLANATION_BOOST or 1.5)"
         ),
+    )
+
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="serve the local, read-only retrieval API",
+    )
+    serve_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="interface to bind (default: 127.0.0.1)",
+    )
+    serve_parser.add_argument(
+        "--port",
+        type=_port,
+        default=8000,
+        help="port to bind (default: 8000)",
     )
     return parser
 
@@ -107,14 +132,31 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Index: {database_path}")
             return 0
 
-        results = search_index(
-            database_path,
-            arguments.query,
-            topic=arguments.topic,
-            limit=arguments.limit,
-            explanation_boost=arguments.explanation_boost,
+        if arguments.command == "search":
+            results = search_index(
+                database_path,
+                arguments.query,
+                topic=arguments.topic,
+                limit=arguments.limit,
+                explanation_boost=arguments.explanation_boost,
+            )
+            _print_results(results)
+            return 0
+
+        try:
+            import uvicorn
+
+            from .api import create_app, default_config
+        except ImportError as error:
+            raise RuntimeError(
+                'The retrieval API dependencies are unavailable. Install with '
+                '`python -m pip install -e ".[dev]"`.'
+            ) from error
+        uvicorn.run(
+            create_app(default_config()),
+            host=arguments.host,
+            port=arguments.port,
         )
-        _print_results(results)
         return 0
     except (
         FileNotFoundError,
