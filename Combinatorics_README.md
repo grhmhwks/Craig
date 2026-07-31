@@ -8,9 +8,8 @@ implementations, optimized programs, examples, and related research summaries.
 Each topic has its own documentation; begin with
 [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
-The local index/search milestone and the Phase 2 read-only retrieval API are
-implemented. The conversational application remains a work in progress. Its
-intended final form is
+The local index/search milestone, Phase 2 read-only retrieval API, and Phase 3
+conversational application are implemented. Their intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
 and computationally exploring the mathematics contained here.
@@ -39,8 +38,8 @@ python -m craig search "tableau insertion" --limit 10
 
 `explanation.tex` passages receive a default ranking multiplier of `1.5`. Set
 `CRAIG_EXPLANATION_BOOST` or pass `--explanation-boost` to change it. Search is
-lexical SQLite FTS5 search in this milestone: there are no embeddings, model
-calls, code execution, browser chat interface, or diagram renderer.
+lexical SQLite FTS5 search in this milestone: the index command itself makes no
+model calls and performs no corpus code execution.
 
 For development, install the test extra and run the suite:
 
@@ -94,6 +93,70 @@ symlink escapes are rejected. Source reads verify the indexed hash and report a
 stale index instead of mixing index metadata with changed source text. Retrieval
 connections open SQLite in enforced read-only mode and never write beneath
 `content/`.
+
+## Conversational interface (Phase 3)
+
+Phase 3 adds a React and TypeScript browser interface, an in-memory conversation
+store, separate search-planning and grounded-answer prompts, and a bounded
+orchestration loop over the four Phase 2 retrieval operations. Assistant
+progress, tool activity, answer text, and completion metadata stream as typed
+Server-Sent Events.
+
+For frontend development, run the backend and Vite development server in
+separate terminals:
+
+```text
+python -m craig serve
+```
+
+```text
+cd app/frontend
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`. To create a production frontend and let the Python
+server serve it at `http://127.0.0.1:8000`, run:
+
+```text
+cd app/frontend
+npm install
+npm run build
+cd ../..
+python -m craig serve
+```
+
+The Phase 3 chat endpoints are:
+
+| HTTP endpoint | Purpose |
+| --- | --- |
+| `GET /api/v1/chat/config` | Return public modes, limits, and non-secret provider status. |
+| `POST /api/v1/chat/stream` | Start or continue a turn and stream typed SSE events. |
+| `GET /api/v1/conversations/{id}` | Read an active in-memory conversation. |
+
+Research, Explanation, Tutorial, and Computation modes are available globally
+or within one indexed topic. Computation mode is inspection-only: it can
+retrieve relevant code but cannot execute it before the reviewed isolation layer
+planned for Phase 6.
+
+`CRAIG_MODEL_PROVIDER` selects the backend provider. The default and only
+installed Phase 3 provider is `demo`, a deterministic retrieval presentation
+used to exercise the full interface without a network credential:
+
+```text
+CRAIG_MODEL_PROVIDER=demo
+```
+
+The provider interface keeps planning and answer generation replaceable, and
+`CRAIG_MODEL` may name a future configured model, but this release does not ship
+a live remote or local model adapter. Unsupported provider selections are
+reported as unavailable rather than silently falling back. Provider credentials
+are never read by the frontend or returned by the public configuration endpoint.
+
+Conversation history is bounded, process-local memory. It is cleared whenever
+the backend restarts and is not written to the repository. Phase 3 also excludes
+external web search, semantic retrieval, arbitrary code execution, and trusted
+mathematical visualizations.
 
 ## Project vision
 
@@ -224,6 +287,28 @@ list relevant topics
 ```
 
 The search-planning model and answer-generation model may initially be the same model, but the architecture should allow different models to be used for the two roles.
+
+### Phase 3 implementation defaults
+
+The first conversational interface will use the following boundaries:
+
+- the frontend will use React and TypeScript;
+- streamed assistant events will use Server-Sent Events over HTTP;
+- conversation state will remain in backend memory for the initial release and
+  will not be persisted;
+- the model layer will use a provider-neutral backend adapter, with a
+  deterministic fake provider for orchestration tests and provider credentials
+  supplied only through backend configuration;
+- search planning and answer generation may use the same configured model, but
+  will remain separate orchestration stages with separate prompts;
+- Research, Explanation, Tutorial, and Computation will initially be prompt and
+  presentation modes over the same retrieval boundary;
+- Computation mode will not execute repository programs until the reviewed,
+  isolated computation layer in Phase 6 exists;
+- external web search will not be part of the Phase 3 tool set;
+- retrieval provenance will remain attached to conversation events so Phase 4
+  can add richer citation and mathematical-status presentation without changing
+  the orchestration contract.
 
 ## Repository retrieval and indexing
 
@@ -439,7 +524,8 @@ frontend setup
 single local launch command
 ```
 
-These commands do not exist yet. They are part of the planned implementation.
+The backend and frontend development commands above now provide the non-Docker
+path. A unified launcher and Docker packaging remain planned work.
 
 A likely future repository layout is:
 
@@ -504,14 +590,14 @@ The ordering below is a working to-do list, not a promise that every detail will
 
 ### Phase 3 — Implement the first conversational interface
 
-- [ ] Build the chat frontend.
-- [ ] Add streaming responses.
-- [ ] Implement the initial and secondary system prompts.
-- [ ] Build the search-planning and answer-generation orchestration loop.
-- [ ] Preserve relevant conversation context for follow-up questions.
-- [ ] Add Research, Explanation, Tutorial, and Computation modes.
-- [ ] Let users begin globally or inside a topic.
-- [ ] Add model-provider configuration without exposing secrets to the browser.
+- [x] Build the chat frontend.
+- [x] Add streaming responses.
+- [x] Implement the initial and secondary system prompts.
+- [x] Build the search-planning and answer-generation orchestration loop.
+- [x] Preserve relevant conversation context for follow-up questions.
+- [x] Add Research, Explanation, Tutorial, and Computation modes.
+- [x] Let users begin globally or inside a topic.
+- [x] Add model-provider configuration without exposing secrets to the browser.
 
 ### Phase 4 — Add provenance and mathematical-status handling
 
@@ -576,7 +662,7 @@ The following choices remain intentionally unresolved:
 - Should local inference or a user-supplied remote API key be the default path?
 - Should external web search be absent, optional, or enabled by default?
 - Which embedding and reranking methods perform best on this repository?
-- Should conversation history be stored locally, kept only in memory, or made user-configurable?
+- Should later versions persist conversation history locally or make persistence user-configurable?
 - Which computations are safe and useful enough to expose in the first release?
 - Which combinatorial visualization schemas should be standardized first?
 - What resource limits best balance safety, reproducibility, and hands-on experimentation?
@@ -586,16 +672,15 @@ The following choices remain intentionally unresolved:
 ## Current status
 
 **Current:** the repository contains the mathematical material under
-[`content`](content/), the Milestone 1 local FTS5 index/search commands, and the
-Phase 2 read-only retrieval service and HTTP API described above.
+[`content`](content/), the Milestone 1 local FTS5 index/search commands, the
+Phase 2 read-only retrieval service and HTTP API, and the Phase 3 browser
+conversation interface and orchestration layer described above.
 
-**Not yet implemented:** the CRAIG browser application, conversational
-interface, model integration, semantic retrieval, trusted visualizations, and
-controlled computation layer.
-
-The current implementation intentionally stops at bounded local lexical
-retrieval; the conversational and later phases in the roadmap remain planned
-work.
+**Not yet implemented:** a live remote or local model-provider adapter, semantic
+retrieval, rich Phase 4 provenance presentation, trusted visualizations, and the
+controlled computation layer. The included deterministic provider makes the
+Phase 3 UI, streaming, retrieval loop, modes, and follow-up context usable and
+testable without claiming to provide model-generated mathematical synthesis.
 
 ## Open-source status
 

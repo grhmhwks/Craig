@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from craig.index import index_repository
@@ -84,7 +85,7 @@ def test_incremental_indexing_skips_unchanged_files(tmp_path: Path) -> None:
     assert (first.indexed_files, first.skipped_files) == (1, 0)
     assert (second.indexed_files, second.skipped_files) == (0, 1)
     assert (third.indexed_files, third.skipped_files) == (1, 0)
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection:
         assert connection.execute("SELECT COUNT(*) FROM files").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM chunks").fetchone()[0] == 1
         stored_text = connection.execute("SELECT text FROM chunks").fetchone()[0]
@@ -101,7 +102,7 @@ def test_index_stores_required_chunk_metadata(tmp_path: Path) -> None:
     )
     index_repository(content, database)
 
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection:
         row = connection.execute(
             """
             SELECT

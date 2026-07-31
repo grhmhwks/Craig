@@ -4,3 +4,5 @@
 /.pytest_cache/
 *.py[cod]
 *.egg-info/
+/app/frontend/node_modules/
+/app/frontend/dist/

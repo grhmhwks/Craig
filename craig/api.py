@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import os
+from collections.abc import Iterator
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
@@ -10,9 +12,18 @@ from typing import Any, Literal
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, ConfigDict
 
+from .chat.errors import (
+    ChatError,
+    ConversationNotFoundError,
+    InvalidChatRequest,
+    ProviderUnavailableError,
+)
+from .chat.models import ChatEvent
+from .chat.service import ChatService
 from .errors import (
     IndexStaleError,
     InvalidRetrievalRequest,
@@ -29,8 +40,7 @@ CONTRACT_VERSION = 1
 
 
 class _RequestModel(BaseModel):
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 class SearchRequest(_RequestModel):
@@ -56,6 +66,13 @@ class ReadSourceRequest(_RequestModel):
     start_line: int = 1
     end_line: int | None = None
     max_chars: int | None = None
+
+
+class ChatStreamRequest(_RequestModel):
+    message: str
+    mode: Literal["research", "explanation", "tutorial", "computation"]
+    topic: str | None = None
+    conversation_id: str | None = None
 
 
 class TopicSummaryResponse(BaseModel):
@@ -145,6 +162,56 @@ class HealthResponse(BaseModel):
     topic_count: int
 
 
+class SourceReferenceResponse(BaseModel):
+    topic: str
+    path: str
+    heading: str | None
+    environment: str | None
+    start_line: int
+    end_line: int
+    file_hash: str
+
+
+class ChatMessageResponse(BaseModel):
+    id: str
+    role: Literal["user", "assistant"]
+    content: str
+    created_at: str
+    sources: list[SourceReferenceResponse]
+
+
+class ConversationResponse(BaseModel):
+    schema_version: Literal[1]
+    id: str
+    mode: Literal["research", "explanation", "tutorial", "computation"]
+    topic: str | None
+    created_at: str
+    updated_at: str
+    messages: list[ChatMessageResponse]
+
+
+class ProviderStatusResponse(BaseModel):
+    name: str
+    model: str
+    configured: bool
+    live: bool
+
+
+class ChatModeConfigResponse(BaseModel):
+    id: Literal["research", "explanation", "tutorial", "computation"]
+    description: str
+    computation_enabled: bool
+
+
+class ChatConfigurationResponse(BaseModel):
+    schema_version: Literal[1]
+    provider: ProviderStatusResponse
+    modes: list[ChatModeConfigResponse]
+    stream_transport: Literal["sse"]
+    conversation_storage: Literal["memory"]
+    max_message_chars: int
+
+
 def default_config() -> RetrievalConfig:
     """Build local configuration from the working directory and environment."""
 
@@ -177,18 +244,39 @@ def _error_payload(code: str, message: str, **details: object) -> dict[str, Any]
     return {"schema_version": CONTRACT_VERSION, "error": error}
 
 
-def create_app(config: RetrievalConfig | None = None) -> FastAPI:
-    """Create the versioned HTTP adapter around one retrieval service."""
+def _encode_sse(event: ChatEvent) -> str:
+    payload = {
+        "schema_version": CONTRACT_VERSION,
+        "type": event.type,
+        "conversation_id": event.conversation_id,
+        "created_at": event.created_at,
+        "data": event.data,
+    }
+    return (
+        f"event: {event.type}\n"
+        f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+    )
+
+
+def create_app(
+    config: RetrievalConfig | None = None,
+    *,
+    chat_service: ChatService | None = None,
+) -> FastAPI:
+    """Create the versioned retrieval and conversation HTTP application."""
 
     service = RetrievalService(config or default_config())
+    chat = chat_service or ChatService(service)
     app = FastAPI(
-        title="CRAIG Retrieval API",
-        version="0.2.0",
+        title="CRAIG Local API",
+        version="0.3.0",
         description=(
-            "Read-only, bounded retrieval over CRAIG's indexed mathematical corpus."
+            "Read-only retrieval and in-memory conversational orchestration over "
+            "CRAIG's indexed mathematical corpus."
         ),
     )
     app.state.retrieval_service = service
+    app.state.chat_service = chat
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(
@@ -200,7 +288,7 @@ def create_app(config: RetrievalConfig | None = None) -> FastAPI:
             status_code=422,
             content=_error_payload(
                 "validation_error",
-                "The request body does not match the retrieval contract.",
+                "The request body does not match the API contract.",
                 details=jsonable_encoder(error.errors()),
             ),
         )
@@ -238,6 +326,25 @@ def create_app(config: RetrievalConfig | None = None) -> FastAPI:
         return JSONResponse(
             status_code=503,
             content=_error_payload("index_unavailable", str(error)),
+        )
+
+    @app.exception_handler(ChatError)
+    async def handle_chat_error(
+        request: Request,
+        error: ChatError,
+    ) -> JSONResponse:
+        del request
+        if isinstance(error, InvalidChatRequest):
+            status_code, code = 422, "invalid_chat_request"
+        elif isinstance(error, ConversationNotFoundError):
+            status_code, code = 404, "conversation_not_found"
+        elif isinstance(error, ProviderUnavailableError):
+            status_code, code = 503, "provider_unavailable"
+        else:
+            status_code, code = 500, "chat_error"
+        return JSONResponse(
+            status_code=status_code,
+            content=_error_payload(code, str(error)),
         )
 
     @app.get(
@@ -308,6 +415,74 @@ def create_app(config: RetrievalConfig | None = None) -> FastAPI:
                 end_line=request.end_line,
                 max_chars=request.max_chars,
             )
+        )
+
+    @app.get(
+        f"{API_PREFIX}/chat/config",
+        tags=["chat"],
+        response_model=ChatConfigurationResponse,
+    )
+    def chat_config() -> dict[str, Any]:
+        return {
+            "schema_version": CONTRACT_VERSION,
+            **chat.public_config(),
+        }
+
+    @app.get(
+        f"{API_PREFIX}/conversations/{{conversation_id}}",
+        tags=["chat"],
+        response_model=ConversationResponse,
+    )
+    def get_conversation(conversation_id: str) -> dict[str, Any]:
+        return _success_payload(chat.store.get(conversation_id))
+
+    @app.post(
+        f"{API_PREFIX}/chat/stream",
+        tags=["chat"],
+        response_class=StreamingResponse,
+        responses={
+            200: {
+                "content": {
+                    "text/event-stream": {
+                        "schema": {"type": "string"},
+                    }
+                },
+                "description": "Typed Server-Sent Events for one chat turn.",
+            }
+        },
+    )
+    def stream_chat(request: ChatStreamRequest) -> StreamingResponse:
+        turn = chat.prepare(
+            message=request.message,
+            mode=request.mode,
+            topic=request.topic,
+            conversation_id=request.conversation_id,
+        )
+
+        def events() -> Iterator[str]:
+            for event in chat.stream(turn):
+                yield _encode_sse(event)
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    frontend_dist = Path(
+        os.environ.get(
+            "CRAIG_FRONTEND_DIST",
+            Path(__file__).resolve().parent.parent / "app" / "frontend" / "dist",
+        )
+    )
+    if frontend_dist.is_dir():
+        app.mount(
+            "/",
+            StaticFiles(directory=frontend_dist, html=True),
+            name="frontend",
         )
 
     return app
