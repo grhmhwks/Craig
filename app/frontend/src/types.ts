@@ -7,6 +7,7 @@ export type ChatMode =
 export type ProvenanceKind =
   | "repository"
   | "deduction"
+  | "computation"
   | "model_knowledge"
   | "external";
 
@@ -91,6 +92,71 @@ export interface ChatEvent {
   conversation_id: string;
   created_at: string;
   data: Record<string, unknown>;
+}
+
+export interface BaseSseEvent {
+  schema_version: 1;
+  type: string;
+  created_at: string;
+  data: Record<string, unknown>;
+}
+
+export type ComputationClassification =
+  | "example"
+  | "experiment"
+  | "finite_check"
+  | "computer_assisted_proof";
+
+export interface ComputationLimits {
+  wall_time_seconds: number;
+  cpu_time_seconds: number;
+  memory_bytes: number;
+  output_bytes: number;
+  stderr_bytes: number;
+  request_bytes: number;
+}
+
+export interface ComputationParameter {
+  name: string;
+  kind: "integer" | "string" | "integer_array";
+  label: string;
+  description: string;
+  required: boolean;
+  default: unknown;
+  minimum: number | null;
+  maximum: number | null;
+  max_items: number | null;
+}
+
+export interface ComputationOperation {
+  id: string;
+  title: string;
+  description: string;
+  classification: ComputationClassification;
+  implementation_version: string;
+  source_basis: {
+    path: string;
+    start_line: number;
+    end_line: number;
+  };
+  parameters: ComputationParameter[];
+  limits: ComputationLimits;
+}
+
+export interface ComputationCatalog {
+  schema_version: 1;
+  operations: ComputationOperation[];
+  max_concurrent_workers: number;
+  execution_policy: "isolated_allowlist";
+}
+
+export interface ComputationEvent extends BaseSseEvent {
+  job_id: string;
+}
+
+export interface ComputationStreamRequest {
+  operation: string;
+  parameters: Record<string, unknown>;
 }
 
 export interface ChatStreamRequest {

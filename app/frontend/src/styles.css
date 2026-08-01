@@ -916,6 +916,11 @@ button {
   background: rgba(217, 116, 79, 0.13);
 }
 
+.provenance-computation > span {
+  color: #1f5958;
+  background: rgba(41, 131, 129, 0.13);
+}
+
 .provenance-model_knowledge > span {
   color: #545d78;
   background: rgba(91, 104, 148, 0.12);
@@ -1192,11 +1197,166 @@ button {
 }
 
 .mode-strip,
+.computation-panel,
 .composer,
 .composer-foot {
   width: min(860px, 100%);
   margin-right: auto;
   margin-left: auto;
+}
+
+.computation-panel {
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid #c7d4cd;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(224, 237, 230, 0.78), rgba(255, 255, 255, 0.68));
+  box-shadow: 0 8px 24px rgba(31, 75, 65, 0.06);
+}
+
+.computation-heading,
+.computation-run-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.computation-heading > div,
+.computation-operation {
+  display: grid;
+  gap: 3px;
+}
+
+.computation-heading span,
+.computation-operation > span,
+.computation-parameters label > span {
+  color: #697770;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.computation-heading strong {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+}
+
+.computation-class {
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.computation-class.example {
+  color: #445470;
+  background: rgba(91, 104, 148, 0.12);
+}
+
+.computation-class.finite_check {
+  color: #1f5958;
+  background: rgba(41, 131, 129, 0.14);
+}
+
+.computation-class.experiment {
+  color: #855331;
+  background: rgba(217, 116, 79, 0.13);
+}
+
+.computation-class.computer_assisted_proof {
+  color: #70425a;
+  background: rgba(146, 72, 94, 0.13);
+}
+
+.computation-operation {
+  margin-top: 12px;
+}
+
+.computation-operation select,
+.computation-parameters input {
+  min-height: 35px;
+  padding: 7px 9px;
+  color: #263d37;
+  border: 1px solid #bbc9c1;
+  border-radius: 7px;
+  outline: 0;
+  background: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  font-size: 11px;
+}
+
+.computation-operation select:focus,
+.computation-parameters input:focus {
+  border-color: var(--forest-light);
+  box-shadow: 0 0 0 3px rgba(35, 88, 77, 0.08);
+}
+
+.computation-description {
+  margin: 8px 0 10px;
+  color: #5f6d67;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.computation-parameters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.computation-parameters label {
+  display: grid;
+  gap: 4px;
+}
+
+.computation-parameters label > small {
+  color: #7e8983;
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.computation-run-row {
+  margin-top: 12px;
+}
+
+.computation-run-row > small {
+  color: #74817b;
+  font-size: 8px;
+}
+
+.computation-run-row button {
+  min-height: 34px;
+  padding: 7px 13px;
+  color: #fff;
+  border: 0;
+  border-radius: 7px;
+  background: var(--forest);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.computation-run-row button:hover:not(:disabled) {
+  background: var(--forest-light);
+}
+
+.computation-run-row button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.computation-local-error {
+  margin: 8px 0 0;
+  color: #a34b3b;
+  font-size: 9px;
 }
 
 .mode-strip {
@@ -1437,6 +1597,14 @@ button {
 
   .controls {
     padding: 10px 14px 14px;
+  }
+
+  .computation-parameters {
+    grid-template-columns: 1fr;
+  }
+
+  .computation-run-row {
+    align-items: flex-end;
   }
 
   .mode-strip {

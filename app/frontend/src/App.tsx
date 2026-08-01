@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 
-import { loadBootstrap, streamChat } from "./api";
+import { loadBootstrap, streamChat, streamComputation } from "./api";
+import { ComputationPanel } from "./ComputationPanel";
 import { MarkdownMessage } from "./MarkdownMessage";
 import type {
   ChatConfiguration,
   ChatEvent,
   ChatMessage,
   ChatMode,
+  ComputationEvent,
+  ComputationOperation,
   MathematicalStatus,
   ProvenanceAnnotation,
   ProvenanceKind,
@@ -37,6 +40,7 @@ const statusLabels: Record<MathematicalStatus, string> = {
 const provenanceLabels: Record<ProvenanceKind, string> = {
   repository: "Repository statement",
   deduction: "CRAIG deduction",
+  computation: "Bounded computation",
   model_knowledge: "Model knowledge",
   external: "External information",
 };
@@ -109,6 +113,54 @@ function structureLabel(environment: string | null): string {
     return `Markdown heading level ${environment.slice("heading_".length)}`;
   }
   return environment.replaceAll("_", " ");
+}
+
+export function computationMarkdown(event: ComputationEvent): string {
+  const data = event.data;
+  const visualization = data.visualization as
+    | { language?: unknown; spec?: unknown }
+    | null
+    | undefined;
+  const reproducibility = (data.reproducibility ?? {}) as Record<string, unknown>;
+  const sourceBasis = (reproducibility.source_basis ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const resourceUsage = (data.resource_usage ?? {}) as Record<string, unknown>;
+  const visualizationBlock =
+    visualization &&
+    typeof visualization.language === "string" &&
+    visualization.spec &&
+    typeof visualization.spec === "object"
+      ? `\n\n\`\`\`${visualization.language}\n${JSON.stringify(
+          visualization.spec,
+          null,
+          2,
+        )}\n\`\`\``
+      : "";
+  return `## ${String(data.title ?? data.operation ?? "Computation result")}
+
+${String(data.summary ?? "The isolated worker completed.")}
+
+**Classification:** ${String(data.classification ?? "unknown").replaceAll("_", " ")}
+
+${String(data.claim_boundary ?? "This result applies only to the displayed parameters.")}${visualizationBlock}
+
+### Exact output
+
+\`\`\`json
+${JSON.stringify(data.output ?? {}, null, 2)}
+\`\`\`
+
+### Reproducibility
+
+- Job: \`${event.job_id}\`
+- Request SHA-256: \`${String(reproducibility.request_sha256 ?? "unavailable")}\`
+- Result SHA-256: \`${String(reproducibility.result_sha256 ?? "unavailable")}\`
+- Implementation: \`${String(reproducibility.implementation_version ?? "unknown")}\` / \`${String(reproducibility.implementation_sha256 ?? "unavailable")}\`
+- Corpus basis: \`content/${String(sourceBasis.path ?? "unknown")}\`, lines ${String(sourceBasis.start_line ?? "?")}–${String(sourceBasis.end_line ?? "?")}, SHA-256 \`${String(sourceBasis.sha256 ?? "unavailable")}\`
+- Worker wall time: ${String(resourceUsage.total_wall_time_ms ?? "?")} ms
+`;
 }
 
 function SourcePanel({ source }: { source: SourceReference }) {
@@ -192,6 +244,7 @@ function App() {
   const [configuration, setConfiguration] =
     useState<ChatConfiguration | null>(null);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
+  const [computations, setComputations] = useState<ComputationOperation[]>([]);
   const [mode, setMode] = useState<ChatMode>("research");
   const [topic, setTopic] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -206,10 +259,17 @@ function App() {
 
   useEffect(() => {
     loadBootstrap()
-      .then(({ configuration: nextConfiguration, topics: nextTopics }) => {
-        setConfiguration(nextConfiguration);
-        setTopics(nextTopics.topics);
-      })
+      .then(
+        ({
+          configuration: nextConfiguration,
+          topics: nextTopics,
+          computations: nextComputations,
+        }) => {
+          setConfiguration(nextConfiguration);
+          setTopics(nextTopics.topics);
+          setComputations(nextComputations.operations);
+        },
+      )
       .catch((reason: unknown) => {
         setError(reason instanceof Error ? reason.message : String(reason));
       });
@@ -366,6 +426,130 @@ function App() {
       if (!controller.signal.aborted) {
         setError(reason instanceof Error ? reason.message : String(reason));
         setStatus("Stopped");
+      }
+    } finally {
+      if (abortRef.current === controller) {
+        setBusy(false);
+        abortRef.current = null;
+      }
+    }
+  }
+
+  async function runComputation(
+    operation: ComputationOperation,
+    parameters: Record<string, unknown>,
+  ) {
+    if (busy) return;
+    const now = new Date().toISOString();
+    const userMessage: ChatMessage = {
+      id: `local_user_${crypto.randomUUID()}`,
+      role: "user",
+      content: `Run approved computation: ${operation.title} with ${JSON.stringify(parameters)}.`,
+      created_at: now,
+      sources: [],
+      provenance: [],
+    };
+    const pendingAssistantId = `local_computation_${crypto.randomUUID()}`;
+    const pendingAssistant: ChatMessage = {
+      id: pendingAssistantId,
+      role: "assistant",
+      content: "",
+      created_at: now,
+      sources: [],
+      provenance: [],
+    };
+    setMessages((current) => [...current, userMessage, pendingAssistant]);
+    setError(null);
+    setBusy(true);
+    setStatus("Starting isolated worker");
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      await streamComputation(
+        { operation: operation.id, parameters },
+        (event) => {
+          if (event.type === "computation.started") {
+            setStatus("Worker isolated");
+            setActivity(operation.title.toLowerCase());
+          } else if (event.type === "computation.progress") {
+            const fraction = Number(event.data.fraction ?? 0);
+            const label = String(event.data.label ?? "Computing");
+            setStatus(`${label} · ${Math.round(fraction * 100)}%`);
+            setActivity(label.toLowerCase());
+          } else if (event.type === "computation.completed") {
+            setMessages((current) =>
+              current.map((message) =>
+                message.id === pendingAssistantId
+                  ? {
+                      ...message,
+                      content: computationMarkdown(event),
+                      provenance: [
+                        {
+                          kind: "computation",
+                          description:
+                            "Produced by a typed, allowlisted, resource-limited Phase 6 worker. The finite claim boundary and reproducibility hashes are shown above.",
+                          citation_ids: [],
+                        },
+                      ],
+                    }
+                  : message,
+              ),
+            );
+            setStatus("Ready");
+            setActivity(null);
+          } else if (event.type === "computation.error") {
+            const message = String(
+              event.data.message ?? "The isolated computation failed.",
+            );
+            setMessages((current) =>
+              current.map((item) =>
+                item.id === pendingAssistantId
+                  ? {
+                      ...item,
+                      content: `**Computation stopped:** ${message}`,
+                      provenance: [
+                        {
+                          kind: "computation",
+                          description:
+                            "The worker returned no mathematical result.",
+                          citation_ids: [],
+                        },
+                      ],
+                    }
+                  : item,
+              ),
+            );
+            setError(message);
+            setStatus("Stopped");
+            setActivity(null);
+          }
+        },
+        controller.signal,
+      );
+    } catch (reason: unknown) {
+      if (!controller.signal.aborted) {
+        const message = reason instanceof Error ? reason.message : String(reason);
+        setError(message);
+        setStatus("Stopped");
+        setActivity(null);
+        setMessages((current) =>
+          current.map((item) =>
+            item.id === pendingAssistantId
+              ? {
+                  ...item,
+                  content: `**Computation stopped:** ${message}`,
+                  provenance: [
+                    {
+                      kind: "computation",
+                      description:
+                        "The request was rejected or interrupted before a mathematical result was produced.",
+                      citation_ids: [],
+                    },
+                  ],
+                }
+              : item,
+          ),
+        );
       }
     } finally {
       if (abortRef.current === controller) {
@@ -564,6 +748,15 @@ function App() {
         </section>
 
         <section className="controls">
+          {mode === "computation" && (
+            <ComputationPanel
+              operations={computations}
+              busy={busy}
+              onRun={(operation, parameters) =>
+                void runComputation(operation, parameters)
+              }
+            />
+          )}
           <div className="mode-strip" aria-label="Conversation mode">
             {(Object.keys(modeLabels) as ChatMode[]).map((item) => (
               <button
@@ -608,7 +801,7 @@ function App() {
             </span>
             <span>
               {mode === "computation"
-                ? "Inspection only · execution arrives in Phase 6"
+                ? "Use the approved panel to execute · chat remains retrieval-grounded"
                 : "Enter to send · Shift+Enter for a new line"}
             </span>
           </div>

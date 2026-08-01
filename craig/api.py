@@ -14,7 +14,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from .chat.errors import (
     ChatError,
@@ -24,6 +24,14 @@ from .chat.errors import (
 )
 from .chat.models import ChatEvent
 from .chat.service import ChatService
+from .computation.errors import (
+    ComputationBusy,
+    ComputationError,
+    ComputationOperationNotFound,
+    InvalidComputationRequest,
+)
+from .computation.models import ComputationEvent
+from .computation.service import ComputationService
 from .errors import (
     IndexStaleError,
     InvalidRetrievalRequest,
@@ -73,6 +81,11 @@ class ChatStreamRequest(_RequestModel):
     mode: Literal["research", "explanation", "tutorial", "computation"]
     topic: str | None = None
     conversation_id: str | None = None
+
+
+class ComputationStreamRequest(_RequestModel):
+    operation: str = Field(min_length=1, max_length=80)
+    parameters: dict[str, Any]
 
 
 class TopicSummaryResponse(BaseModel):
@@ -186,7 +199,13 @@ class SourceReferenceResponse(BaseModel):
 
 
 class ProvenanceAnnotationResponse(BaseModel):
-    kind: Literal["repository", "deduction", "model_knowledge", "external"]
+    kind: Literal[
+        "repository",
+        "deduction",
+        "computation",
+        "model_knowledge",
+        "external",
+    ]
     description: str
     citation_ids: list[str]
 
@@ -232,6 +251,56 @@ class ChatConfigurationResponse(BaseModel):
     max_message_chars: int
     max_source_excerpt_chars: int
     external_sources_enabled: bool
+
+
+class ComputationLimitsResponse(BaseModel):
+    wall_time_seconds: float
+    cpu_time_seconds: int
+    memory_bytes: int
+    output_bytes: int
+    stderr_bytes: int
+    request_bytes: int
+
+
+class ComputationParameterResponse(BaseModel):
+    name: str
+    kind: Literal["integer", "string", "integer_array"]
+    label: str
+    description: str
+    required: bool
+    default: Any
+    minimum: int | None
+    maximum: int | None
+    max_items: int | None
+
+
+class ComputationSourceBasisResponse(BaseModel):
+    path: str
+    start_line: int
+    end_line: int
+
+
+class ComputationOperationResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    classification: Literal[
+        "example",
+        "experiment",
+        "finite_check",
+        "computer_assisted_proof",
+    ]
+    implementation_version: str
+    source_basis: ComputationSourceBasisResponse
+    parameters: list[ComputationParameterResponse]
+    limits: ComputationLimitsResponse
+
+
+class ComputationCatalogResponse(BaseModel):
+    schema_version: Literal[1]
+    operations: list[ComputationOperationResponse]
+    max_concurrent_workers: int
+    execution_policy: Literal["isolated_allowlist"]
 
 
 def default_config() -> RetrievalConfig:
@@ -280,25 +349,42 @@ def _encode_sse(event: ChatEvent) -> str:
     )
 
 
+def _encode_computation_sse(event: ComputationEvent) -> str:
+    payload = {
+        "schema_version": CONTRACT_VERSION,
+        "type": event.type,
+        "job_id": event.job_id,
+        "created_at": event.created_at,
+        "data": event.data,
+    }
+    return (
+        f"event: {event.type}\n"
+        f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+    )
+
+
 def create_app(
     config: RetrievalConfig | None = None,
     *,
     chat_service: ChatService | None = None,
+    computation_service: ComputationService | None = None,
 ) -> FastAPI:
     """Create the versioned retrieval and conversation HTTP application."""
 
     service = RetrievalService(config or default_config())
     chat = chat_service or ChatService(service)
+    computation = computation_service or ComputationService(service.config.content_root)
     app = FastAPI(
         title="CRAIG Local API",
-        version="0.5.0",
+        version="0.6.0",
         description=(
-            "Read-only retrieval and in-memory conversational orchestration over "
-            "CRAIG's indexed mathematical corpus."
+            "Read-only retrieval, conversation, and isolated allowlisted "
+            "computation over CRAIG's indexed mathematical corpus."
         ),
     )
     app.state.retrieval_service = service
     app.state.chat_service = chat
+    app.state.computation_service = computation
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(
@@ -364,6 +450,25 @@ def create_app(
             status_code, code = 503, "provider_unavailable"
         else:
             status_code, code = 500, "chat_error"
+        return JSONResponse(
+            status_code=status_code,
+            content=_error_payload(code, str(error)),
+        )
+
+    @app.exception_handler(ComputationError)
+    async def handle_computation_error(
+        request: Request,
+        error: ComputationError,
+    ) -> JSONResponse:
+        del request
+        if isinstance(error, ComputationOperationNotFound):
+            status_code, code = 404, "computation_not_found"
+        elif isinstance(error, InvalidComputationRequest):
+            status_code, code = 422, "invalid_computation_request"
+        elif isinstance(error, ComputationBusy):
+            status_code, code = 429, "computation_busy"
+        else:
+            status_code, code = 500, "computation_error"
         return JSONResponse(
             status_code=status_code,
             content=_error_payload(code, str(error)),
@@ -449,6 +554,47 @@ def create_app(
             "schema_version": CONTRACT_VERSION,
             **chat.public_config(),
         }
+
+    @app.get(
+        f"{API_PREFIX}/computations",
+        tags=["computation"],
+        response_model=ComputationCatalogResponse,
+    )
+    def computation_catalog() -> dict[str, Any]:
+        return computation.catalog()
+
+    @app.post(
+        f"{API_PREFIX}/computations/stream",
+        tags=["computation"],
+        response_class=StreamingResponse,
+        responses={
+            200: {
+                "content": {
+                    "text/event-stream": {
+                        "schema": {"type": "string"},
+                    }
+                },
+                "description": "Typed progress and result events for one isolated job.",
+            }
+        },
+    )
+    def stream_computation(
+        request: ComputationStreamRequest,
+    ) -> StreamingResponse:
+        prepared = computation.prepare(request.operation, request.parameters)
+
+        def events() -> Iterator[str]:
+            for event in computation.stream(prepared):
+                yield _encode_computation_sse(event)
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     @app.get(
         f"{API_PREFIX}/conversations/{{conversation_id}}",

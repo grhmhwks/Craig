@@ -1,4 +1,4 @@
-"""Command-line interface for CRAIG indexing, search, and retrieval API."""
+"""Command-line interface for CRAIG indexing, search, and local API."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m craig",
         description=(
-            "Index, search, and serve CRAIG's local mathematical source corpus."
+            "Index, search, and serve CRAIG's protected mathematical source corpus."
         ),
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -78,7 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     serve_parser = subparsers.add_parser(
         "serve",
-        help="serve the local, read-only retrieval API",
+        help="serve retrieval, conversation, and approved computation locally",
     )
     serve_parser.add_argument(
         "--host",

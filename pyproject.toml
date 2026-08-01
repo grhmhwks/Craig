@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "craig-local"
-version = "0.5.0"
+version = "0.6.0"
 description = "Provenance-aware conversational exploration of the CRAIG mathematical corpus"
 readme = "Combinatorics_README.md"
 requires-python = ">=3.10"

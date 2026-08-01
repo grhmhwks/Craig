@@ -12,6 +12,7 @@ ChatRole = Literal["user", "assistant"]
 ProvenanceKind = Literal[
     "repository",
     "deduction",
+    "computation",
     "model_knowledge",
     "external",
 ]

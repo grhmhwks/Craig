@@ -196,9 +196,10 @@ class DemoModelProvider:
     def _answer(self, request: AnswerRequest) -> str:
         if request.mode == "computation":
             preface = (
-                "Computation mode is retrieval-only. I did not run "
-                "repository code. Here is the indexed material most relevant "
-                "to the requested computation."
+                "This conversational turn performed retrieval only; I did not "
+                "run repository code. Approved Phase 6 jobs are available in "
+                "the computation panel. Here is the indexed material most "
+                "relevant to the request."
             )
         elif request.mode == "tutorial":
             preface = (
@@ -279,7 +280,7 @@ class UnavailableModelProvider:
     def _raise(self) -> None:
         raise ProviderUnavailableError(
             f"Model provider `{self.metadata.name}` is not configured in this "
-            "Phase 5 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
+            "Phase 6 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
             "retrieval demonstration."
         )
 

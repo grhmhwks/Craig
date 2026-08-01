@@ -81,7 +81,7 @@ class ChatService:
                 {
                     "id": mode,
                     "description": mode_description(mode),
-                    "computation_enabled": False,
+                    "computation_enabled": mode == "computation",
                 }
                 for mode in CHAT_MODES
             ],

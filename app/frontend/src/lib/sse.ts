@@ -1,7 +1,7 @@
-import type { ChatEvent } from "../types";
+import type { BaseSseEvent, ChatEvent } from "../types";
 
-export interface ParsedSse {
-  events: ChatEvent[];
+export interface ParsedSse<Event extends BaseSseEvent> {
+  events: Event[];
   remainder: string;
 }
 
@@ -17,8 +17,10 @@ function nextBoundary(buffer: string): { index: number; length: number } | null 
   return { index: lf, length: 2 };
 }
 
-export function parseSseFrames(buffer: string): ParsedSse {
-  const events: ChatEvent[] = [];
+export function parseSseFrames<
+  Event extends BaseSseEvent = ChatEvent,
+>(buffer: string): ParsedSse<Event> {
+  const events: Event[] = [];
   let remainder = buffer;
 
   while (true) {
@@ -36,7 +38,7 @@ export function parseSseFrames(buffer: string): ParsedSse {
     if (!data) {
       continue;
     }
-    events.push(JSON.parse(data) as ChatEvent);
+    events.push(JSON.parse(data) as Event);
   }
 
   return { events, remainder };

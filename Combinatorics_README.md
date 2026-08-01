@@ -9,8 +9,8 @@ Each topic has its own documentation; begin with
 [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
 The local index/search milestone, Phase 2 read-only retrieval API, Phase 3
-conversational application, Phase 4 provenance interface, and Phase 5
-mathematical rendering are implemented.
+conversational application, Phase 4 provenance interface, Phase 5 mathematical
+rendering, and Phase 6 approved computation are implemented.
 Their intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
@@ -137,9 +137,9 @@ The Phase 3 chat endpoints are:
 | `GET /api/v1/conversations/{id}` | Read an active in-memory conversation. |
 
 Research, Explanation, Tutorial, and Computation modes are available globally
-or within one indexed topic. Computation mode is inspection-only: it can
-retrieve relevant code but cannot execute it before the reviewed isolation layer
-planned for Phase 6.
+or within one indexed topic. Computation-mode chat retrieves relevant code and
+mathematical context. A separate typed panel dispatches only the reviewed,
+resource-limited operations supplied by Phase 6.
 
 `CRAIG_MODEL_PROVIDER` selects the backend provider. The default and only
 installed Phase 3 provider is `demo`, a deterministic retrieval presentation
@@ -208,6 +208,28 @@ providers not to invent mathematical data simply to create a graphic. Use
 **Preview renderers** in the desktop sidebar for the built-in manual gallery.
 The schemas, examples, limits, security boundary, and review procedure are in
 [`docs/phase-5-rendering.md`](docs/phase-5-rendering.md).
+
+## Approved computation (Phase 6)
+
+Computation mode now includes a schema-driven panel for four reviewed jobs:
+classical Dyck statistics, bounded classical Dyck enumeration, bounded rational
+Dyck enumeration, and type C 0-Hecke word evaluation. Natural-language chat
+cannot create a command; it remains a read-only retrieval conversation.
+
+Every job runs in a fresh isolated process outside the repository, accepts only
+normalized JSON parameters, and is governed by CPU, memory, wall-time, request,
+stdout, stderr, and concurrency limits. Windows workers use one-process Job
+Objects; POSIX workers use process groups and resource limits. The kernels live
+outside `content/`, have no filesystem or network capability, and never import,
+compile, or execute a corpus program.
+
+Results stream progress and retain normalized parameters, evidence
+classification, exact output, trusted visualization data, implementation and
+source hashes, request/result hashes, runtime measurements, and the governing
+limits. Finite checks are explicitly limited to their displayed parameters and
+are never described as general proofs. See
+[`docs/phase-6-computation.md`](docs/phase-6-computation.md) and the static
+[`docs/phase-6-inventory.md`](docs/phase-6-inventory.md).
 
 ## Project vision
 
@@ -676,15 +698,15 @@ The implementation contract and acceptance criteria are recorded in
 
 ### Phase 6 — Integrate approved computation
 
-- [ ] Inventory lightweight and heavyweight programs.
-- [ ] Select safe curated commands for the first release.
-- [ ] Wrap approved mathematical functions in typed interfaces.
-- [ ] Validate all parameters.
-- [ ] Run computations in isolated workers.
-- [ ] Enforce CPU, memory, runtime, and output limits.
-- [ ] Stream progress and preserve reproducibility metadata.
-- [ ] Connect computation output to visualization renderers.
-- [ ] Clearly label examples, experiments, finite checks, and computer-assisted proof runs.
+- [x] Inventory lightweight and heavyweight programs.
+- [x] Select safe curated commands for the first release.
+- [x] Wrap approved mathematical functions in typed interfaces.
+- [x] Validate all parameters.
+- [x] Run computations in isolated workers.
+- [x] Enforce CPU, memory, runtime, and output limits.
+- [x] Stream progress and preserve reproducibility metadata.
+- [x] Connect computation output to visualization renderers.
+- [x] Clearly label examples, experiments, finite checks, and computer-assisted proof runs.
 
 ### Phase 7 — Add algorithm traces and animation
 
@@ -717,7 +739,7 @@ The following choices remain intentionally unresolved:
 - Should external web search be absent, optional, or enabled by default?
 - Which embedding and reranking methods perform best on this repository?
 - Should later versions persist conversation history locally or make persistence user-configurable?
-- Which computations are safe and useful enough to expose in the first release?
+- Which additional computations merit a future allowlist revision?
 - Which additional combinatorial visualization schemas should follow the Phase 5 core set?
 - What resource limits best balance safety, reproducibility, and hands-on experimentation?
 - How should CRAIG evaluate explanation quality across different mathematical backgrounds?
@@ -732,13 +754,15 @@ conversation interface and orchestration layer described above. Phase 4 adds
 stable citations, bounded source excerpts, explicit provenance categories,
 conservative mathematical-status handling, and expandable evidence panels.
 Phase 5 adds safe Markdown and TeX plus schema-validated mathematical
-visualizations and readable invalid-block fallbacks.
+visualizations and readable invalid-block fallbacks. Phase 6 adds typed,
+allowlisted, isolated computation with resource limits, progress events,
+reproducibility metadata, and trusted visualization handoff.
 
 **Not yet implemented:** a live remote or local model-provider adapter, semantic
-retrieval, the controlled computation layer, algorithm traces and animation,
-and final packaging. The included deterministic provider makes the conversation,
-streaming, retrieval, provenance, modes, renderers, and follow-up context usable
-and testable without claiming to provide model-generated mathematical synthesis.
+retrieval, algorithm traces and animation, and final packaging. The included
+deterministic provider makes conversation, streaming, retrieval, provenance,
+modes, renderers, approved computations, and follow-up context usable and
+testable without claiming to provide model-generated mathematical synthesis.
 
 ## Open-source status
 

@@ -18,8 +18,9 @@ _MODE_GUIDANCE: dict[ChatMode, str] = {
         "path through the material, and suggest a useful next question."
     ),
     "computation": (
-        "Retrieval is available, but no repository program may be executed in "
-        "Phase 3. Clearly distinguish inspectable code from an actual run."
+        "Retrieve relevant code and mathematical context. Execution is permitted "
+        "only through the separate Phase 6 allowlisted worker interface; never "
+        "claim that this conversational retrieval turn ran a program."
     ),
 }
 

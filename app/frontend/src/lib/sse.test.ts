@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { parseSseFrames } from "./sse";
+import type { ComputationEvent } from "../types";
 
 const event = JSON.stringify({
   schema_version: 1,
@@ -51,5 +52,24 @@ describe("parseSseFrames", () => {
       (parsed.events[0].data.sources as Array<{ citation_id: string }>)[0]
         .citation_id,
     ).toBe("C-TEST");
+  });
+
+  it("parses Phase 6 job events without a conversation id", () => {
+    const completed = JSON.stringify({
+      schema_version: 1,
+      type: "computation.completed",
+      job_id: "job_test",
+      created_at: "2026-08-01T00:00:00+00:00",
+      data: { classification: "finite_check", output: { count: 7 } },
+    });
+
+    const parsed = parseSseFrames<ComputationEvent>(
+      `event: computation.completed\ndata: ${completed}\n\n`,
+    );
+
+    expect(parsed.events[0].job_id).toBe("job_test");
+    expect(
+      (parsed.events[0].data.output as { count: number }).count,
+    ).toBe(7);
   });
 });
