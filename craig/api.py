@@ -163,6 +163,7 @@ class HealthResponse(BaseModel):
 
 
 class SourceReferenceResponse(BaseModel):
+    citation_id: str
     topic: str
     path: str
     heading: str | None
@@ -170,6 +171,24 @@ class SourceReferenceResponse(BaseModel):
     start_line: int
     end_line: int
     file_hash: str
+    excerpt: str
+    mathematical_status: Literal[
+        "proved_result",
+        "computer_assisted_proof",
+        "conjecture",
+        "computational_evidence",
+        "experimental_observation",
+        "proof_outline",
+        "work_in_progress",
+        "unknown",
+    ]
+    status_basis: str | None
+
+
+class ProvenanceAnnotationResponse(BaseModel):
+    kind: Literal["repository", "deduction", "model_knowledge", "external"]
+    description: str
+    citation_ids: list[str]
 
 
 class ChatMessageResponse(BaseModel):
@@ -178,6 +197,7 @@ class ChatMessageResponse(BaseModel):
     content: str
     created_at: str
     sources: list[SourceReferenceResponse]
+    provenance: list[ProvenanceAnnotationResponse]
 
 
 class ConversationResponse(BaseModel):
@@ -210,6 +230,8 @@ class ChatConfigurationResponse(BaseModel):
     stream_transport: Literal["sse"]
     conversation_storage: Literal["memory"]
     max_message_chars: int
+    max_source_excerpt_chars: int
+    external_sources_enabled: bool
 
 
 def default_config() -> RetrievalConfig:
@@ -269,7 +291,7 @@ def create_app(
     chat = chat_service or ChatService(service)
     app = FastAPI(
         title="CRAIG Local API",
-        version="0.3.0",
+        version="0.4.0",
         description=(
             "Read-only retrieval and in-memory conversational orchestration over "
             "CRAIG's indexed mathematical corpus."

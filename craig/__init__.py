@@ -1,4 +1,4 @@
-"""CRAIG's local, read-only repository index and retrieval service."""
+"""CRAIG's local, read-only mathematical research interface."""
 
 from .index import IndexStats, index_repository
 from .retrieval import RetrievalConfig, RetrievalService
@@ -13,4 +13,4 @@ __all__ = [
     "search_index",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

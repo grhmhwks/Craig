@@ -15,11 +15,18 @@ from .models import (
     ChatEvent,
     ChatMode,
     PlanningRequest,
+    ProvenanceAnnotation,
     SourceReference,
     ToolCall,
     ToolResult,
 )
 from .prompts import initial_system_prompt, mode_description, secondary_system_prompt
+from .provenance import (
+    MAX_SOURCE_EXCERPT_CHARS,
+    bounded_excerpt,
+    citation_identifier,
+    classify_mathematical_status,
+)
 from .providers import ModelProvider, provider_from_environment
 from .store import ConversationStore
 from .tools import RetrievalToolRegistry
@@ -32,6 +39,7 @@ class ChatConfig:
     max_message_chars: int = 8_000
     max_tool_rounds: int = 3
     max_tool_calls: int = 8
+    external_sources_enabled: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,6 +88,8 @@ class ChatService:
             "stream_transport": "sse",
             "conversation_storage": "memory",
             "max_message_chars": self.config.max_message_chars,
+            "max_source_excerpt_chars": MAX_SOURCE_EXCERPT_CHARS,
+            "external_sources_enabled": self.config.external_sources_enabled,
         }
 
     def prepare(
@@ -180,7 +190,19 @@ class ChatService:
                     turn.mode,
                     turn.topic,
                     results,
+                    sources,
                 ),
+            )
+            provenance = self._collect_provenance(answer_request)
+            yield self._event(
+                "sources.ready",
+                turn,
+                {
+                    "sources": [asdict(source) for source in sources],
+                    "provenance": [
+                        asdict(annotation) for annotation in provenance
+                    ],
+                },
             )
             fragments: list[str] = []
             for fragment in self.provider.stream_answer(answer_request):
@@ -198,6 +220,7 @@ class ChatService:
                 role="assistant",
                 content=content,
                 sources=sources,
+                provenance=provenance,
             )
             yield self._event(
                 "message.completed",
@@ -277,7 +300,7 @@ class ChatService:
         results: tuple[ToolResult, ...],
     ) -> tuple[SourceReference, ...]:
         sources: list[SourceReference] = []
-        seen: set[tuple[object, ...]] = set()
+        positions: dict[tuple[object, ...], int] = {}
         for result in results:
             if not result.success:
                 continue
@@ -309,29 +332,93 @@ class ChatService:
                 ):
                     continue
                 key = (path, start, end, file_hash)
-                if key in seen:
-                    continue
-                seen.add(key)
-                sources.append(
-                    SourceReference(
-                        topic=topic,
+                heading = (
+                    str(item["heading"])
+                    if item.get("heading") is not None
+                    else None
+                )
+                environment = (
+                    str(item["environment"])
+                    if item.get("environment") is not None
+                    else None
+                )
+                mathematical_status, status_basis = (
+                    classify_mathematical_status(
+                        heading=heading,
+                        environment=environment,
+                    )
+                )
+                source = SourceReference(
+                    citation_id=citation_identifier(
                         path=path,
-                        heading=(
-                            str(item["heading"])
-                            if item.get("heading") is not None
-                            else None
-                        ),
-                        environment=(
-                            str(item["environment"])
-                            if item.get("environment") is not None
-                            else None
-                        ),
                         start_line=start,
                         end_line=end,
                         file_hash=file_hash,
-                    )
+                    ),
+                    topic=topic,
+                    path=path,
+                    heading=heading,
+                    environment=environment,
+                    start_line=start,
+                    end_line=end,
+                    file_hash=file_hash,
+                    excerpt=bounded_excerpt(item),
+                    mathematical_status=mathematical_status,
+                    status_basis=status_basis,
                 )
+                existing_position = positions.get(key)
+                if existing_position is not None:
+                    if (
+                        len(source.excerpt)
+                        > len(sources[existing_position].excerpt)
+                    ):
+                        sources[existing_position] = source
+                    continue
+                positions[key] = len(sources)
+                sources.append(source)
         return tuple(sources)
+
+    def _collect_provenance(
+        self,
+        request: AnswerRequest,
+    ) -> tuple[ProvenanceAnnotation, ...]:
+        annotations: list[ProvenanceAnnotation] = []
+        if request.sources:
+            annotations.append(
+                ProvenanceAnnotation(
+                    kind="repository",
+                    description=(
+                        "The displayed source passages are explicit repository "
+                        "material."
+                    ),
+                    citation_ids=tuple(
+                        source.citation_id for source in request.sources
+                    ),
+                )
+            )
+        provider_annotations = self.provider.answer_annotations(request)
+        available_citations = {
+            source.citation_id for source in request.sources
+        }
+        for annotation in provider_annotations:
+            if (
+                annotation.kind == "external"
+                and not self.config.external_sources_enabled
+            ):
+                continue
+            valid_citations = tuple(
+                citation_id
+                for citation_id in annotation.citation_ids
+                if citation_id in available_citations
+            )
+            annotations.append(
+                ProvenanceAnnotation(
+                    kind=annotation.kind,
+                    description=annotation.description,
+                    citation_ids=valid_citations,
+                )
+            )
+        return tuple(annotations)
 
     def _validate_message(self, message: str) -> str:
         if not isinstance(message, str) or not message.strip():

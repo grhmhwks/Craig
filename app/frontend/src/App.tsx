@@ -8,6 +8,9 @@ import type {
   ChatEvent,
   ChatMessage,
   ChatMode,
+  MathematicalStatus,
+  ProvenanceAnnotation,
+  ProvenanceKind,
   SourceReference,
   TopicSummary,
 } from "./types";
@@ -17,6 +20,24 @@ const modeLabels: Record<ChatMode, string> = {
   explanation: "Explain",
   tutorial: "Tutorial",
   computation: "Computation",
+};
+
+const statusLabels: Record<MathematicalStatus, string> = {
+  proved_result: "Proved result",
+  computer_assisted_proof: "Computer-assisted proof",
+  conjecture: "Conjecture",
+  computational_evidence: "Computational evidence",
+  experimental_observation: "Experimental observation",
+  proof_outline: "Proof outline",
+  work_in_progress: "Work in progress",
+  unknown: "Status unknown",
+};
+
+const provenanceLabels: Record<ProvenanceKind, string> = {
+  repository: "Repository statement",
+  deduction: "CRAIG deduction",
+  model_knowledge: "Model knowledge",
+  external: "External information",
 };
 
 const starters: Record<ChatMode, string[]> = {
@@ -76,7 +97,94 @@ function topicLabel(topic: string): string {
 }
 
 function sourceLabel(source: SourceReference): string {
-  return `${source.path}:${source.start_line}–${source.end_line}`;
+  return `content/${source.path}:${source.start_line}–${source.end_line}`;
+}
+
+function structureLabel(environment: string | null): string {
+  if (!environment) {
+    return "Not explicitly classified";
+  }
+  if (environment.startsWith("heading_")) {
+    return `Markdown heading level ${environment.slice("heading_".length)}`;
+  }
+  return environment.replaceAll("_", " ");
+}
+
+function SourcePanel({ source }: { source: SourceReference }) {
+  return (
+    <details className="source-card">
+      <summary>
+        <span className="citation-id">{source.citation_id}</span>
+        <span className="source-summary">
+          <strong>{source.heading ?? source.path}</strong>
+          <small>{sourceLabel(source)}</small>
+        </span>
+        <span
+          className={`status-badge status-${source.mathematical_status}`}
+        >
+          {statusLabels[source.mathematical_status]}
+        </span>
+      </summary>
+      <div className="source-detail">
+        <dl>
+          <div>
+            <dt>Topic</dt>
+            <dd>{topicLabel(source.topic)}</dd>
+          </div>
+          <div>
+            <dt>File</dt>
+            <dd>content/{source.path}</dd>
+          </div>
+          <div>
+            <dt>Structure</dt>
+            <dd>{structureLabel(source.environment)}</dd>
+          </div>
+          <div>
+            <dt>Heading</dt>
+            <dd>{source.heading ?? "Not available"}</dd>
+          </div>
+          <div>
+            <dt>Lines</dt>
+            <dd>
+              {source.start_line}–{source.end_line}
+            </dd>
+          </div>
+        </dl>
+        <p className="status-basis">
+          {source.status_basis ??
+            "No explicit mathematical-status marker was found."}
+        </p>
+        <pre>{source.excerpt || "No excerpt was returned."}</pre>
+        <p className="source-hash" title={source.file_hash}>
+          Indexed SHA-256: {source.file_hash}
+        </p>
+      </div>
+    </details>
+  );
+}
+
+function ProvenancePanel({
+  annotations,
+}: {
+  annotations: ProvenanceAnnotation[];
+}) {
+  return (
+    <section className="provenance-panel" aria-label="Answer provenance">
+      <h4>Answer provenance</h4>
+      {annotations.map((annotation, index) => (
+        <div
+          className={`provenance-note provenance-${annotation.kind}`}
+          key={`${annotation.kind}:${index}`}
+        >
+          <span>{provenanceLabels[annotation.kind]}</span>
+          <p>{annotation.description}</p>
+          {annotation.citation_ids.length > 0 && (
+            <small>{annotation.citation_ids.join(" · ")}</small>
+          )}
+        </div>
+      ))}
+    </section>
+  );
 }
 
 function App() {
@@ -144,6 +252,18 @@ function App() {
       setActivity(null);
       return;
     }
+    if (event.type === "sources.ready") {
+      const sources = (event.data.sources ?? []) as SourceReference[];
+      const provenance = (event.data.provenance ?? []) as ProvenanceAnnotation[];
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === pendingAssistantId
+            ? { ...message, sources, provenance }
+            : message,
+        ),
+      );
+      return;
+    }
     if (event.type === "text.delta") {
       const delta = String(event.data.delta ?? "");
       setMessages((current) =>
@@ -159,7 +279,13 @@ function App() {
       const completed = event.data.message as unknown as ChatMessage;
       setMessages((current) =>
         current.map((message) =>
-          message.id === pendingAssistantId ? completed : message,
+          message.id === pendingAssistantId
+            ? {
+                ...completed,
+                sources: completed.sources ?? [],
+                provenance: completed.provenance ?? [],
+              }
+            : message,
         ),
       );
       setStatus("Ready");
@@ -185,6 +311,7 @@ function App() {
       content: message,
       created_at: now,
       sources: [],
+      provenance: [],
     };
     const pendingAssistantId = `local_assistant_${crypto.randomUUID()}`;
     const pendingAssistant: ChatMessage = {
@@ -193,6 +320,7 @@ function App() {
       content: "",
       created_at: now,
       sources: [],
+      provenance: [],
     };
     setMessages((current) => [...current, userMessage, pendingAssistant]);
     setInput("");
@@ -370,18 +498,28 @@ function App() {
                       <p>{message.content}</p>
                     )}
                   </div>
+                  {message.role === "assistant" &&
+                    message.provenance.length > 0 && (
+                      <ProvenancePanel annotations={message.provenance} />
+                    )}
                   {message.sources.length > 0 && (
-                    <div className="source-row" aria-label="Repository sources">
-                      {message.sources.slice(0, 6).map((source) => (
-                        <span
-                          className="source-chip"
-                          key={`${source.path}:${source.start_line}:${source.end_line}`}
-                          title={source.heading ?? source.path}
-                        >
-                          {sourceLabel(source)}
-                        </span>
-                      ))}
-                    </div>
+                    <section
+                      className="source-section"
+                      aria-label="Repository sources"
+                    >
+                      <div className="source-section-heading">
+                        <span>Inspect cited evidence</span>
+                        <small>{message.sources.length} passage(s)</small>
+                      </div>
+                      <div className="source-list">
+                        {message.sources.map((source) => (
+                          <SourcePanel
+                            source={source}
+                            key={source.citation_id}
+                          />
+                        ))}
+                      </div>
+                    </section>
                   )}
                 </article>
               ))}

@@ -9,6 +9,22 @@ from uuid import uuid4
 
 ChatMode = Literal["research", "explanation", "tutorial", "computation"]
 ChatRole = Literal["user", "assistant"]
+ProvenanceKind = Literal[
+    "repository",
+    "deduction",
+    "model_knowledge",
+    "external",
+]
+MathematicalStatus = Literal[
+    "proved_result",
+    "computer_assisted_proof",
+    "conjecture",
+    "computational_evidence",
+    "experimental_observation",
+    "proof_outline",
+    "work_in_progress",
+    "unknown",
+]
 
 CHAT_MODES: tuple[ChatMode, ...] = (
     "research",
@@ -32,8 +48,9 @@ def new_identifier(prefix: str) -> str:
 
 @dataclass(frozen=True, slots=True)
 class SourceReference:
-    """A compact source location retained on an assistant message."""
+    """An inspectable, bounded repository citation retained on a message."""
 
+    citation_id: str
     topic: str
     path: str
     heading: str | None
@@ -41,6 +58,18 @@ class SourceReference:
     start_line: int
     end_line: int
     file_hash: str
+    excerpt: str
+    mathematical_status: MathematicalStatus
+    status_basis: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ProvenanceAnnotation:
+    """A visible authority label for part of an assistant's synthesis."""
+
+    kind: ProvenanceKind
+    description: str
+    citation_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,6 +81,7 @@ class ChatMessage:
     content: str
     created_at: str
     sources: tuple[SourceReference, ...] = ()
+    provenance: tuple[ProvenanceAnnotation, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,7 +142,7 @@ class AnswerRequest:
 
 @dataclass(frozen=True, slots=True)
 class ChatEvent:
-    """One typed event emitted through the Phase 3 SSE contract."""
+    """One typed event emitted through the conversational SSE contract."""
 
     type: str
     conversation_id: str

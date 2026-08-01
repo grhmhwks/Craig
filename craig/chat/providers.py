@@ -9,7 +9,13 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .errors import ProviderUnavailableError
-from .models import AnswerRequest, PlanningRequest, ToolCall, ToolResult
+from .models import (
+    AnswerRequest,
+    PlanningRequest,
+    ProvenanceAnnotation,
+    ToolCall,
+    ToolResult,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +47,12 @@ class ModelProvider(Protocol):
 
     def stream_answer(self, request: AnswerRequest) -> Iterator[str]:
         """Yield text fragments for the grounded assistant answer."""
+
+    def answer_annotations(
+        self,
+        request: AnswerRequest,
+    ) -> tuple[ProvenanceAnnotation, ...]:
+        """Describe non-repository reasoning or knowledge used in the answer."""
 
 
 class DemoModelProvider:
@@ -138,10 +150,53 @@ class DemoModelProvider:
         for index in range(0, len(pieces), 10):
             yield "".join(pieces[index : index + 10])
 
+    def answer_annotations(
+        self,
+        request: AnswerRequest,
+    ) -> tuple[ProvenanceAnnotation, ...]:
+        """Label retrieval ranking and optional tutorial guidance explicitly."""
+
+        annotations: list[ProvenanceAnnotation] = []
+        citation_ids = tuple(source.citation_id for source in request.sources)
+        if citation_ids:
+            annotations.append(
+                ProvenanceAnnotation(
+                    kind="deduction",
+                    description=(
+                        "CRAIG selected and ordered these passages using lexical "
+                        "retrieval; that relevance ordering is not a statement "
+                        "made by the repository."
+                    ),
+                    citation_ids=citation_ids,
+                )
+            )
+        else:
+            annotations.append(
+                ProvenanceAnnotation(
+                    kind="deduction",
+                    description=(
+                        "The no-result statement describes this bounded lexical "
+                        "search; it does not prove that the corpus contains no "
+                        "relevant material."
+                    ),
+                )
+            )
+        if request.mode == "tutorial" and request.sources:
+            annotations.append(
+                ProvenanceAnnotation(
+                    kind="model_knowledge",
+                    description=(
+                        "The suggested reading sequence is general pedagogical "
+                        "guidance supplied by CRAIG."
+                    ),
+                )
+            )
+        return tuple(annotations)
+
     def _answer(self, request: AnswerRequest) -> str:
         if request.mode == "computation":
             preface = (
-                "Computation mode is retrieval-only in Phase 3. I did not run "
+                "Computation mode is retrieval-only. I did not run "
                 "repository code. Here is the indexed material most relevant "
                 "to the requested computation."
             )
@@ -161,8 +216,7 @@ class DemoModelProvider:
                 "question."
             )
 
-        passages = self._passages(request.tool_results)
-        if not passages:
+        if not request.sources:
             return (
                 f"{preface}\n\nNo matching passage was found in the current "
                 "lexical index. Try a shorter mathematical term, an exact quoted "
@@ -170,25 +224,15 @@ class DemoModelProvider:
             )
 
         sections = [preface]
-        for index, passage in enumerate(passages[:4], start=1):
-            heading = passage.get("heading") or "Source passage"
-            path = passage.get("path", "unknown")
-            start = passage.get(
-                "start_line",
-                passage.get("match_start_line", "?"),
-            )
-            end = passage.get("end_line", passage.get("match_end_line", "?"))
-            excerpt = (
-                passage.get("snippet")
-                or passage.get("excerpt")
-                or passage.get("text")
-                or ""
-            )
-            compact_excerpt = re.sub(r"\s+", " ", str(excerpt)).strip()
+        for index, source in enumerate(request.sources, start=1):
+            heading = source.heading or "Source passage"
+            compact_excerpt = re.sub(r"\s+", " ", source.excerpt).strip()
+            status = source.mathematical_status.replace("_", " ")
             sections.append(
-                f"### {index}. {heading}\n\n"
+                f"### {index}. {heading} [{source.citation_id}]\n\n"
                 f"{compact_excerpt}\n\n"
-                f"`content/{path}:{start}-{end}`"
+                f"Status: **{status}**  \n"
+                f"`content/{source.path}:{source.start_line}-{source.end_line}`"
             )
         if request.mode == "tutorial":
             sections.append(
@@ -197,37 +241,6 @@ class DemoModelProvider:
                 "passage."
             )
         return "\n\n".join(sections)
-
-    @staticmethod
-    def _passages(results: tuple[ToolResult, ...]) -> list[dict[str, object]]:
-        passages: list[dict[str, object]] = []
-        seen: set[tuple[object, object, object]] = set()
-        for result in results:
-            if not result.success:
-                continue
-            raw: object
-            if result.name in {"search_content", "find_exact"}:
-                raw = result.output.get("results", ())
-            elif result.name == "read_source":
-                raw = (result.output,)
-            else:
-                continue
-            if not isinstance(raw, (list, tuple)):
-                continue
-            for item in raw:
-                if not isinstance(item, dict):
-                    continue
-                key = (
-                    item.get("path"),
-                    item.get("start_line", item.get("match_start_line")),
-                    item.get("end_line", item.get("match_end_line")),
-                )
-                if key in seen:
-                    continue
-                seen.add(key)
-                passages.append(item)
-        return passages
-
 
 class UnavailableModelProvider:
     """Stable failure provider for unsupported or unconfigured selections."""
@@ -256,10 +269,17 @@ class UnavailableModelProvider:
         del request
         self._raise()
 
+    def answer_annotations(
+        self,
+        request: AnswerRequest,
+    ) -> tuple[ProvenanceAnnotation, ...]:
+        del request
+        self._raise()
+
     def _raise(self) -> None:
         raise ProviderUnavailableError(
             f"Model provider `{self.metadata.name}` is not configured in this "
-            "Phase 3 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
+            "Phase 4 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
             "retrieval demonstration."
         )
 

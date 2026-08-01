@@ -8,8 +8,9 @@ implementations, optimized programs, examples, and related research summaries.
 Each topic has its own documentation; begin with
 [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
-The local index/search milestone, Phase 2 read-only retrieval API, and Phase 3
-conversational application are implemented. Their intended final form is
+The local index/search milestone, Phase 2 read-only retrieval API, Phase 3
+conversational application, and Phase 4 provenance interface are implemented.
+Their intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
 and computationally exploring the mathematics contained here.
@@ -157,6 +158,39 @@ Conversation history is bounded, process-local memory. It is cleared whenever
 the backend restarts and is not written to the repository. Phase 3 also excludes
 external web search, semantic retrieval, arbitrary code execution, and trusted
 mathematical visualizations.
+
+## Provenance and mathematical status (Phase 4)
+
+Phase 4 makes the evidence behind an answer inspectable. Each cited repository
+passage now has a stable citation identifier, corpus-relative file, structural
+heading and environment, exact line range, indexed SHA-256, bounded text
+excerpt, mathematical-status label, and an explanation of the status basis when
+one exists. The `sources.ready` SSE event exposes this metadata before answer
+streaming finishes, and completed messages retain it for follow-up turns.
+
+The browser displays inline citation identifiers and expandable evidence cards.
+Each card shows the file, heading, theorem-like environment, lines, status,
+excerpt, and hash. Answer-level provenance notes distinguish:
+
+- explicit repository material;
+- CRAIG deductions or retrieval-based synthesis;
+- general model knowledge;
+- external information.
+
+The external category is reserved for contract compatibility but is not emitted
+because external search remains disabled.
+
+Mathematical status is intentionally conservative. CRAIG recognizes explicit
+theorem-like and conjecture environments and explicit headings such as
+“computer-assisted proof,” “computational evidence,” “proof outline,” and “work
+in progress.” Anything else remains **status unknown**. It does not infer status
+from a filename or topic name.
+
+The grounded-answer prompt requires citation identifiers, keeps deductions
+separate from source statements, preserves unknown status, refuses to promote
+finite evidence into a general proof, and distinguishes exploratory computation
+from an exhaustive finite check. The full Phase 4 contract is recorded in
+[`docs/phase-4-plan.md`](docs/phase-4-plan.md).
 
 ## Project vision
 
@@ -601,13 +635,16 @@ The ordering below is a working to-do list, not a promise that every detail will
 
 ### Phase 4 — Add provenance and mathematical-status handling
 
-- [ ] Display file, section, theorem, and line-level citations.
-- [ ] Add expandable source excerpts.
-- [ ] Label source statements, deductions, model knowledge, and external information separately.
-- [ ] Add proved/conjectural/computational/work-in-progress labels.
-- [ ] Teach the prompts not to convert finite evidence into a general proof.
-- [ ] Teach the prompts to distinguish exploratory computation from exhaustive proof obligations.
-- [ ] Add tests for conflicting definitions and conventions across topics.
+The implementation contract and acceptance criteria are recorded in
+[`docs/phase-4-plan.md`](docs/phase-4-plan.md).
+
+- [x] Display file, section, theorem, and line-level citations.
+- [x] Add expandable source excerpts.
+- [x] Label source statements, deductions, model knowledge, and external information separately.
+- [x] Add proved/conjectural/computational/work-in-progress labels.
+- [x] Teach the prompts not to convert finite evidence into a general proof.
+- [x] Teach the prompts to distinguish exploratory computation from exhaustive proof obligations.
+- [x] Add tests for conflicting definitions and conventions across topics.
 
 ### Phase 5 — Add core mathematical rendering
 
@@ -674,12 +711,14 @@ The following choices remain intentionally unresolved:
 **Current:** the repository contains the mathematical material under
 [`content`](content/), the Milestone 1 local FTS5 index/search commands, the
 Phase 2 read-only retrieval service and HTTP API, and the Phase 3 browser
-conversation interface and orchestration layer described above.
+conversation interface and orchestration layer described above. Phase 4 adds
+stable citations, bounded source excerpts, explicit provenance categories,
+conservative mathematical-status handling, and expandable evidence panels.
 
 **Not yet implemented:** a live remote or local model-provider adapter, semantic
-retrieval, rich Phase 4 provenance presentation, trusted visualizations, and the
-controlled computation layer. The included deterministic provider makes the
-Phase 3 UI, streaming, retrieval loop, modes, and follow-up context usable and
+retrieval, trusted mathematical rendering and visualizations, and the controlled
+computation layer. The included deterministic provider makes the conversation,
+streaming, retrieval, provenance, modes, and follow-up context usable and
 testable without claiming to provide model-generated mathematical synthesis.
 
 ## Open-source status

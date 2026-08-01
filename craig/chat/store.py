@@ -11,6 +11,7 @@ from .models import (
     ChatMode,
     ChatRole,
     ConversationSnapshot,
+    ProvenanceAnnotation,
     SourceReference,
     new_identifier,
     utc_timestamp,
@@ -101,6 +102,7 @@ class ConversationStore:
         role: ChatRole,
         content: str,
         sources: tuple[SourceReference, ...] = (),
+        provenance: tuple[ProvenanceAnnotation, ...] = (),
     ) -> ChatMessage:
         """Append one message and enforce the per-conversation bound."""
 
@@ -112,6 +114,7 @@ class ConversationStore:
             content=content,
             created_at=utc_timestamp(),
             sources=sources,
+            provenance=provenance,
         )
         with self._lock:
             conversation = self._require(conversation_id)
@@ -144,6 +147,7 @@ class ConversationStore:
                         content=message.content[-remaining:],
                         created_at=message.created_at,
                         sources=message.sources,
+                        provenance=message.provenance,
                     )
                     selected.append(clipped)
                     break

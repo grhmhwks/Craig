@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .models import ChatMode, ToolResult
+from .models import ChatMode, SourceReference, ToolResult
 
 _MODE_GUIDANCE: dict[ChatMode, str] = {
     "research": (
@@ -44,18 +44,37 @@ def secondary_system_prompt(
     mode: ChatMode,
     topic: str | None,
     tool_results: tuple[ToolResult, ...],
+    sources: tuple[SourceReference, ...],
 ) -> str:
     """Build the answer prompt after retrieval has completed."""
 
     scope = f"topic `{topic}`" if topic else "the indexed repository"
     result_count = sum(1 for result in tool_results if result.success)
+    citation_inventory = ", ".join(
+        (
+            f"{source.citation_id}=content/{source.path}:"
+            f"{source.start_line}-{source.end_line}"
+            f" ({source.mathematical_status})"
+        )
+        for source in sources
+    )
+    if not citation_inventory:
+        citation_inventory = "none"
     return (
         "Role: answer as CRAIG using retrieved repository evidence.\n"
         f"Goal: answer the user from {scope}; {result_count} retrieval result(s) "
-        "are available.\nConstraints: do not imply that missing evidence proves "
-        "a negative; do not turn finite evidence into a general proof; cite only "
-        "the source locations supplied by the application; label uncertainty "
-        "plainly; do not claim to have executed code.\nMode: "
+        "are available.\nAuthority labels: distinguish repository statements, "
+        "deductions from those statements, general model knowledge, and external "
+        "information. External information is unavailable in this release. Cite "
+        "each repository-backed claim with the supplied citation identifier. "
+        "Never present a deduction as an explicit source statement.\nStatus "
+        "rules: use only the supplied mathematical status; `unknown` must remain "
+        "unknown. Do not turn finite evidence into a general proof. Distinguish "
+        "exploratory or sampled computation from an exhaustive finite check, and "
+        "call an exhaustive check proof-relevant only when the source explicitly "
+        "establishes that role. Do not imply that missing evidence proves a "
+        "negative or claim to have executed code.\n"
+        f"Available citations: {citation_inventory}.\nMode: "
         f"{_MODE_GUIDANCE[mode]}"
     )
 

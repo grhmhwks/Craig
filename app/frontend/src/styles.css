@@ -514,23 +514,271 @@ button {
   font-size: 12px;
 }
 
-.source-row {
-  margin-top: 18px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.provenance-panel {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid #d8d5ca;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.32);
 }
 
-.source-chip {
-  max-width: 100%;
+.provenance-panel h4 {
+  margin: 0 0 10px;
+  color: #69736e;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.provenance-note {
+  display: grid;
+  grid-template-columns: 135px minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: start;
+  padding: 8px 0;
+  border-top: 1px solid rgba(217, 213, 201, 0.7);
+}
+
+.provenance-note:first-of-type {
+  border-top: 0;
+}
+
+.provenance-note > span {
+  width: fit-content;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.provenance-note p {
+  margin: 2px 0 0;
+  color: #56615c;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.provenance-note small {
+  grid-column: 2;
+  color: #7d8580;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 8px;
+}
+
+.provenance-repository > span {
+  color: #24564a;
+  background: rgba(63, 126, 106, 0.12);
+}
+
+.provenance-deduction > span {
+  color: #855331;
+  background: rgba(217, 116, 79, 0.13);
+}
+
+.provenance-model_knowledge > span {
+  color: #545d78;
+  background: rgba(91, 104, 148, 0.12);
+}
+
+.provenance-external > span {
+  color: #7c4455;
+  background: rgba(146, 72, 94, 0.12);
+}
+
+.source-section {
+  margin-top: 20px;
+}
+
+.source-section-heading {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  color: #68716c;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.source-section-heading small {
+  color: #929791;
+  font-size: 8px;
+}
+
+.source-list {
+  display: grid;
+  gap: 7px;
+}
+
+.source-card {
   overflow: hidden;
-  padding: 6px 8px;
-  color: #52605b;
-  border: 1px solid #d5d8cf;
+  border: 1px solid #d5d4ca;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.source-card[open] {
+  border-color: rgba(35, 88, 77, 0.38);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.source-card summary {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.source-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.source-card summary:focus-visible {
+  outline: 2px solid var(--forest-light);
+  outline-offset: -2px;
+}
+
+.citation-id {
+  padding: 5px 7px;
+  color: #fff;
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.42);
+  background: var(--forest);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.source-summary {
+  min-width: 0;
+}
+
+.source-summary strong,
+.source-summary small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-summary strong {
+  color: #33413c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.source-summary small {
+  margin-top: 4px;
+  color: #7d8580;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 8px;
+}
+
+.status-badge {
+  padding: 5px 7px;
+  color: #5e6662;
+  border: 1px solid #d5d8d2;
+  border-radius: 999px;
+  background: #f1f1ec;
+  font-size: 8px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.status-proved_result,
+.status-computer_assisted_proof {
+  color: #24564a;
+  border-color: rgba(63, 126, 106, 0.24);
+  background: rgba(63, 126, 106, 0.1);
+}
+
+.status-conjecture,
+.status-proof_outline,
+.status-work_in_progress {
+  color: #8b4f31;
+  border-color: rgba(217, 116, 79, 0.25);
+  background: rgba(217, 116, 79, 0.1);
+}
+
+.status-computational_evidence,
+.status-experimental_observation {
+  color: #545d78;
+  border-color: rgba(91, 104, 148, 0.22);
+  background: rgba(91, 104, 148, 0.09);
+}
+
+.source-detail {
+  padding: 14px;
+  border-top: 1px solid #dddcd3;
+}
+
+.source-detail dl {
+  margin: 0 0 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.source-detail dl > div {
+  min-width: 0;
+  padding: 8px 9px;
+  background: rgba(238, 234, 224, 0.5);
+}
+
+.source-detail dt {
+  color: #8a918c;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-detail dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: #46534e;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 9px;
+  line-height: 1.45;
+}
+
+.status-basis {
+  margin: 0 0 9px;
+  color: #717a75;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 9px;
+}
+
+.source-detail pre {
+  max-height: 280px;
+  margin: 0;
+  overflow: auto;
+  padding: 13px;
+  color: #33413c;
+  border: 1px solid #deddd5;
+  border-radius: 6px;
+  background: #f4f2eb;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.source-hash {
+  margin: 9px 0 0;
+  overflow: hidden;
+  color: #929791;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -823,6 +1071,27 @@ button {
 
   .message.user {
     margin-left: 30px;
+  }
+
+  .provenance-note {
+    grid-template-columns: 1fr;
+  }
+
+  .provenance-note small {
+    grid-column: 1;
+  }
+
+  .source-card summary {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .source-card summary .status-badge {
+    grid-column: 2;
+    width: fit-content;
+  }
+
+  .source-detail dl {
+    grid-template-columns: 1fr;
   }
 
   .controls {

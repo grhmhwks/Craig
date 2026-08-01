@@ -15,6 +15,7 @@ from craig.chat.models import (
     AnswerRequest,
     ChatEvent,
     PlanningRequest,
+    ProvenanceAnnotation,
     ToolCall,
     ToolResult,
 )
@@ -107,8 +108,17 @@ def test_chat_orchestration_streams_tools_text_and_sources(
     assert completed["role"] == "assistant"
     assert completed["sources"]
     assert completed["sources"][0]["topic"] == "alpha"
+    assert completed["sources"][0]["citation_id"].startswith("C-")
+    assert completed["sources"][0]["excerpt"]
+    assert completed["sources"][0]["mathematical_status"] == "proved_result"
+    assert completed["sources"][0]["citation_id"] in completed["content"]
+    assert [note["kind"] for note in completed["provenance"]] == [
+        "repository",
+        "deduction",
+    ]
     snapshot = service.store.get(turn.conversation_id)
     assert [message.role for message in snapshot.messages] == ["user", "assistant"]
+    assert snapshot.messages[-1].provenance
 
 
 def test_follow_up_preserves_in_memory_context(
@@ -116,6 +126,8 @@ def test_follow_up_preserves_in_memory_context(
 ) -> None:
     service, _, _ = chat
     first, _ = _run_turn(service)
+    first_snapshot = service.store.get(first.conversation_id)
+    first_citation = first_snapshot.messages[-1].sources[0].citation_id
 
     second, events = _run_turn(
         service,
@@ -130,6 +142,8 @@ def test_follow_up_preserves_in_memory_context(
     assert len(snapshot.messages) == 4
     assert snapshot.mode == "research"
     assert snapshot.messages[-2].content == "Where is that lemma stated?"
+    assert snapshot.messages[1].sources[0].citation_id == first_citation
+    assert snapshot.messages[1].provenance
 
 
 def test_provider_receives_separate_prompts_and_follow_up_context(
@@ -165,6 +179,13 @@ def test_provider_receives_separate_prompts_and_follow_up_context(
             self.answers.append(request)
             yield "Grounded test response."
 
+        def answer_annotations(
+            self,
+            request: AnswerRequest,
+        ) -> tuple[ProvenanceAnnotation, ...]:
+            del request
+            return ()
+
     provider = RecordingProvider()
     service = ChatService(
         RetrievalService(config),
@@ -182,6 +203,11 @@ def test_provider_receives_separate_prompts_and_follow_up_context(
     )
     assert provider.answers[0].system_prompt.startswith("Role: answer as CRAIG")
     assert provider.planning[0].system_prompt != provider.answers[0].system_prompt
+    assert "`unknown` must remain unknown" in provider.answers[0].system_prompt
+    assert "exhaustive finite check" in provider.answers[0].system_prompt
+    assert "Do not turn finite evidence into a general proof" in (
+        provider.answers[0].system_prompt
+    )
     assert [message.role for message in provider.planning[1].conversation.messages] == [
         "user",
         "assistant",
@@ -209,6 +235,15 @@ def test_modes_change_the_answer_profile(
 
     answer = events[-1].data["message"]["content"]
     assert expected in answer
+    provenance_kinds = {
+        note["kind"] for note in events[-1].data["message"]["provenance"]
+    }
+    assert "repository" in provenance_kinds
+    assert "deduction" in provenance_kinds
+    if mode == "tutorial":
+        assert "model_knowledge" in provenance_kinds
+    else:
+        assert "model_knowledge" not in provenance_kinds
 
 
 def test_chat_validation_rejects_bad_scope_and_oversized_messages(
@@ -279,6 +314,63 @@ def test_unavailable_provider_emits_a_typed_stream_error(
     assert "not configured" in events[-1].data["message"]
 
 
+def test_external_provenance_is_suppressed_while_external_tools_are_disabled(
+    chat: tuple[ChatService, RetrievalConfig, Path],
+) -> None:
+    _, config, _ = chat
+
+    class AnnotatingProvider:
+        metadata = ProviderMetadata(
+            name="annotating",
+            model="test",
+            configured=True,
+            live=False,
+        )
+
+        def plan(self, request: PlanningRequest) -> tuple[ToolCall, ...]:
+            del request
+            return ()
+
+        def refine(
+            self,
+            request: PlanningRequest,
+            results: tuple[ToolResult, ...],
+        ) -> tuple[ToolCall, ...]:
+            del request, results
+            return ()
+
+        def stream_answer(self, request: AnswerRequest) -> Iterator[str]:
+            del request
+            yield "Provider response."
+
+        def answer_annotations(
+            self,
+            request: AnswerRequest,
+        ) -> tuple[ProvenanceAnnotation, ...]:
+            del request
+            return (
+                ProvenanceAnnotation(
+                    kind="external",
+                    description="Disabled external material.",
+                ),
+                ProvenanceAnnotation(
+                    kind="model_knowledge",
+                    description="General provider knowledge.",
+                ),
+            )
+
+    service = ChatService(
+        RetrievalService(config),
+        provider=AnnotatingProvider(),
+    )
+    _, events = _run_turn(service)
+
+    provenance = events[-1].data["message"]["provenance"]
+    assert [annotation["kind"] for annotation in provenance] == [
+        "model_knowledge"
+    ]
+
+
 def _request(
     app: Any,
     method: str,
@@ -329,11 +421,17 @@ def test_chat_http_sse_contract_and_conversation_lookup(
 
     assert configuration.status_code == 200
     assert "OPENAI_API_KEY" not in configuration.text
+    assert configuration.json()["max_source_excerpt_chars"] == 1600
+    assert configuration.json()["external_sources_enabled"] is False
     assert stream.status_code == 200
     assert stream.headers["content-type"].startswith("text/event-stream")
     events = _sse_events(stream)
     assert events[0]["type"] == "conversation.created"
     assert events[-1]["type"] == "message.completed"
+    source_event = next(event for event in events if event["type"] == "sources.ready")
+    assert source_event["data"]["sources"][0]["citation_id"].startswith("C-")
+    assert source_event["data"]["sources"][0]["excerpt"]
+    assert source_event["data"]["provenance"][0]["kind"] == "repository"
     conversation_id = events[0]["conversation_id"]
     lookup = _request(
         app,
@@ -342,6 +440,123 @@ def test_chat_http_sse_contract_and_conversation_lookup(
     )
     assert lookup.status_code == 200
     assert len(lookup.json()["messages"]) == 2
+    assert lookup.json()["messages"][-1]["sources"][0]["status_basis"]
+    assert lookup.json()["messages"][-1]["provenance"]
+    openapi = _request(app, "GET", "/openapi.json").json()
+    source_schema = openapi["components"]["schemas"]["SourceReferenceResponse"]
+    assert {
+        "citation_id",
+        "excerpt",
+        "mathematical_status",
+        "status_basis",
+    }.issubset(source_schema["properties"])
+    message_schema = openapi["components"]["schemas"]["ChatMessageResponse"]
+    assert "provenance" in message_schema["properties"]
+
+
+def test_conflicting_conventions_keep_separate_global_citations(
+    tmp_path: Path,
+) -> None:
+    content = tmp_path / "content"
+    database = tmp_path / ".craig" / "index.sqlite3"
+    _write(
+        content,
+        "ascending/explanation.tex",
+        (
+            "\\section{Widget conventions}\n"
+            "\\begin{definition}[Ascending convention]\n"
+            "A widget word is read from left to right.\n"
+            "\\end{definition}\n"
+        ),
+    )
+    _write(
+        content,
+        "descending/explanation.tex",
+        (
+            "\\section{Widget conventions}\n"
+            "\\begin{definition}[Descending convention]\n"
+            "A widget word is read from right to left.\n"
+            "\\end{definition}\n"
+        ),
+    )
+    index_repository(content, database)
+    service = ChatService(
+        RetrievalService(
+            RetrievalConfig(
+                content_root=content,
+                database_path=database,
+            )
+        ),
+        provider=DemoModelProvider(),
+    )
+
+    _, events = _run_turn(
+        service,
+        message="widget",
+        mode="research",
+        topic=None,
+    )
+    completed = events[-1].data["message"]
+    sources = completed["sources"]
+
+    assert {source["topic"] for source in sources} == {"ascending", "descending"}
+    assert len({source["citation_id"] for source in sources}) == len(sources)
+    combined_excerpts = " ".join(source["excerpt"] for source in sources)
+    assert "left to right" in combined_excerpts
+    assert "right to left" in combined_excerpts
+    assert all(source["mathematical_status"] == "unknown" for source in sources)
+    assert all(
+        source["citation_id"] in completed["content"] for source in sources
+    )
+    assert "Ascending convention" in completed["content"]
+    assert "Descending convention" in completed["content"]
+
+
+def test_explicit_status_structure_survives_chat_stream(
+    tmp_path: Path,
+) -> None:
+    content = tmp_path / "content"
+    database = tmp_path / ".craig" / "index.sqlite3"
+    _write(
+        content,
+        "status/explanation.tex",
+        (
+            "\\section{Computational evidence}\n"
+            "A marker was observed in a finite calculation.\n"
+            "\\begin{conjecture}[Marker conjecture]\n"
+            "The marker should occur in every rank.\n"
+            "\\end{conjecture}\n"
+            "\\begin{theorem}[Marker theorem]\n"
+            "The marker occurs in rank one.\n"
+            "\\end{theorem}\n"
+        ),
+    )
+    index_repository(content, database)
+    service = ChatService(
+        RetrievalService(
+            RetrievalConfig(
+                content_root=content,
+                database_path=database,
+            )
+        ),
+        provider=DemoModelProvider(),
+    )
+
+    _, events = _run_turn(
+        service,
+        message="marker",
+        mode="research",
+        topic="status",
+    )
+    sources = events[-1].data["message"]["sources"]
+    statuses_by_environment = {
+        source["environment"]: source["mathematical_status"]
+        for source in sources
+    }
+
+    assert statuses_by_environment["section"] == "computational_evidence"
+    assert statuses_by_environment["conjecture"] == "conjecture"
+    assert statuses_by_environment["theorem"] == "proved_result"
 
 
 def test_chat_http_operations_leave_content_unchanged(

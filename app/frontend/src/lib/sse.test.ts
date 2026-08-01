@@ -28,4 +28,28 @@ describe("parseSseFrames", () => {
     expect(parsed.events).toEqual([]);
     expect(parsed.remainder).toContain("event: text.delta");
   });
+
+  it("preserves Phase 4 source and provenance payloads", () => {
+    const sourcesReady = JSON.stringify({
+      schema_version: 1,
+      type: "sources.ready",
+      conversation_id: "conv_test",
+      created_at: "2026-07-30T00:00:00+00:00",
+      data: {
+        sources: [{ citation_id: "C-TEST" }],
+        provenance: [{ kind: "repository" }],
+      },
+    });
+
+    const parsed = parseSseFrames(
+      `event: sources.ready\ndata: ${sourcesReady}\n\n`,
+    );
+
+    expect(parsed.events).toHaveLength(1);
+    expect(parsed.events[0].type).toBe("sources.ready");
+    expect(
+      (parsed.events[0].data.sources as Array<{ citation_id: string }>)[0]
+        .citation_id,
+    ).toBe("C-TEST");
+  });
 });

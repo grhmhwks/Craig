@@ -178,3 +178,27 @@ def test_api_retrieval_does_not_modify_content(
         if path.is_file()
     }
     assert after == before
+
+
+def test_production_frontend_mount_preserves_api_routes(
+    api: tuple[FastAPI, Path],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    existing_app, _ = api
+    frontend_dist = tmp_path / "frontend-dist"
+    frontend_dist.mkdir()
+    (frontend_dist / "index.html").write_text(
+        "<!doctype html><title>CRAIG frontend smoke</title>",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CRAIG_FRONTEND_DIST", str(frontend_dist))
+    app = create_app(existing_app.state.retrieval_service.config)
+
+    home = _request(app, "GET", "/")
+    chat_config = _request(app, "GET", "/api/v1/chat/config")
+
+    assert home.status_code == 200
+    assert "CRAIG frontend smoke" in home.text
+    assert chat_config.status_code == 200
+    assert chat_config.json()["stream_transport"] == "sse"
