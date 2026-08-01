@@ -208,6 +208,10 @@ def test_provider_receives_separate_prompts_and_follow_up_context(
     assert "Do not turn finite evidence into a general proof" in (
         provider.answers[0].system_prompt
     )
+    assert "`tableau`" in provider.answers[0].system_prompt
+    assert "`dyck-path`" in provider.answers[0].system_prompt
+    assert "never emit raw HTML or SVG" in provider.answers[0].system_prompt
+    assert "Do not invent mathematical data" in provider.answers[0].system_prompt
     assert [message.role for message in provider.planning[1].conversation.messages] == [
         "user",
         "assistant",

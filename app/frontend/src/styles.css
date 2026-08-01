@@ -138,6 +138,32 @@ button {
   stroke-width: 1.5;
 }
 
+.gallery-button {
+  margin: 0 16px 10px;
+  padding: 8px 10px;
+  color: rgba(238, 243, 239, 0.62);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.gallery-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.gallery-button:focus-visible,
+.visualization-specification summary:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
 .scope-nav {
   min-height: 0;
   display: flex;
@@ -512,6 +538,317 @@ button {
   background: rgba(35, 88, 77, 0.08);
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 12px;
+}
+
+.message-body > pre,
+.visualization-fallback pre,
+.visualization-specification pre {
+  overflow-x: auto;
+  padding: 13px;
+  color: #33413c;
+  border: 1px solid #deddd5;
+  border-radius: 6px;
+  background: #f4f2eb;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.visualization-block,
+.visualization-fallback {
+  margin: 22px 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.math-visualization {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #d5d4ca;
+  border-radius: 10px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.42)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      rgba(35, 88, 77, 0.025) 24px
+    );
+}
+
+.visualization-scroll {
+  overflow-x: auto;
+  padding: 18px;
+}
+
+.math-visualization svg {
+  width: auto;
+  height: auto;
+  min-width: min(100%, 300px);
+  max-width: none;
+  max-height: 520px;
+  display: block;
+  margin: 0 auto;
+}
+
+.math-visualization figcaption {
+  padding: 10px 14px;
+  color: #65716c;
+  border-top: 1px solid #deddd5;
+  background: rgba(238, 234, 224, 0.55);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.visual-cell {
+  fill: #fbfaf5;
+  stroke: #315f54;
+  stroke-width: 1.25;
+}
+
+.diagram-cell {
+  fill: rgba(168, 199, 186, 0.34);
+}
+
+.visual-cell-text {
+  fill: #213b35;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+}
+
+.visual-cell-text-small {
+  font-size: 11px;
+}
+
+.dyck-grid {
+  stroke: #d9ddd7;
+  stroke-width: 0.8;
+}
+
+.dyck-diagonal {
+  stroke: #d9744f;
+  stroke-width: 1.4;
+  stroke-dasharray: 6 5;
+}
+
+.dyck-path {
+  fill: none;
+  stroke: #1f5a4d;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.4;
+}
+
+.dyck-point {
+  fill: #173f37;
+}
+
+.axis-label,
+.edge-label {
+  fill: #747d78;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+}
+
+.sequence-visualization {
+  padding-top: 18px;
+}
+
+.word-sequence,
+.factorization-row {
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 18px 20px;
+}
+
+.word-sequence > span {
+  width: 48px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  color: #203d36;
+  border: 1px solid #bfc9c2;
+  border-radius: 7px;
+  background: #fbfaf5;
+}
+
+.word-sequence > span.highlighted {
+  border-color: #d9744f;
+  background: rgba(217, 116, 79, 0.1);
+  box-shadow: inset 0 -2px #d9744f;
+}
+
+.word-sequence small {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  color: #9aa09b;
+  font-size: 7px;
+}
+
+.word-sequence strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+}
+
+.direction-right-to-left {
+  justify-content: flex-start;
+}
+
+.factor-group,
+.factor-group > span {
+  display: flex;
+  align-items: center;
+}
+
+.factor-group {
+  position: relative;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.factor-group > small {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #929994;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.factor-group > span {
+  overflow: hidden;
+  border: 1px solid #bdc8c1;
+  border-radius: 7px;
+}
+
+.factor-group strong {
+  min-width: 40px;
+  padding: 10px 9px;
+  color: #24483f;
+  border-right: 1px solid #d6d9d3;
+  background: #fbfaf5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  text-align: center;
+}
+
+.factor-group strong:last-child {
+  border-right: 0;
+}
+
+.factor-group i {
+  color: #d9744f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-style: normal;
+}
+
+.skeleton-edge,
+.string-baseline {
+  stroke: #87948e;
+  stroke-width: 1.6;
+}
+
+.edge-arrow {
+  fill: #87948e;
+}
+
+.skeleton-vertex {
+  fill: #f8f6ef;
+  stroke: #24584c;
+  stroke-width: 2;
+}
+
+.skeleton-label,
+.string-entry-label,
+.string-row-label {
+  fill: #203d36;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+}
+
+.edge-label {
+  text-anchor: middle;
+}
+
+.string-link {
+  fill: none;
+  stroke: #d9744f;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.string-entry {
+  fill: #fbfaf5;
+  stroke: #2a6255;
+  stroke-width: 1.5;
+}
+
+.string-row-label {
+  font-size: 11px;
+  dominant-baseline: central;
+}
+
+.visualization-specification {
+  margin-top: 7px;
+  color: #78817c;
+  font-size: 9px;
+}
+
+.visualization-specification summary {
+  width: fit-content;
+  padding: 4px 0;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.visualization-specification pre {
+  max-height: 280px;
+  margin-top: 7px;
+}
+
+.visualization-fallback {
+  padding: 14px;
+  border: 1px solid rgba(191, 82, 61, 0.34);
+  border-radius: 9px;
+  background: rgba(191, 82, 61, 0.055);
+}
+
+.visualization-fallback figcaption strong,
+.visualization-fallback figcaption span {
+  display: block;
+}
+
+.visualization-fallback figcaption strong {
+  color: #9f4939;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.visualization-fallback figcaption span {
+  margin-top: 4px;
+  color: #775d57;
+  font-size: 10px;
+}
+
+.visualization-fallback pre {
+  max-height: 240px;
+  margin-bottom: 0;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 2px;
 }
 
 .provenance-panel {
@@ -1031,6 +1368,10 @@ button {
     min-height: 42px;
     margin: 0;
     padding: 0 14px;
+  }
+
+  .gallery-button {
+    display: none;
   }
 
   .scope-nav,

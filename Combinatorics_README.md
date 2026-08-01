@@ -9,7 +9,8 @@ Each topic has its own documentation; begin with
 [`content/README.md`](content/README.md) and then the relevant `explanation.tex`.
 
 The local index/search milestone, Phase 2 read-only retrieval API, Phase 3
-conversational application, and Phase 4 provenance interface are implemented.
+conversational application, Phase 4 provenance interface, and Phase 5
+mathematical rendering are implemented.
 Their intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
@@ -155,9 +156,9 @@ reported as unavailable rather than silently falling back. Provider credentials
 are never read by the frontend or returned by the public configuration endpoint.
 
 Conversation history is bounded, process-local memory. It is cleared whenever
-the backend restarts and is not written to the repository. Phase 3 also excludes
-external web search, semantic retrieval, arbitrary code execution, and trusted
-mathematical visualizations.
+the backend restarts and is not written to the repository. External web search,
+semantic retrieval, and arbitrary code execution remain outside this boundary;
+the trusted mathematical renderers are supplied separately by Phase 5.
 
 ## Provenance and mathematical status (Phase 4)
 
@@ -191,6 +192,22 @@ separate from source statements, preserves unknown status, refuses to promote
 finite evidence into a general proof, and distinguishes exploratory computation
 from an exhaustive finite check. The full Phase 4 contract is recorded in
 [`docs/phase-4-plan.md`](docs/phase-4-plan.md).
+
+## Mathematical rendering (Phase 5)
+
+Assistant messages now support safe Markdown, inline and display TeX through
+KaTeX, and bounded JSON visualization blocks. The trusted renderer families are
+ordinary, shifted, primed, and set-valued tableaux; Young, shifted, and skew
+diagrams; ordinary and rational Dyck paths; reading words; factorizations;
+skeletons; and string diagrams.
+
+Raw answer HTML is disabled. Each visualization is schema-validated before
+React constructs its HTML or SVG, and invalid or oversized blocks retain a
+readable text fallback. The answer prompt documents the same schemas and tells
+providers not to invent mathematical data simply to create a graphic. Use
+**Preview renderers** in the desktop sidebar for the built-in manual gallery.
+The schemas, examples, limits, security boundary, and review procedure are in
+[`docs/phase-5-rendering.md`](docs/phase-5-rendering.md).
 
 ## Project vision
 
@@ -648,14 +665,14 @@ The implementation contract and acceptance criteria are recorded in
 
 ### Phase 5 — Add core mathematical rendering
 
-- [ ] Render Markdown and LaTeX reliably.
-- [ ] Define schemas for trusted visualization blocks.
-- [ ] Implement ordinary and shifted tableaux.
-- [ ] Implement set-valued and primed tableaux.
-- [ ] Implement Young, shifted, and skew diagrams.
-- [ ] Implement ordinary and rational Dyck paths.
-- [ ] Implement reading words, factorizations, and skeleton/string diagrams.
-- [ ] Provide graceful text fallbacks for invalid visualization specifications.
+- [x] Render Markdown and LaTeX reliably.
+- [x] Define schemas for trusted visualization blocks.
+- [x] Implement ordinary and shifted tableaux.
+- [x] Implement set-valued and primed tableaux.
+- [x] Implement Young, shifted, and skew diagrams.
+- [x] Implement ordinary and rational Dyck paths.
+- [x] Implement reading words, factorizations, and skeleton/string diagrams.
+- [x] Provide graceful text fallbacks for invalid visualization specifications.
 
 ### Phase 6 — Integrate approved computation
 
@@ -701,7 +718,7 @@ The following choices remain intentionally unresolved:
 - Which embedding and reranking methods perform best on this repository?
 - Should later versions persist conversation history locally or make persistence user-configurable?
 - Which computations are safe and useful enough to expose in the first release?
-- Which combinatorial visualization schemas should be standardized first?
+- Which additional combinatorial visualization schemas should follow the Phase 5 core set?
 - What resource limits best balance safety, reproducibility, and hands-on experimentation?
 - How should CRAIG evaluate explanation quality across different mathematical backgrounds?
 - How much capability can be obtained from relatively small models once the surrounding infrastructure is strong?
@@ -714,12 +731,14 @@ Phase 2 read-only retrieval service and HTTP API, and the Phase 3 browser
 conversation interface and orchestration layer described above. Phase 4 adds
 stable citations, bounded source excerpts, explicit provenance categories,
 conservative mathematical-status handling, and expandable evidence panels.
+Phase 5 adds safe Markdown and TeX plus schema-validated mathematical
+visualizations and readable invalid-block fallbacks.
 
 **Not yet implemented:** a live remote or local model-provider adapter, semantic
-retrieval, trusted mathematical rendering and visualizations, and the controlled
-computation layer. The included deterministic provider makes the conversation,
-streaming, retrieval, provenance, modes, and follow-up context usable and
-testable without claiming to provide model-generated mathematical synthesis.
+retrieval, the controlled computation layer, algorithm traces and animation,
+and final packaging. The included deterministic provider makes the conversation,
+streaming, retrieval, provenance, modes, renderers, and follow-up context usable
+and testable without claiming to provide model-generated mathematical synthesis.
 
 ## Open-source status
 

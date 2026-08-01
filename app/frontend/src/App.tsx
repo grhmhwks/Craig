@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
-import ReactMarkdown from "react-markdown";
 
 import { loadBootstrap, streamChat } from "./api";
+import { MarkdownMessage } from "./MarkdownMessage";
 import type {
   ChatConfiguration,
   ChatEvent,
@@ -14,6 +14,7 @@ import type {
   SourceReference,
   TopicSummary,
 } from "./types";
+import { RENDERER_GALLERY_MARKDOWN } from "./visualizations/gallery";
 
 const modeLabels: Record<ChatMode, string> = {
   research: "Research",
@@ -231,6 +232,27 @@ function App() {
     setBusy(false);
   }
 
+  function showRendererGallery() {
+    beginNewConversation();
+    setMessages([
+      {
+        id: `local_gallery_${crypto.randomUUID()}`,
+        role: "assistant",
+        content: RENDERER_GALLERY_MARKDOWN,
+        created_at: new Date().toISOString(),
+        sources: [],
+        provenance: [
+          {
+            kind: "model_knowledge",
+            description:
+              "This local gallery demonstrates trusted Phase 5 renderers; it is not repository evidence.",
+            citation_ids: [],
+          },
+        ],
+      },
+    ]);
+  }
+
   function applyEvent(event: ChatEvent, pendingAssistantId: string) {
     if (
       event.type === "conversation.created" ||
@@ -386,6 +408,13 @@ function App() {
           <SparkIcon />
           New conversation
         </button>
+        <button
+          className="gallery-button"
+          type="button"
+          onClick={showRendererGallery}
+        >
+          Preview renderers
+        </button>
 
         <nav className="scope-nav" aria-label="Repository topics">
           <p className="nav-label">Research scope</p>
@@ -486,7 +515,7 @@ function App() {
                   <div className="message-body">
                     {message.role === "assistant" ? (
                       message.content ? (
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                        <MarkdownMessage>{message.content}</MarkdownMessage>
                       ) : (
                         <div className="thinking-line">
                           <i />

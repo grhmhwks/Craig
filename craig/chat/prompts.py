@@ -23,6 +23,35 @@ _MODE_GUIDANCE: dict[ChatMode, str] = {
     ),
 }
 
+_VISUALIZATION_GUIDANCE = (
+    "Rendering: write ordinary prose in Markdown. Use `$...$` for inline TeX "
+    "and `$$...$$` for display TeX. When a diagram materially clarifies the "
+    "answer, emit a fenced block containing one JSON object in one of these "
+    "trusted forms:\n"
+    "- `tableau`: `rows` has decreasing row lengths (strict when shifted); "
+    "cells are scalar labels or arrays of labels. Optional `variant` is "
+    "`ordinary`, `set-valued`, "
+    "or `primed`; optional `shifted`, `orientation`, and `title`.\n"
+    "- `young-diagram`: required decreasing `shape` (strict when shifted); optional "
+    "`inner_shape`, `shifted`, `orientation`, and `title`.\n"
+    "- `dyck-path`: required N/E `steps`; optional `kind` (`ordinary` or "
+    "`rational`), rational endpoint `r` and `s`, `boundary` (`above` or "
+    "`below`), `show_diagonal`, and `title`.\n"
+    "- `reading-word`: required `entries`; optional `direction`, zero-based "
+    "`highlights`, and `title`.\n"
+    "- `factorization`: required array-of-array `factors`; optional `separator` "
+    "and `title`.\n"
+    "- `skeleton`: required `vertices` with unique `id` and `label`; optional "
+    "`edges` with `from`, `to`, and `label`, `directed`, and `title`. Provide "
+    "numeric `x` and `y` in [0,100] for every vertex or for none.\n"
+    "- `string-diagram`: required `strings` with unique `id`, `label`, and "
+    "`entries`; optional `links` whose endpoints have `string` and zero-based "
+    "`index`, plus `title`.\n"
+    "Use JSON only in these blocks, include no unsupported fields, and never "
+    "emit raw HTML or SVG. Do not invent mathematical data merely to produce "
+    "a visualization."
+)
+
 
 def initial_system_prompt(mode: ChatMode, topic: str | None) -> str:
     """Build the search-planning prompt without repeating policy."""
@@ -74,6 +103,7 @@ def secondary_system_prompt(
         "call an exhaustive check proof-relevant only when the source explicitly "
         "establishes that role. Do not imply that missing evidence proves a "
         "negative or claim to have executed code.\n"
+        f"{_VISUALIZATION_GUIDANCE}\n"
         f"Available citations: {citation_inventory}.\nMode: "
         f"{_MODE_GUIDANCE[mode]}"
     )

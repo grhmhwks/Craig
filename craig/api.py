@@ -291,7 +291,7 @@ def create_app(
     chat = chat_service or ChatService(service)
     app = FastAPI(
         title="CRAIG Local API",
-        version="0.4.0",
+        version="0.5.0",
         description=(
             "Read-only retrieval and in-memory conversational orchestration over "
             "CRAIG's indexed mathematical corpus."

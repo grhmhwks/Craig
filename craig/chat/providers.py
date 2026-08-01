@@ -279,7 +279,7 @@ class UnavailableModelProvider:
     def _raise(self) -> None:
         raise ProviderUnavailableError(
             f"Model provider `{self.metadata.name}` is not configured in this "
-            "Phase 4 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
+            "Phase 5 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
             "retrieval demonstration."
         )
 
