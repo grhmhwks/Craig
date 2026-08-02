@@ -77,11 +77,14 @@ def test_health_topics_and_search_contract(
     )
 
     assert health.status_code == 200
-    assert health.json() == {
-        "schema_version": 1,
-        "status": "ok",
-        "topic_count": 1,
-    }
+    health_payload = health.json()
+    assert health_payload["schema_version"] == 1
+    assert health_payload["version"] == "1.0.0"
+    assert health_payload["content_available"] is True
+    assert health_payload["index_available"] is True
+    assert health_payload["corpus_access"] == "read_only"
+    assert health_payload["conversation_storage"] == "memory"
+    assert health_payload["provider"]["data_destination"] == "none"
     assert topics.status_code == 200
     assert topics.json()["topics"][0]["topic"] == "topic"
     assert search.status_code == 200
@@ -97,6 +100,21 @@ def test_health_topics_and_search_contract(
         "responses"
     ]["200"]["content"]["application/json"]["schema"]
     assert search_schema["$ref"].endswith("/SearchPageResponse")
+
+
+def test_health_degrades_when_selected_provider_is_unavailable(
+    api: tuple[FastAPI, Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    existing_app, _ = api
+    monkeypatch.setenv("CRAIG_MODEL_PROVIDER", "not-configured")
+    app = create_app(existing_app.state.retrieval_service.config)
+
+    response = _request(app, "GET", "/api/v1/health")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "degraded"
+    assert response.json()["provider"]["configured"] is False
 
 
 def test_exact_and_source_endpoints(

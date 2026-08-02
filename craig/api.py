@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
+from . import __version__
 from .chat.errors import (
     ChatError,
     ConversationNotFoundError,
@@ -32,6 +33,7 @@ from .computation.errors import (
 )
 from .computation.models import ComputationEvent
 from .computation.service import ComputationService
+from .config import load_default_environment
 from .errors import (
     IndexStaleError,
     InvalidRetrievalRequest,
@@ -169,12 +171,6 @@ class SourceReadResponse(BaseModel):
     file_hash: str
 
 
-class HealthResponse(BaseModel):
-    schema_version: Literal[1]
-    status: Literal["ok"]
-    topic_count: int
-
-
 class SourceReferenceResponse(BaseModel):
     citation_id: str
     topic: str
@@ -234,6 +230,19 @@ class ProviderStatusResponse(BaseModel):
     model: str
     configured: bool
     live: bool
+    data_destination: Literal["none", "local_model", "remote_model"]
+
+
+class HealthResponse(BaseModel):
+    schema_version: Literal[1]
+    status: Literal["ready", "degraded"]
+    version: str
+    content_available: bool
+    index_available: bool
+    frontend_available: bool
+    corpus_access: Literal["read_only"]
+    conversation_storage: Literal["memory"]
+    provider: ProviderStatusResponse
 
 
 class ChatModeConfigResponse(BaseModel):
@@ -306,6 +315,7 @@ class ComputationCatalogResponse(BaseModel):
 def default_config() -> RetrievalConfig:
     """Build local configuration from the working directory and environment."""
 
+    load_default_environment()
     repository_root = Path.cwd()
     content_root = Path(
         os.environ.get("CRAIG_CONTENT_ROOT", repository_root / "content")
@@ -371,12 +381,13 @@ def create_app(
 ) -> FastAPI:
     """Create the versioned retrieval and conversation HTTP application."""
 
+    load_default_environment()
     service = RetrievalService(config or default_config())
     chat = chat_service or ChatService(service)
     computation = computation_service or ComputationService(service.config.content_root)
     app = FastAPI(
         title="CRAIG Local API",
-        version="0.7.0",
+        version=__version__,
         description=(
             "Read-only retrieval, conversation, and isolated allowlisted "
             "computation with deterministic algorithm traces over CRAIG's "
@@ -386,6 +397,13 @@ def create_app(
     app.state.retrieval_service = service
     app.state.chat_service = chat
     app.state.computation_service = computation
+
+    frontend_dist = Path(
+        os.environ.get(
+            "CRAIG_FRONTEND_DIST",
+            Path(__file__).resolve().parent.parent / "app" / "frontend" / "dist",
+        )
+    )
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(
@@ -477,15 +495,32 @@ def create_app(
 
     @app.get(
         f"{API_PREFIX}/health",
-        tags=["system"],
+        tags=["release"],
         response_model=HealthResponse,
+        summary="Report secret-free release readiness",
     )
     def health() -> dict[str, Any]:
-        topics = service.list_topics()
+        content_available = service.config.content_root.is_dir()
+        index_available = service.config.database_path.is_file()
+        frontend_available = (frontend_dist / "index.html").is_file()
+        provider_available = chat.provider.metadata.configured
         return {
             "schema_version": CONTRACT_VERSION,
-            "status": "ok",
-            "topic_count": topics.total_topics,
+            "status": (
+                "ready"
+                if content_available
+                and index_available
+                and frontend_available
+                and provider_available
+                else "degraded"
+            ),
+            "version": __version__,
+            "content_available": content_available,
+            "index_available": index_available,
+            "frontend_available": frontend_available,
+            "corpus_access": "read_only",
+            "conversation_storage": "memory",
+            "provider": asdict(chat.provider.metadata),
         }
 
     @app.get(
@@ -641,12 +676,6 @@ def create_app(
             },
         )
 
-    frontend_dist = Path(
-        os.environ.get(
-            "CRAIG_FRONTEND_DIST",
-            Path(__file__).resolve().parent.parent / "app" / "frontend" / "dist",
-        )
-    )
     if frontend_dist.is_dir():
         app.mount(
             "/",

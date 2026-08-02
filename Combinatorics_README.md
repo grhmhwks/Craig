@@ -10,12 +10,33 @@ Each topic has its own documentation; begin with
 
 The local index/search milestone, Phase 2 read-only retrieval API, Phase 3
 conversational application, Phase 4 provenance interface, Phase 5 mathematical
-rendering, Phase 6 approved computation, and Phase 7 algorithm traces and
-animation are implemented.
-Their intended final form is
+rendering, Phase 6 approved computation, Phase 7 algorithm traces and
+animation, and Phase 8 release packaging are implemented in CRAIG 1.0.
+The application is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
 and computationally exploring the mathematics contained here.
+
+## Quick start
+
+On Windows, run from the repository root:
+
+```text
+scripts\setup.cmd
+scripts\start.cmd
+```
+
+On macOS or Linux:
+
+```text
+sh scripts/setup.sh
+sh scripts/start.sh
+```
+
+Then open `http://127.0.0.1:8000`. Docker users may instead run
+`docker compose up --build`. See [`docs/installation.md`](docs/installation.md)
+for manual installation, development-server, diagnostics, upgrade, and
+container details.
 
 ## Local index and search (Milestone 1)
 
@@ -142,19 +163,19 @@ or within one indexed topic. Computation-mode chat retrieves relevant code and
 mathematical context. A separate typed panel dispatches only the reviewed,
 resource-limited operations supplied by Phases 6 and 7.
 
-`CRAIG_MODEL_PROVIDER` selects the backend provider. The default and only
-installed Phase 3 provider is `demo`, a deterministic retrieval presentation
-used to exercise the full interface without a network credential:
+`CRAIG_MODEL_PROVIDER` selects the backend provider. The default is `demo`, a
+deterministic retrieval presentation that exercises the full interface without
+a network credential:
 
 ```text
 CRAIG_MODEL_PROVIDER=demo
 ```
 
-The provider interface keeps planning and answer generation replaceable, and
-`CRAIG_MODEL` may name a future configured model, but this release does not ship
-a live remote or local model adapter. Unsupported provider selections are
+CRAIG 1.0 also ships opt-in `openai` and loopback-only `local` adapters;
+`CRAIG_MODEL` selects their model. Unsupported or incomplete selections are
 reported as unavailable rather than silently falling back. Provider credentials
-are never read by the frontend or returned by the public configuration endpoint.
+are never read by the frontend or returned by a public endpoint. See
+[`docs/model-configuration.md`](docs/model-configuration.md).
 
 Conversation history is bounded, process-local memory. It is cleared whenever
 the backend restarts and is not written to the repository. External web search,
@@ -253,6 +274,28 @@ a readable fallback and do not render their contents as markup.
 The event vocabulary, byte and event limits, selected algorithms, keyboard
 controls, security boundary, and validation procedure are documented in
 [`docs/phase-7-traces.md`](docs/phase-7-traces.md).
+
+## Release packaging, models, and privacy (Phase 8)
+
+CRAIG 1.0 adds cross-platform setup/launch scripts, the installed `craig`
+command, secret-free diagnostics and health reporting, a production frontend,
+and optional hardened Docker packaging. `.env.example` documents configuration
+without containing credentials.
+
+The deterministic `demo` provider remains the no-network default. Operators
+may explicitly enable a remote OpenAI provider or a loopback-only local
+OpenAI-compatible endpoint. Retrieval planning stays deterministic and
+allowlisted; only bounded answer context reaches a live model. The browser
+labels the data destination, and keys remain server-only. See
+[`docs/model-configuration.md`](docs/model-configuration.md) and
+[`docs/privacy.md`](docs/privacy.md).
+
+A common synthetic evaluation checks citation retention, finite-evidence
+boundaries, and unknown-status preservation for both strong and small model
+profiles. Mock transports validate this workflow in normal tests; live runs
+require explicit operator confirmation and never receive an invented pass. The
+versioned implemented/planned ledger is in
+[`docs/features.md`](docs/features.md).
 
 ## Project vision
 
@@ -550,7 +593,9 @@ The application should not depend permanently on one commercial provider. The mo
 
 The project will not rely on a shared public API key committed to the repository. Secrets must remain outside the frontend and outside version control.
 
-The exact initial provider and model remain open design decisions. The default should favor:
+CRAIG 1.0 uses the deterministic no-network provider by default and supports an
+operator-configured remote OpenAI model or local OpenAI-compatible model. Exact
+live model selection remains an operator decision and should favor:
 
 - easy setup for users who fork the repository;
 - reliable structured tool calling;
@@ -562,7 +607,8 @@ A relatively small or inexpensive model should still be useful when the surround
 
 ## External web search
 
-Whether CRAIG should have access to external web search is not yet decided.
+CRAIG 1.0 has no conversational web-search capability. Whether a future release
+should add opt-in external search remains undecided.
 
 Possible policies include:
 
@@ -606,7 +652,7 @@ The following stack is a practical starting point rather than a final commitment
 
 ### Packaging
 
-The eventual local launch experience should be simple. Possible supported paths include:
+CRAIG 1.0 supports both of these local launch paths:
 
 ```text
 Docker Compose
@@ -620,8 +666,9 @@ frontend setup
 single local launch command
 ```
 
-The backend and frontend development commands above now provide the non-Docker
-path. A unified launcher and Docker packaging remain planned work.
+The platform setup/start scripts provide a unified non-Docker path, while
+`docker compose up --build` provides the container path. Both build generated
+artifacts outside the protected `content/` corpus.
 
 A likely future repository layout is:
 
@@ -742,24 +789,21 @@ The implementation contract and acceptance criteria are recorded in
 
 ### Phase 8 — Package, test, and document CRAIG
 
-- [ ] Provide a simple local installation path.
-- [ ] Add Docker support if it materially simplifies setup.
-- [ ] Provide `.env.example` without secrets.
-- [ ] Document remote and local model configuration.
-- [ ] Add Windows, macOS, and Linux launch instructions.
-- [ ] Add unit, integration, retrieval, rendering, and computation tests.
-- [ ] Test with both strong and relatively small models.
-- [ ] Add accessibility support and keyboard navigation.
-- [ ] Document privacy and conversation-storage behavior.
-- [ ] Provide a clear versioned list of implemented and planned features.
+- [x] Provide a simple local installation path.
+- [x] Add Docker support because it materially simplifies mixed Python/Node setup.
+- [x] Provide `.env.example` without secrets.
+- [x] Document remote and local model configuration.
+- [x] Add Windows, macOS, and Linux launch instructions.
+- [x] Add unit, integration, retrieval, rendering, and computation tests.
+- [x] Add identical strong/small evaluation profiles, mocked contract tests, and opt-in live runs.
+- [x] Add accessibility support and keyboard navigation.
+- [x] Document privacy and conversation-storage behavior.
+- [x] Provide a clear versioned list of implemented and planned features.
 
 ## Open design decisions
 
 The following choices remain intentionally unresolved:
 
-- Which model/provider should be recommended first?
-- Should local inference or a user-supplied remote API key be the default path?
-- Should external web search be absent, optional, or enabled by default?
 - Which embedding and reranking methods perform best on this repository?
 - Should later versions persist conversation history locally or make persistence user-configurable?
 - Which additional computations merit a future allowlist revision?
@@ -782,13 +826,14 @@ allowlisted, isolated computation with resource limits, progress events,
 reproducibility metadata, and trusted visualization handoff.
 Phase 7 adds a bounded event contract, deterministic tableau/path/skeleton
 traces, accessible playback controls, and inspectable per-step state.
+Phase 8 packages these capabilities as CRAIG 1.0 with cross-platform and Docker
+launch paths, diagnostics, opt-in remote/local model synthesis, shared model
+evaluations, accessibility disclosures, and explicit privacy/storage behavior.
 
-**Not yet implemented:** a live remote or local model-provider adapter, semantic
-retrieval, and final packaging. The included
-deterministic provider makes conversation, streaming, retrieval, provenance,
-modes, renderers, approved computations, algorithm traces, animation, and
-follow-up context usable and testable without claiming to provide
-model-generated mathematical synthesis.
+**Not implemented in 1.0:** semantic retrieval, external conversation web
+search, or persistent conversation storage. The deterministic provider remains
+fully usable without credentials. Live model quality is reported only by an
+explicit evaluation run against an operator-supplied model.
 
 ## Open-source status
 

@@ -6,7 +6,14 @@ from .models import (
     ProvenanceKind,
     SourceReference,
 )
-from .providers import DemoModelProvider, ModelProvider, ProviderMetadata
+from .providers import (
+    DemoModelProvider,
+    ModelProvider,
+    OpenAICompatibleProvider,
+    ProviderMetadata,
+    UnavailableModelProvider,
+    provider_from_environment,
+)
 from .service import ChatConfig, ChatService
 from .store import ConversationStore
 
@@ -17,8 +24,11 @@ __all__ = [
     "DemoModelProvider",
     "MathematicalStatus",
     "ModelProvider",
+    "OpenAICompatibleProvider",
     "ProvenanceAnnotation",
     "ProvenanceKind",
     "ProviderMetadata",
     "SourceReference",
+    "UnavailableModelProvider",
+    "provider_from_environment",
 ]

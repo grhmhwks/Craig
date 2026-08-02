@@ -1,0 +1,12 @@
+.git
+.craig
+.pytest_cache
+.venv
+__pycache__
+*.pyc
+*.egg-info
+.env
+app/frontend/node_modules
+app/frontend/dist
+app/frontend/.npm-cache
+coverage

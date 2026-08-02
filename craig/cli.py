@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from . import __version__
+from .config import load_default_environment
 from .index import DEFAULT_DATABASE_PATH, index_repository
 from .models import SearchResult
 from .search import DEFAULT_EXPLANATION_BOOST, DEFAULT_LIMIT, search_index
@@ -42,6 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Index, search, and serve CRAIG's protected mathematical source corpus."
         ),
     )
+    parser.add_argument("--version", action="version", version=f"CRAIG {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     index_parser = subparsers.add_parser(
@@ -91,6 +95,37 @@ def build_parser() -> argparse.ArgumentParser:
         default=8000,
         help="port to bind (default: 8000)",
     )
+
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        help="run secret-free read-only release diagnostics",
+    )
+    doctor_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="emit the diagnostic report as JSON",
+    )
+
+    evaluate_parser = subparsers.add_parser(
+        "evaluate-model",
+        help="run the synthetic release evaluation against the configured live model",
+    )
+    evaluate_parser.add_argument(
+        "--tier",
+        choices=("strong", "small"),
+        required=True,
+        help="label this run for like-for-like strong/small comparison",
+    )
+    evaluate_parser.add_argument(
+        "--confirm-live",
+        action="store_true",
+        help="confirm that model requests may transmit data and incur provider cost",
+    )
+    evaluate_parser.add_argument(
+        "--output",
+        type=Path,
+        help="optional JSON report path outside content/",
+    )
     return parser
 
 
@@ -109,11 +144,20 @@ def _print_results(results: Sequence[SearchResult]) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    try:
+        load_default_environment()
+    except (OSError, ValueError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 2
     parser = build_parser()
     arguments = parser.parse_args(argv)
     repository_root = Path.cwd()
-    content_root = repository_root / "content"
-    database_path = repository_root / DEFAULT_DATABASE_PATH
+    content_root = Path(
+        os.environ.get("CRAIG_CONTENT_ROOT", repository_root / "content")
+    )
+    database_path = Path(
+        os.environ.get("CRAIG_INDEX_PATH", repository_root / DEFAULT_DATABASE_PATH)
+    )
 
     try:
         if arguments.command == "index":
@@ -142,6 +186,64 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             _print_results(results)
             return 0
+
+        if arguments.command == "doctor":
+            from .doctor import run_doctor
+            from .retrieval import RetrievalConfig
+
+            frontend_dist = Path(
+                os.environ.get(
+                    "CRAIG_FRONTEND_DIST",
+                    repository_root / "app" / "frontend" / "dist",
+                )
+            )
+            report = run_doctor(
+                RetrievalConfig(
+                    content_root=content_root,
+                    database_path=database_path,
+                ),
+                frontend_dist=frontend_dist,
+            )
+            if arguments.json:
+                print(json.dumps(report, ensure_ascii=False, indent=2))
+            else:
+                print(f"CRAIG {report['craig_version']} doctor: {report['status']}")
+                for check in report["checks"]:
+                    print(
+                        f"[{str(check['status']).upper():4}] "
+                        f"{check['id']}: {check['message']}"
+                    )
+            return 2 if report["status"] == "fail" else 0
+
+        if arguments.command == "evaluate-model":
+            if not arguments.confirm_live:
+                raise ValueError(
+                    "live evaluation requires --confirm-live because it may "
+                    "transmit data and incur provider cost"
+                )
+            from .chat.providers import provider_from_environment
+            from .evaluation import evaluate_provider
+
+            provider = provider_from_environment()
+            if not provider.metadata.configured or not provider.metadata.live:
+                raise ValueError("configure a live openai or local provider first")
+            report = evaluate_provider(provider, tier=arguments.tier)
+            rendered = json.dumps(report, ensure_ascii=False, indent=2)
+            if arguments.output:
+                output = arguments.output.resolve()
+                protected = content_root.resolve()
+                try:
+                    output.relative_to(protected)
+                except ValueError:
+                    pass
+                else:
+                    raise ValueError("evaluation output cannot be written under content/")
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_text(rendered + "\n", encoding="utf-8")
+                print(f"Evaluation report: {output}")
+            else:
+                print(rendered)
+            return 0 if report["all_passed"] else 1
 
         try:
             import uvicorn

@@ -7,3 +7,7 @@
 /app/frontend/node_modules/
 /app/frontend/dist/
 /app/frontend/.npm-cache/
+/.env
+/.venv/
+/.coverage
+/coverage/

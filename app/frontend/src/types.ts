@@ -32,6 +32,7 @@ export interface ProviderStatus {
   model: string;
   configured: boolean;
   live: boolean;
+  data_destination: "none" | "local_model" | "remote_model";
 }
 
 export interface ModeConfig {

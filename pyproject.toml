@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "craig-local"
-version = "0.7.0"
+version = "1.0.0"
 description = "Provenance-aware conversational exploration of the CRAIG mathematical corpus"
 readme = "Combinatorics_README.md"
 requires-python = ">=3.10"
@@ -13,6 +13,9 @@ dependencies = [
     "pydantic>=2.9,<3",
     "uvicorn>=0.30,<1",
 ]
+
+[project.scripts]
+craig = "craig.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -27,3 +30,6 @@ include = ["craig*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = [
+    "live_model: opt-in tests that contact a configured model endpoint",
+]

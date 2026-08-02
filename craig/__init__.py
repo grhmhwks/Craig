@@ -9,7 +9,7 @@ __all__ = [
     "search_index",
 ]
 
-__version__ = "0.7.0"
+__version__ = "1.0.0"
 
 
 def __getattr__(name: str):

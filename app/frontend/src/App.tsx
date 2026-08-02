@@ -241,7 +241,31 @@ function ProvenancePanel({
   );
 }
 
-function App() {
+export function ModelDataNotice({
+  destination,
+}: {
+  destination: "none" | "local_model" | "remote_model" | undefined;
+}) {
+  if (destination === "remote_model") {
+    return (
+      <p className="model-data-notice" role="status">
+        Remote model enabled: your question, recent conversation, and retrieved
+        excerpts are sent to the configured provider.
+      </p>
+    );
+  }
+  if (destination === "local_model") {
+    return (
+      <p className="model-data-notice local" role="status">
+        Local model enabled: bounded conversation and retrieved excerpts are
+        sent only to the configured loopback endpoint.
+      </p>
+    );
+  }
+  return null;
+}
+
+export function App() {
   const [configuration, setConfiguration] =
     useState<ChatConfiguration | null>(null);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
@@ -579,6 +603,9 @@ function App() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#craig-main">
+        Skip to conversation
+      </a>
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-mark">
@@ -590,7 +617,12 @@ function App() {
           </div>
         </div>
 
-        <button className="new-chat" type="button" onClick={beginNewConversation}>
+        <button
+          className="new-chat"
+          type="button"
+          onClick={beginNewConversation}
+          aria-label="Start a new conversation"
+        >
           <SparkIcon />
           New conversation
         </button>
@@ -608,6 +640,7 @@ function App() {
             className={topic === null ? "scope-item active" : "scope-item"}
             type="button"
             onClick={() => setTopic(null)}
+            aria-current={topic === null ? "page" : undefined}
           >
             <span className="scope-glyph">∞</span>
             <span>
@@ -622,6 +655,7 @@ function App() {
                 type="button"
                 key={item.topic}
                 onClick={() => setTopic(item.topic)}
+                aria-current={topic === item.topic ? "page" : undefined}
               >
                 <span className="scope-dot" />
                 <span>
@@ -642,22 +676,54 @@ function App() {
         </div>
       </aside>
 
-      <main className="workspace">
+      <main className="workspace" id="craig-main" tabIndex={-1}>
         <header className="topbar">
           <div className="scope-title">
             <span>Current scope</span>
             <strong>{topic ? topicLabel(topic) : "Entire corpus"}</strong>
           </div>
-          <div className="provider-status">
+          <label className="mobile-scope-selector">
+            <span>Research scope</span>
+            <select
+              aria-label="Research scope"
+              value={topic ?? ""}
+              onChange={(event) => setTopic(event.target.value || null)}
+            >
+              <option value="">Entire corpus</option>
+              {topics.map((item) => (
+                <option value={item.topic} key={item.topic}>
+                  {topicLabel(item.topic)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div
+            className="provider-status"
+            aria-label={`Provider: ${provider?.model ?? "loading"}`}
+          >
             <span className={provider?.live ? "status-light live" : "status-light"} />
             <div>
-              <small>{provider?.live ? "Live provider" : "Local demonstration"}</small>
+              <small>
+                {!provider
+                  ? "Loading provider"
+                  : !provider.configured
+                    ? "Provider unavailable"
+                    : provider.data_destination === "remote_model"
+                      ? "Remote provider"
+                      : provider.data_destination === "local_model"
+                        ? "Local model"
+                        : "Local demonstration"}
+              </small>
               <strong>{provider?.model ?? "Loading provider…"}</strong>
             </div>
           </div>
         </header>
 
-        <section className={empty ? "conversation empty" : "conversation"}>
+        <section
+          className={empty ? "conversation empty" : "conversation"}
+          aria-label="Conversation"
+          aria-busy={busy}
+        >
           {empty ? (
             <div className="welcome">
               <div className="welcome-kicker">
@@ -689,7 +755,11 @@ function App() {
               </div>
             </div>
           ) : (
-            <div className="message-list" aria-live="polite">
+            <div
+              className="message-list"
+              aria-live="polite"
+              aria-relevant="additions text"
+            >
               {messages.map((message) => (
                 <article className={`message ${message.role}`} key={message.id}>
                   <div className="message-meta">
@@ -742,7 +812,7 @@ function App() {
                 </article>
               ))}
               {activity && (
-                <div className="activity-line">
+                <div className="activity-line" role="status">
                   <span className="activity-pulse" />
                   Using {activity}
                 </div>
@@ -753,6 +823,7 @@ function App() {
         </section>
 
         <section className="controls">
+          <ModelDataNotice destination={provider?.data_destination} />
           {mode === "computation" && (
             <ComputationPanel
               operations={computations}
@@ -769,6 +840,7 @@ function App() {
                 className={mode === item ? "active" : ""}
                 key={item}
                 onClick={() => setMode(item)}
+                aria-pressed={mode === item}
                 title={
                   configuration?.modes.find((entry) => entry.id === item)
                     ?.description
@@ -801,7 +873,11 @@ function App() {
           </form>
 
           <div className="composer-foot">
-            <span className={error ? "request-status error" : "request-status"}>
+            <span
+              className={error ? "request-status error" : "request-status"}
+              role={error ? "alert" : "status"}
+              aria-live="polite"
+            >
               {error ?? (busy ? status : activeMode?.description ?? status)}
             </span>
             <span>

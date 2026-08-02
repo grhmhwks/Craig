@@ -293,6 +293,7 @@ def test_public_config_never_exposes_environment_secrets(
         "model": "deterministic-retrieval",
         "configured": True,
         "live": False,
+        "data_destination": "none",
     }
 
 
