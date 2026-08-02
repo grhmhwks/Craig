@@ -136,6 +136,27 @@ describe("trusted visualization schemas", () => {
     expect(below.ok).toBe(true);
   });
 
+  it("bounds and normalizes animated Dyck-path progress", () => {
+    const partial = parseVisualizationBlock(
+      "dyck-path",
+      JSON.stringify({ steps: "NNEE", progress: 2 }),
+    );
+    const defaulted = parseVisualizationBlock(
+      "dyck-path",
+      JSON.stringify({ steps: "NNEE" }),
+    );
+    const beyondEndpoint = parseVisualizationBlock(
+      "dyck-path",
+      JSON.stringify({ steps: "NNEE", progress: 5 }),
+    );
+
+    expect(partial.ok && partial.spec.kind === "dyck-path" && partial.spec.progress).toBe(2);
+    expect(
+      defaulted.ok && defaulted.spec.kind === "dyck-path" && defaulted.spec.progress,
+    ).toBe(4);
+    expect(beyondEndpoint.ok).toBe(false);
+  });
+
   it("requires graph references and string endpoints to exist", () => {
     const skeleton = parseVisualizationBlock(
       "skeleton",

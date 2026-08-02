@@ -151,6 +151,14 @@ export function DyckPathRenderer({ spec }: { spec: DyckPathSpec }) {
       `${margin + pointX * stepSize},${margin + plotHeight - pointY * stepSize}`,
     )
     .join(" ");
+  const completedPointString = points
+    .slice(0, spec.progress + 1)
+    .map(
+      ([pointX, pointY]) =>
+        `${margin + pointX * stepSize},${margin + plotHeight - pointY * stepSize}`,
+    )
+    .join(" ");
+  const activePoint = points[spec.progress];
   const title = fallbackTitle(
     spec.title,
     spec.pathKind === "ordinary"
@@ -163,7 +171,7 @@ export function DyckPathRenderer({ spec }: { spec: DyckPathSpec }) {
       width={plotWidth + margin * 2}
       height={plotHeight + margin * 2}
       title={title}
-      description={`${spec.steps.length} steps staying ${spec.boundary} the diagonal.`}
+      description={`${spec.progress} of ${spec.steps.length} steps shown, staying ${spec.boundary} the diagonal.`}
       className="dyck-visualization"
     >
       {Array.from({ length: spec.width + 1 }, (_, index) => (
@@ -195,16 +203,27 @@ export function DyckPathRenderer({ spec }: { spec: DyckPathSpec }) {
           y2={margin}
         />
       )}
-      <polyline className="dyck-path" points={pointString} />
+      {spec.progress < spec.steps.length && (
+        <polyline className="dyck-path-pending" points={pointString} />
+      )}
+      <polyline className="dyck-path" points={completedPointString} />
       {points.map(([pointX, pointY], index) => (
         <circle
-          className="dyck-point"
+          className={index <= spec.progress ? "dyck-point" : "dyck-point pending"}
           key={`${pointX}:${pointY}:${index}`}
           cx={margin + pointX * stepSize}
           cy={margin + plotHeight - pointY * stepSize}
           r={Math.max(2.2, stepSize * 0.08)}
         />
       ))}
+      {activePoint && (
+        <circle
+          className="dyck-active-point"
+          cx={margin + activePoint[0] * stepSize}
+          cy={margin + plotHeight - activePoint[1] * stepSize}
+          r={Math.max(4, stepSize * 0.14)}
+        />
+      )}
       <text className="axis-label" x={margin - 7} y={margin + plotHeight + 18}>
         0
       </text>

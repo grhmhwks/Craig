@@ -86,6 +86,7 @@ class ComputationService:
             "kernels.py",
             "models.py",
             "registry.py",
+            "traces.py",
             "worker.py",
         ):
             digest.update(name.encode("utf-8"))
@@ -208,6 +209,7 @@ class ComputationService:
                     "summary": result["summary"],
                     "output": result["value"],
                     "visualization": result.get("visualization"),
+                    "trace": result.get("trace"),
                     "reproducibility": {
                         "implementation_version": (
                             prepared.operation.implementation_version

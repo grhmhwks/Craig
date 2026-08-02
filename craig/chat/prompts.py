@@ -19,7 +19,7 @@ _MODE_GUIDANCE: dict[ChatMode, str] = {
     ),
     "computation": (
         "Retrieve relevant code and mathematical context. Execution is permitted "
-        "only through the separate Phase 6 allowlisted worker interface; never "
+        "only through the separate Phase 7 allowlisted worker interface; never "
         "claim that this conversational retrieval turn ran a program."
     ),
 }

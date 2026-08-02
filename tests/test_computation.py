@@ -71,6 +71,7 @@ def test_registry_exposes_only_the_reviewed_allowlist(tmp_path: Path) -> None:
         "dyck_path_statistics",
         "enumerate_dyck_paths",
         "enumerate_rational_dyck_paths",
+        "tableau_row_insertion",
         "type_c_hecke_word",
     }
     assert {
@@ -132,6 +133,11 @@ def test_each_evidence_classification_has_an_explicit_claim_boundary() -> None:
             "dyck_path_statistics",
             {"steps": " " * 20_000 + "NNEE"},
             "request byte limit",
+        ),
+        (
+            "tableau_row_insertion",
+            {"word": []},
+            "at least one integer",
         ),
     ],
 )
@@ -377,7 +383,7 @@ def test_api_catalog_validation_and_sse_contract(tmp_path: Path) -> None:
     )
 
     assert catalog.status_code == 200
-    assert len(catalog.json()["operations"]) == 4
+    assert len(catalog.json()["operations"]) == 5
     computation_mode = next(
         mode
         for mode in configuration.json()["modes"]

@@ -27,7 +27,7 @@ OPERATIONS: dict[str, OperationSpec] = {
         title="Dyck path statistics",
         description="Compute the area sequence, area, dinv, and deficit of one classical Dyck path.",
         classification="example",
-        implementation_version="1.0.0",
+        implementation_version="1.1.0",
         source_path="middle_coefficients/code.py",
         source_start_line=82,
         source_end_line=186,
@@ -102,7 +102,7 @@ OPERATIONS: dict[str, OperationSpec] = {
         title="Evaluate a type C 0-Hecke word",
         description="Apply an allowlisted generator word to the identity signed permutation.",
         classification="example",
-        implementation_version="1.0.0",
+        implementation_version="1.1.0",
         source_path="type_c_grothendieck/code.py",
         source_start_line=42,
         source_end_line=62,
@@ -125,6 +125,32 @@ OPERATIONS: dict[str, OperationSpec] = {
                 minimum=0,
                 maximum=6,
                 max_items=80,
+            ),
+        ),
+        limits=_SMALL_LIMITS,
+    ),
+    "tableau_row_insertion": OperationSpec(
+        id="tableau_row_insertion",
+        title="Trace ordinary tableau row insertion",
+        description=(
+            "Insert a bounded integer word by the ordinary RSK baseline and trace "
+            "bumping together with its recording tableau."
+        ),
+        classification="example",
+        implementation_version="1.0.0",
+        source_path="dyck_symmetric_functions/explanation.tex",
+        source_start_line=164,
+        source_end_line=219,
+        parameters=(
+            ParameterSpec(
+                name="word",
+                kind="integer_array",
+                label="Insertion word",
+                description="Comma-separated integers inserted from left to right.",
+                default=(3, 1, 4, 1, 5, 2),
+                minimum=-99,
+                maximum=99,
+                max_items=12,
             ),
         ),
         limits=_SMALL_LIMITS,
@@ -248,6 +274,8 @@ def validate_parameters(operation: str, parameters: Any) -> dict[str, Any]:
             raise InvalidComputationRequest(
                 "every generator must be between 0 and rank-1."
             )
+    elif operation == "tableau_row_insertion" and not normalized["word"]:
+        raise InvalidComputationRequest("word must contain at least one integer.")
 
     encoded = json.dumps(normalized, separators=(",", ":"), sort_keys=True).encode()
     if len(encoded) > spec.limits.request_bytes:

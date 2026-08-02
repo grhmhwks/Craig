@@ -4,6 +4,7 @@ import type { FormEvent, KeyboardEvent } from "react";
 import { loadBootstrap, streamChat, streamComputation } from "./api";
 import { ComputationPanel } from "./ComputationPanel";
 import { MarkdownMessage } from "./MarkdownMessage";
+import { TracePlayer } from "./traces/TracePlayer";
 import type {
   ChatConfiguration,
   ChatEvent,
@@ -483,11 +484,12 @@ function App() {
                   ? {
                       ...message,
                       content: computationMarkdown(event),
+                      trace: event.data.trace,
                       provenance: [
                         {
                           kind: "computation",
                           description:
-                            "Produced by a typed, allowlisted, resource-limited Phase 6 worker. The finite claim boundary and reproducibility hashes are shown above.",
+                            "Produced by a typed, allowlisted, resource-limited Phase 7 worker. Deterministic trace frames, the claim boundary, and reproducibility hashes are shown with the result.",
                           citation_ids: [],
                         },
                       ],
@@ -709,6 +711,9 @@ function App() {
                       )
                     ) : (
                       <p>{message.content}</p>
+                    )}
+                    {message.role === "assistant" && message.trace !== undefined && (
+                      <TracePlayer value={message.trace} />
                     )}
                   </div>
                   {message.role === "assistant" &&

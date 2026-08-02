@@ -642,8 +642,256 @@ button {
   stroke-width: 3.4;
 }
 
+.dyck-path-pending {
+  fill: none;
+  stroke: #c7ceca;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
 .dyck-point {
   fill: #173f37;
+}
+
+.dyck-point.pending {
+  fill: #c7ceca;
+}
+
+.dyck-active-point {
+  fill: #d9744f;
+  stroke: #fffaf2;
+  stroke-width: 2;
+}
+
+.trace-player {
+  margin: 24px 0 8px;
+  overflow: hidden;
+  border: 1px solid #cbd5cf;
+  border-radius: 12px;
+  background: #f8f7f1;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  outline: none;
+}
+
+.trace-player:focus-visible {
+  box-shadow: 0 0 0 3px rgba(35, 88, 77, 0.18);
+}
+
+.trace-heading,
+.trace-event-heading,
+.trace-controls,
+.trace-scrubber {
+  display: flex;
+  align-items: center;
+}
+
+.trace-heading {
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 17px;
+  color: #f4f2e9;
+  background: #264f45;
+}
+
+.trace-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.trace-heading span {
+  color: #b8d0c7;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.trace-heading strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+}
+
+.trace-heading code {
+  color: #d4e3dd;
+  font-size: 9px;
+}
+
+.trace-controls {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #d7ddd8;
+  background: #eeeee7;
+}
+
+.trace-controls button,
+.trace-controls select {
+  min-height: 32px;
+  padding: 6px 10px;
+  color: #294a42;
+  border: 1px solid #bdc9c2;
+  border-radius: 5px;
+  background: #fbfaf5;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.trace-controls button:hover:not(:disabled) {
+  border-color: #547d72;
+  background: #fff;
+}
+
+.trace-controls button:disabled,
+.trace-controls select:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.trace-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: #69736e;
+  font-size: 8px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.trace-scrubber {
+  gap: 14px;
+  padding: 9px 15px;
+  color: #5e6b65;
+  border-bottom: 1px solid #dfe2dc;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.trace-scrubber input {
+  flex: 1;
+  accent-color: #2c6759;
+}
+
+.trace-event {
+  padding: 17px;
+}
+
+.trace-event-heading {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trace-event-heading > div {
+  min-width: 0;
+}
+
+.trace-event-heading strong {
+  color: #263f39;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+}
+
+.trace-event-heading p {
+  margin: 4px 0 0;
+  color: #65716b;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.trace-kind {
+  flex: none;
+  padding: 4px 7px;
+  color: #275448;
+  border: 1px solid #a9c2b8;
+  border-radius: 999px;
+  background: #e5efea;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.trace-kind.kind-bumping,
+.trace-kind.kind-extraction {
+  color: #8c4a36;
+  border-color: #ddb29f;
+  background: #f8e9e1;
+}
+
+.trace-visualizations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.trace-visualization {
+  min-width: 0;
+}
+
+.trace-visualization h4 {
+  margin: 0 0 6px;
+  color: #65716b;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.trace-visualization .visualization-block {
+  margin: 0;
+}
+
+.trace-visualization .visualization-specification {
+  display: none;
+}
+
+.trace-state {
+  margin-top: 14px;
+  color: #66726c;
+  font-size: 9px;
+}
+
+.trace-state summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.trace-state pre {
+  max-height: 300px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 12px;
+  color: #32433e;
+  border: 1px solid #dddcd3;
+  border-radius: 6px;
+  background: #f1efe7;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.trace-motion-note {
+  margin: 0;
+  padding: 0 17px 14px;
+  color: #717a75;
+  font-size: 9px;
+}
+
+.trace-fallback {
+  display: grid;
+  gap: 4px;
+  margin: 18px 0;
+  padding: 13px;
+  color: #934d3c;
+  border: 1px solid #deb7a8;
+  border-radius: 8px;
+  background: #fbefea;
+  font-size: 10px;
 }
 
 .axis-label,

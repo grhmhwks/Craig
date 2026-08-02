@@ -10,7 +10,8 @@ Each topic has its own documentation; begin with
 
 The local index/search milestone, Phase 2 read-only retrieval API, Phase 3
 conversational application, Phase 4 provenance interface, Phase 5 mathematical
-rendering, and Phase 6 approved computation are implemented.
+rendering, Phase 6 approved computation, and Phase 7 algorithm traces and
+animation are implemented.
 Their intended final form is
 **CRAIG—the Combinatorial Research Assistance Interactive Guide**: an
 open-source, AI-powered application for searching, understanding, visualizing,
@@ -139,7 +140,7 @@ The Phase 3 chat endpoints are:
 Research, Explanation, Tutorial, and Computation modes are available globally
 or within one indexed topic. Computation-mode chat retrieves relevant code and
 mathematical context. A separate typed panel dispatches only the reviewed,
-resource-limited operations supplied by Phase 6.
+resource-limited operations supplied by Phases 6 and 7.
 
 `CRAIG_MODEL_PROVIDER` selects the backend provider. The default and only
 installed Phase 3 provider is `demo`, a deterministic retrieval presentation
@@ -211,10 +212,11 @@ The schemas, examples, limits, security boundary, and review procedure are in
 
 ## Approved computation (Phase 6)
 
-Computation mode now includes a schema-driven panel for four reviewed jobs:
+Computation mode now includes a schema-driven panel for five reviewed jobs:
 classical Dyck statistics, bounded classical Dyck enumeration, bounded rational
-Dyck enumeration, and type C 0-Hecke word evaluation. Natural-language chat
-cannot create a command; it remains a read-only retrieval conversation.
+Dyck enumeration, type C 0-Hecke word evaluation, and ordinary tableau row
+insertion. Natural-language chat cannot create a command; it remains a
+read-only retrieval conversation.
 
 Every job runs in a fresh isolated process outside the repository, accepts only
 normalized JSON parameters, and is governed by CPU, memory, wall-time, request,
@@ -230,6 +232,27 @@ limits. Finite checks are explicitly limited to their displayed parameters and
 are never described as general proofs. See
 [`docs/phase-6-computation.md`](docs/phase-6-computation.md) and the static
 [`docs/phase-6-inventory.md`](docs/phase-6-inventory.md).
+
+## Algorithm traces and animation (Phase 7)
+
+Selected bounded computations now return a versioned deterministic trace in
+addition to their exact result. Ordinary row insertion shows insertion,
+bumping, and recording-tableau updates; Dyck-path statistics show incremental
+path construction; and type C 0-Hecke evaluation shows each local move on a
+signed-permutation skeleton. The row-insertion operation is explicitly the
+ordinary RSK baseline discussed by the corpus, not the specialized chunked
+Dyck insertion procedure.
+
+The browser validates the entire trace and each embedded visualization before
+rendering it. Users can move to the first, previous, next, or last frame, use a
+scrubber, select autoplay speed, navigate with the keyboard, and inspect the
+exact JSON mathematical state at every step. Autoplay is disabled when the
+operating system requests reduced motion. Invalid or oversized traces produce
+a readable fallback and do not render their contents as markup.
+
+The event vocabulary, byte and event limits, selected algorithms, keyboard
+controls, security boundary, and validation procedure are documented in
+[`docs/phase-7-traces.md`](docs/phase-7-traces.md).
 
 ## Project vision
 
@@ -710,12 +733,12 @@ The implementation contract and acceptance criteria are recorded in
 
 ### Phase 7 — Add algorithm traces and animation
 
-- [ ] Define a general event schema for insertion, bumping, extraction, reinsertion, and local moves.
-- [ ] Modify or wrap selected algorithms so they emit deterministic traces.
-- [ ] Implement step-by-step controls.
-- [ ] Animate tableau insertion and recording.
-- [ ] Animate path and skeleton transformations where useful.
-- [ ] Let users inspect the mathematical state attached to each animation step.
+- [x] Define a general event schema for insertion, bumping, extraction, reinsertion, and local moves.
+- [x] Modify or wrap selected algorithms so they emit deterministic traces.
+- [x] Implement step-by-step controls.
+- [x] Animate tableau insertion and recording.
+- [x] Animate path and skeleton transformations where useful.
+- [x] Let users inspect the mathematical state attached to each animation step.
 
 ### Phase 8 — Package, test, and document CRAIG
 
@@ -757,12 +780,15 @@ Phase 5 adds safe Markdown and TeX plus schema-validated mathematical
 visualizations and readable invalid-block fallbacks. Phase 6 adds typed,
 allowlisted, isolated computation with resource limits, progress events,
 reproducibility metadata, and trusted visualization handoff.
+Phase 7 adds a bounded event contract, deterministic tableau/path/skeleton
+traces, accessible playback controls, and inspectable per-step state.
 
 **Not yet implemented:** a live remote or local model-provider adapter, semantic
-retrieval, algorithm traces and animation, and final packaging. The included
+retrieval, and final packaging. The included
 deterministic provider makes conversation, streaming, retrieval, provenance,
-modes, renderers, approved computations, and follow-up context usable and
-testable without claiming to provide model-generated mathematical synthesis.
+modes, renderers, approved computations, algorithm traces, animation, and
+follow-up context usable and testable without claiming to provide
+model-generated mathematical synthesis.
 
 ## Open-source status
 

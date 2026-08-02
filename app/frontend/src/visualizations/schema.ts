@@ -33,6 +33,7 @@ export interface DyckPathSpec {
   height: number;
   boundary: "above" | "below";
   showDiagonal: boolean;
+  progress: number;
   title: string | null;
 }
 
@@ -374,7 +375,16 @@ function parseDyckPath(value: unknown): DyckPathSpec {
   const input = record(value, "dyck path");
   onlyKeys(
     input,
-    ["steps", "kind", "r", "s", "boundary", "show_diagonal", "title"],
+    [
+      "steps",
+      "kind",
+      "r",
+      "s",
+      "boundary",
+      "show_diagonal",
+      "progress",
+      "title",
+    ],
     "dyck path",
   );
   const pathKind = choice(
@@ -438,6 +448,13 @@ function parseDyckPath(value: unknown): DyckPathSpec {
     height,
     boundary,
     showDiagonal: boolean(input.show_diagonal, "show_diagonal", true),
+    progress:
+      input.progress === undefined
+        ? steps.length
+        : integer(input.progress, "progress", {
+            minimum: 0,
+            maximum: steps.length,
+          }),
     title: optionalTitle(input.title),
   };
 }

@@ -84,6 +84,7 @@ export interface ChatMessage {
   created_at: string;
   sources: SourceReference[];
   provenance: ProvenanceAnnotation[];
+  trace?: unknown;
 }
 
 export interface ChatEvent {

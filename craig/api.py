@@ -376,10 +376,11 @@ def create_app(
     computation = computation_service or ComputationService(service.config.content_root)
     app = FastAPI(
         title="CRAIG Local API",
-        version="0.6.0",
+        version="0.7.0",
         description=(
             "Read-only retrieval, conversation, and isolated allowlisted "
-            "computation over CRAIG's indexed mathematical corpus."
+            "computation with deterministic algorithm traces over CRAIG's "
+            "indexed mathematical corpus."
         ),
     )
     app.state.retrieval_service = service
