@@ -101,6 +101,7 @@ def test_chat_orchestration_streams_tools_text_and_sources(
     assert [event.data["name"] for event in events if event.type == "tool.call"] == [
         "search_content",
         "read_source",
+        "read_source",
     ]
     assert "text.delta" in event_types
     assert event_types[-1] == "message.completed"
@@ -515,6 +516,55 @@ def test_conflicting_conventions_keep_separate_global_citations(
     )
     assert "Ascending convention" in completed["content"]
     assert "Descending convention" in completed["content"]
+
+
+def test_multiple_ranked_passages_are_expanded_before_generation(
+    tmp_path: Path,
+) -> None:
+    content = tmp_path / "content"
+    database = tmp_path / ".craig" / "index.sqlite3"
+    for topic, label in (("first", "alpha context"), ("second", "beta context")):
+        _write(
+            content,
+            f"{topic}/explanation.tex",
+            (
+                f"\\section{{{label}}}\n"
+                f"This opening sentence supplies the full {label}.\n"
+                "Several definitions and qualifications belong to this passage.\n"
+                "The distinctive retrieval marker appears at the end.\n"
+            ),
+        )
+    index_repository(content, database)
+    service = ChatService(
+        RetrievalService(
+            RetrievalConfig(
+                content_root=content,
+                database_path=database,
+            )
+        ),
+        provider=DemoModelProvider(),
+    )
+
+    _, events = _run_turn(
+        service,
+        message="retrieval marker",
+        mode="research",
+        topic=None,
+    )
+
+    read_calls = [
+        event.data["arguments"]["path"]
+        for event in events
+        if event.type == "tool.call" and event.data["name"] == "read_source"
+    ]
+    completed = events[-1].data["message"]
+    assert set(read_calls) == {
+        "first/explanation.tex",
+        "second/explanation.tex",
+    }
+    assert {
+        source["excerpt"].splitlines()[0] for source in completed["sources"]
+    } == {"\\section{alpha context}", "\\section{beta context}"}
 
 
 def test_explicit_status_structure_survives_chat_stream(

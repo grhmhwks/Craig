@@ -1,5 +1,9 @@
 # Combinatorics
 
+For installation, Ollama/local-model setup, remote-model configuration, and
+troubleshooting, begin with the repository [`README.md`](README.md). This
+document retains CRAIG's mathematical scope, architecture, and roadmap.
+
 This repository contains the [`content`](content/) directory—a collection of
 largely self-contained notes on combinatorics—and the initial local CRAIG
 tooling. The corpus includes conjectures, proofs and proof outlines,
@@ -171,10 +175,11 @@ a network credential:
 CRAIG_MODEL_PROVIDER=demo
 ```
 
-CRAIG 1.0 also ships opt-in `openai` and loopback-only `local` adapters;
-`CRAIG_MODEL` selects their model. Unsupported or incomplete selections are
-reported as unavailable rather than silently falling back. Provider credentials
-are never read by the frontend or returned by a public endpoint. See
+CRAIG 1.0 also ships opt-in `groq`, `openai`, and loopback-only `local`
+adapters; `CRAIG_MODEL` selects their model. Unsupported or incomplete
+selections are reported as unavailable rather than silently falling back.
+Provider credentials are never read by the frontend or returned by a public
+endpoint. See
 [`docs/model-configuration.md`](docs/model-configuration.md).
 
 Conversation history is bounded, process-local memory. It is cleared whenever
@@ -193,7 +198,10 @@ streaming finishes, and completed messages retain it for follow-up turns.
 
 The browser displays inline citation identifiers and expandable evidence cards.
 Each card shows the file, heading, theorem-like environment, lines, status,
-excerpt, and hash. Answer-level provenance notes distinguish:
+excerpt, and hash. Initial lexical matches are compact snippets. Before answer
+generation, CRAIG expands up to four distinct ranked passages to their indexed
+line ranges, subject to the existing per-source and total request limits.
+Answer-level provenance notes distinguish:
 
 - explicit repository material;
 - CRAIG deductions or retrieval-based synthesis;
@@ -283,10 +291,10 @@ and optional hardened Docker packaging. `.env.example` documents configuration
 without containing credentials.
 
 The deterministic `demo` provider remains the no-network default. Operators
-may explicitly enable a remote OpenAI provider or a loopback-only local
-OpenAI-compatible endpoint. Retrieval planning stays deterministic and
-allowlisted; only bounded answer context reaches a live model. The browser
-labels the data destination, and keys remain server-only. See
+may explicitly enable the fixed-endpoint Groq or OpenAI remote providers, or a
+loopback-only local OpenAI-compatible endpoint. Retrieval planning stays
+deterministic and allowlisted; only bounded answer context reaches a live
+model. The browser labels the data destination, and keys remain server-only. See
 [`docs/model-configuration.md`](docs/model-configuration.md) and
 [`docs/privacy.md`](docs/privacy.md).
 
@@ -593,9 +601,9 @@ The application should not depend permanently on one commercial provider. The mo
 
 The project will not rely on a shared public API key committed to the repository. Secrets must remain outside the frontend and outside version control.
 
-CRAIG 1.0 uses the deterministic no-network provider by default and supports an
-operator-configured remote OpenAI model or local OpenAI-compatible model. Exact
-live model selection remains an operator decision and should favor:
+CRAIG 1.0 uses the deterministic no-network provider by default and supports
+fixed-endpoint Groq and OpenAI remote models or a local OpenAI-compatible
+model. Exact live model selection remains an operator decision and should favor:
 
 - easy setup for users who fork the repository;
 - reliable structured tool calling;

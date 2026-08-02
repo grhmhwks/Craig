@@ -369,7 +369,8 @@ class ChatService:
                 existing_position = positions.get(key)
                 if existing_position is not None:
                     if (
-                        len(source.excerpt)
+                        result.name == "read_source"
+                        or len(source.excerpt)
                         > len(sources[existing_position].excerpt)
                     ):
                         sources[existing_position] = source

@@ -72,6 +72,7 @@ class DemoModelProvider:
         configured=True,
         live=False,
     )
+    max_expanded_sources = 4
 
     def plan(self, request: PlanningRequest) -> tuple[ToolCall, ...]:
         """Plan a small lexical search, optionally adding exact-text lookup."""
@@ -112,11 +113,13 @@ class DemoModelProvider:
         request: PlanningRequest,
         results: tuple[ToolResult, ...],
     ) -> tuple[ToolCall, ...]:
-        """Read the highest-ranked source passage after the initial search."""
+        """Expand several ranked passages after the initial bounded search."""
 
         del request
         if any(result.name == "read_source" for result in results):
             return ()
+        calls: list[ToolCall] = []
+        seen_ranges: set[tuple[str, int, int]] = set()
         for result in results:
             if not result.success or result.name not in {
                 "search_content",
@@ -126,18 +129,35 @@ class DemoModelProvider:
             candidates = result.output.get("results")
             if not isinstance(candidates, (list, tuple)) or not candidates:
                 continue
-            top = candidates[0]
-            if not isinstance(top, dict):
-                continue
-            path = top.get("path")
-            start = top.get("start_line", top.get("match_start_line"))
-            end = top.get("end_line", top.get("match_end_line"))
-            if (
-                isinstance(path, str)
-                and isinstance(start, int)
-                and isinstance(end, int)
-            ):
-                return (
+            for candidate in candidates:
+                if not isinstance(candidate, dict):
+                    continue
+                path = candidate.get("path")
+                start = candidate.get(
+                    "start_line",
+                    candidate.get(
+                        "excerpt_start_line",
+                        candidate.get("match_start_line"),
+                    ),
+                )
+                end = candidate.get(
+                    "end_line",
+                    candidate.get(
+                        "excerpt_end_line",
+                        candidate.get("match_end_line"),
+                    ),
+                )
+                if not (
+                    isinstance(path, str)
+                    and isinstance(start, int)
+                    and isinstance(end, int)
+                ):
+                    continue
+                source_range = (path, start, end)
+                if source_range in seen_ranges:
+                    continue
+                seen_ranges.add(source_range)
+                calls.append(
                     ToolCall(
                         name="read_source",
                         arguments={
@@ -146,9 +166,11 @@ class DemoModelProvider:
                             "end_line": end,
                             "max_chars": 8_000,
                         },
-                    ),
+                    )
                 )
-        return ()
+                if len(calls) >= self.max_expanded_sources:
+                    return tuple(calls)
+        return tuple(calls)
 
     def stream_answer(self, request: AnswerRequest) -> Iterator[str]:
         """Yield a transparent retrieval summary without claiming model insight."""
@@ -346,6 +368,11 @@ def _post_json(
         if request_id:
             request_id = re.sub(r"[^A-Za-z0-9._:-]", "", request_id)[:128]
         suffix = f" Request ID: {request_id}." if request_id else ""
+        if error.code == 429:
+            raise ProviderUnavailableError(
+                "The configured model provider's request limit was reached. "
+                f"Wait for its quota window to reset and retry.{suffix}"
+            ) from error
         raise ProviderUnavailableError(
             f"The configured model endpoint returned HTTP {error.code}.{suffix}"
         ) from error
@@ -585,9 +612,8 @@ class UnavailableModelProvider:
         if self.reason:
             raise ProviderUnavailableError(self.reason)
         raise ProviderUnavailableError(
-            f"Model provider `{self.metadata.name}` is not configured in this "
-            "Phase 8 build. Set CRAIG_MODEL_PROVIDER=demo to use the local "
-            "retrieval demonstration."
+            f"Model provider `{self.metadata.name}` is not configured or supported. "
+            "Set CRAIG_MODEL_PROVIDER=demo to use the local retrieval demonstration."
         )
 
 
@@ -636,6 +662,50 @@ def provider_from_environment() -> ModelProvider:
                 max_output_tokens=max_tokens,
                 max_response_bytes=max_bytes,
                 token_parameter="max_completion_tokens",
+            )
+        if name == "groq":
+            key = os.environ.get("GROQ_API_KEY", "").strip()
+            if not model or not key:
+                raise ValueError(
+                    "The groq provider requires CRAIG_MODEL and GROQ_API_KEY."
+                )
+            return OpenAICompatibleProvider(
+                name="groq",
+                model=model,
+                base_url="https://api.groq.com/openai/v1",
+                api_key=key,
+                data_destination="remote_model",
+                timeout_seconds=timeout,
+                max_output_tokens=max_tokens,
+                max_response_bytes=max_bytes,
+                token_parameter="max_completion_tokens",
+            )
+        if name == "cloudflare":
+            account_id = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
+            token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+            if not model or not account_id or not token:
+                raise ValueError(
+                    "The cloudflare provider requires CRAIG_MODEL, "
+                    "CLOUDFLARE_ACCOUNT_ID, and CLOUDFLARE_API_TOKEN."
+                )
+            if not re.fullmatch(r"[0-9A-Fa-f]{32}", account_id):
+                raise ValueError(
+                    "CLOUDFLARE_ACCOUNT_ID must be a 32-character hexadecimal "
+                    "Cloudflare account ID."
+                )
+            return OpenAICompatibleProvider(
+                name="cloudflare",
+                model=model,
+                base_url=(
+                    "https://api.cloudflare.com/client/v4/accounts/"
+                    f"{account_id}/ai/v1"
+                ),
+                api_key=token,
+                data_destination="remote_model",
+                timeout_seconds=timeout,
+                max_output_tokens=max_tokens,
+                max_response_bytes=max_bytes,
+                token_parameter="max_tokens",
             )
         if name == "local":
             if not model:

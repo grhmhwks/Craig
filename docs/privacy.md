@@ -29,18 +29,39 @@ conversation text, retrieved excerpts, or model keys.
 
 ## Opt-in model providers
 
-When `CRAIG_MODEL_PROVIDER=openai`, CRAIG sends the following to the configured
-remote provider:
+When `CRAIG_MODEL_PROVIDER=cloudflare`, `groq`, or `openai`, CRAIG sends the
+following to the selected remote provider:
 
 - the current question and selected conversation mode/topic;
 - up to six recent bounded conversation messages;
-- bounded retrieved excerpts with citation, path, line, and status metadata;
+- bounded retrieved excerpts with citation, path, line, and status metadata
+  (up to four ranked passages are expanded; every displayed/model-visible
+  excerpt is capped at 1,600 characters);
 - CRAIG's answer-generation system instructions.
 
 It does not upload the whole corpus, generated index, computation worker state,
 or arbitrary files. The provider's own retention, training, abuse-monitoring,
 regional-processing, and account policies apply. Review those policies before
 enabling remote mode.
+
+The `cloudflare` preset sends requests only to an account-scoped path on the
+fixed `https://api.cloudflare.com` host. The Account ID is validated before it
+is inserted into that path. Cloudflare states that Workers AI customer content
+is not used to train models or improve Cloudflare or third-party services
+without explicit consent. Cloudflare may process customer content to provide
+the service, and content can be stored when the customer separately uses a
+Cloudflare storage service with Workers AI. Review the current
+<https://developers.cloudflare.com/workers-ai/platform/data-usage/> policy
+before sending unpublished, confidential, or sensitive material.
+
+The `groq` preset sends requests only to the fixed
+`https://api.groq.com/openai/v1` endpoint. Groq currently states that inference
+data is not retained by default, while allowing temporary logging for service
+reliability or abuse monitoring unless applicable data controls opt out. This
+policy can change; review <https://console.groq.com/docs/your-data> before
+sending unpublished, confidential, or sensitive material. The `openai` preset
+similarly uses only the fixed official OpenAI endpoint and remains subject to
+the configured account's current terms and controls.
 
 When `CRAIG_MODEL_PROVIDER=local`, the same bounded payload is sent only to a
 validated loopback endpoint. The browser visibly labels remote or local model

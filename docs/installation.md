@@ -1,5 +1,9 @@
 # CRAIG v1.0 installation and launch
 
+For a first installation, including a complete Ollama walkthrough and model
+selection guidance, begin with the repository [README](../README.md). This page
+records the platform and container details.
+
 CRAIG runs locally with Python 3.10 or newer, Node.js, npm, and SQLite FTS5.
 The setup scripts create `.venv/`, install the Python application, build the
 browser frontend, and generate `.craig/index.sqlite3`. They read `content/` but

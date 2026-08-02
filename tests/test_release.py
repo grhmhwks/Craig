@@ -67,6 +67,10 @@ def test_doctor_is_secret_free_and_read_only(
     frontend.mkdir()
     (frontend / "index.html").write_text("<div id='root'></div>", encoding="utf-8")
     monkeypatch.setenv("OPENAI_API_KEY", "doctor-must-not-return-this")
+    monkeypatch.setenv("GROQ_API_KEY", "doctor-must-not-return-groq-key")
+    monkeypatch.setenv(
+        "CLOUDFLARE_API_TOKEN", "doctor-must-not-return-cloudflare-token"
+    )
     monkeypatch.setattr("craig.doctor.shutil.which", lambda command: f"/{command}")
     before = sorted(path.relative_to(tmp_path) for path in tmp_path.rglob("*"))
 
@@ -78,11 +82,14 @@ def test_doctor_is_secret_free_and_read_only(
 
     assert report["status"] == "pass"
     assert "doctor-must-not-return-this" not in json.dumps(report)
+    assert "doctor-must-not-return-groq-key" not in json.dumps(report)
+    assert "doctor-must-not-return-cloudflare-token" not in json.dumps(report)
     assert before == after
 
 
 def test_release_versions_and_cross_platform_assets_are_consistent() -> None:
     pyproject = (REPOSITORY_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
     package = json.loads(
         (REPOSITORY_ROOT / "app" / "frontend" / "package.json").read_text(
             encoding="utf-8"
@@ -94,8 +101,12 @@ def test_release_versions_and_cross_platform_assets_are_consistent() -> None:
 
     assert __version__ == package["version"] == "1.0.0"
     assert 'version = "1.0.0"' in pyproject
+    assert 'readme = "README.md"' in pyproject
     assert "craig = \"craig.cli:main\"" in pyproject
     assert "OPENAI_API_KEY=" in env_example
+    assert "GROQ_API_KEY=" in env_example
+    assert "CLOUDFLARE_ACCOUNT_ID=" in env_example
+    assert "CLOUDFLARE_API_TOKEN=" in env_example
     assert "sk-" not in env_example
     assert (REPOSITORY_ROOT / "scripts" / "setup.cmd").is_file()
     assert (REPOSITORY_ROOT / "scripts" / "start.cmd").is_file()
@@ -105,6 +116,21 @@ def test_release_versions_and_cross_platform_assets_are_consistent() -> None:
     assert "USER craig" in dockerfile
     assert "read_only: true" in compose
     assert "no-new-privileges:true" in compose
+    assert "CRAIG_MODEL_MAX_RESPONSE_BYTES" in compose
+    assert "GROQ_API_KEY" in compose
+    assert "CLOUDFLARE_ACCOUNT_ID" in compose
+    assert "CLOUDFLARE_API_TOKEN" in compose
+    assert "ollama pull qwen3:4b-instruct" in readme
+    assert "curl http://127.0.0.1:11434/v1/models" in readme
+    assert "scripts\\setup.cmd" in readme
+    assert "sh scripts/setup.sh" in readme
+
+    active_provider_lines = [
+        line
+        for line in env_example.splitlines()
+        if line.startswith("CRAIG_MODEL_PROVIDER=")
+    ]
+    assert active_provider_lines == ["CRAIG_MODEL_PROVIDER=demo"]
 
 
 def test_release_documentation_covers_every_phase_eight_surface() -> None:
@@ -124,6 +150,8 @@ def test_release_documentation_covers_every_phase_eight_surface() -> None:
     for platform in ("Windows", "macOS", "Linux", "Docker"):
         assert platform in installation
     assert "Remote OpenAI provider" in models
+    assert "Remote Groq provider" in models
+    assert "Remote Cloudflare Workers AI provider" in models
     assert "Loopback local provider" in models
     assert "strong" in models and "small" in models
     assert "Conversation history is held only" in privacy

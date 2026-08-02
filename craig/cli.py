@@ -226,7 +226,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             provider = provider_from_environment()
             if not provider.metadata.configured or not provider.metadata.live:
-                raise ValueError("configure a live openai or local provider first")
+                raise ValueError("configure a live model provider first")
             report = evaluate_provider(provider, tier=arguments.tier)
             rendered = json.dumps(report, ensure_ascii=False, indent=2)
             if arguments.output:
